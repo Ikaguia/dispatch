@@ -5,6 +5,8 @@
 #include <Console.hpp>
 #include <Hero.hpp>
 #include <Attribute.hpp>
+// #include <Mission.hpp>
+#include <MissionsHandler.hpp>
 
 std::vector<Hero> initHeroes() {
 	std::vector<Hero> heroes;
@@ -24,15 +26,21 @@ int main() {
 
 	int screenWidth = 960;
 	int screenHeight = 540;
-
 	raylib::Window window(screenWidth, screenHeight, "raylib-cpp - basic window");
 	raylib::Texture background("assets/background.png");
-	auto heroes = initHeroes();
-	int selectedHero = -1;
 	SetTargetFPS(60);
 
+	MissionsHandler missionsHandler;
+	missionsHandler.addRandomMission(2);
+	missionsHandler.addRandomMission(4);
+	std::vector<Hero> heroes = initHeroes();
+	int selectedHero = -1;
+
+	float previousTime = GetTime();
 	while (!window.ShouldClose()) {
-		if (raylib::Mouse::IsButtonReleased(MOUSE_BUTTON_LEFT)) {
+		float deltaTime = GetTime() - previousTime;
+		previousTime = GetTime();
+		if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 			Vector2 mousePos = raylib::Mouse::GetPosition();
 			if (mousePos.y >= 400 && mousePos.y <= 515) {
 				int idx = ((int)mousePos.x - 120) / 100;
@@ -48,9 +56,13 @@ int main() {
 				}
 			} else {
 				std::cout << "Mouse X: " << GetMouseX() << ", Mouse Y: " << GetMouseY() << std::endl;
+				std::cout << "No hero selected." << std::endl;
+				std::cout << "Delta Time: " << deltaTime << std::endl;
 				selectedHero = -1;
 			}
 		}
+		missionsHandler.handleInput();
+		missionsHandler.update(deltaTime);
 
 		BeginDrawing();
 
@@ -62,6 +74,8 @@ int main() {
 			0,
 			1.0f * screenWidth / background.GetWidth()
 		);
+
+		missionsHandler.renderUI();
 
 		if (selectedHero != -1) {
 			DrawText(("Selected Hero: " + heroes[selectedHero].name).c_str(), 190, 200, 20, LIGHTGRAY);
