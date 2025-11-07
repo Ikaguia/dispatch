@@ -2,7 +2,9 @@
 
 #include <string>
 #include <map>
-#include <vector>
+#include <set>
+#include <iostream>
+#include <memory>
 
 #include <raylib-cpp.hpp>
 #include <Attribute.hpp>
@@ -22,20 +24,24 @@ public:
 
 	std::string name;
 	std::string description;
-	AttrMap<int> requiredAttributes{};
-	std::vector<Hero> assignedHeroes{};
 	Vector2 position{0.0f, 0.0f};
-	float timeElapsed = 0.0f;
+	AttrMap<int> requiredAttributes{};
+	int slots;
 	float failureTime = 60.0f;
 	float travelDuration = 10.0f;
 	float missionDuration = 20.0f;
+
+	std::set<std::shared_ptr<Hero>> assignedHeroes{};
 	Status status = PENDING;
+	float timeElapsed = 0.0f;
 
-	Mission(const std::string& name, const std::string& description, Vector2 pos, const std::map<std::string,int> &attr, float failureTime, float travelDuration, float missionDuration);
+	Mission(const std::string& name, const std::string& description, Vector2 pos, const std::map<std::string,int> &attr, int slots, float failureTime, float travelDuration, float missionDuration);
+	Mission(const Mission&) = delete;
+	Mission& operator=(const Mission&) = delete;
 
-	void assignHero(const Hero& hero);
-	void unassignHero(const Hero& hero);
-	void unassignHero(const std::string& heroName);
+	void toggleHero(std::shared_ptr<Hero> hero);
+	void assignHero(std::shared_ptr<Hero> hero);
+	void unassignHero(std::shared_ptr<Hero> hero);
 
 	void start();
 	void changeStatus(Status newStatus);

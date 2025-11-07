@@ -8,3 +8,5 @@ Hero::Hero(const std::string& name, const std::map<std::string, int> &attr) : na
 		attributes[attribute] = value;
 	}
 };
+
+bool Hero::operator<(const Hero& other) const { return name < other.name; }

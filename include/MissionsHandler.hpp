@@ -2,13 +2,14 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <Mission.hpp>
 #include <Hero.hpp>
 
 class MissionsHandler {
 public:
-	std::vector<Mission> active_missions;
-	std::vector<Mission> previous_missions;
+	std::vector<std::shared_ptr<Mission>> active_missions;
+	std::vector<std::shared_ptr<Mission>> previous_missions;
 	int selectedMissionIndex = -1;
 
 	MissionsHandler();
