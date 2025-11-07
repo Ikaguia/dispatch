@@ -18,15 +18,13 @@ int main() {
 	SetTargetFPS(60);
 	srand(time(nullptr));
 
-	MissionsHandler missionsHandler;
+	HeroesHandler& heroesHandler = HeroesHandler::inst();
+	MissionsHandler& missionsHandler = MissionsHandler::inst();
 	missionsHandler.addRandomMission(1);
 	missionsHandler.addRandomMission(2);
 	missionsHandler.addRandomMission(3);
 	missionsHandler.addRandomMission(4);
 	missionsHandler.addRandomMission(5);
-	screenHeight++;
-
-	HeroesHandler heroesHandler;
 
 	float previousTime = GetTime();
 	while (!window.ShouldClose()) {

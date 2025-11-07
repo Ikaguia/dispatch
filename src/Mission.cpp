@@ -133,31 +133,32 @@ void Mission::renderUI(bool full) const {
 		Color color;
 		switch (status) {
 			case PENDING:
-				color = ColorLerp(YELLOW, ORANGE, timeElapsed / failureTime);
+				color = ColorLerp(YELLOW, GRAY, timeElapsed / failureTime);
 				break;
 			case SELECTED:
-				color = YELLOW;
-				break;
-			case TRAVELLING:
 				color = BLUE;
 				break;
+			case TRAVELLING:
+				color = ColorLerp(BLUE, GREEN, timeElapsed / failureTime);
+				break;
 			case PROGRESS:
-				color = GREEN;
+				color = ColorLerp(GREEN, DARKGREEN, timeElapsed / failureTime);
 				break;
 			case COMPLETED:
-				color = DARKGREEN;
+				color = ColorAlpha(DARKGREEN, (5.f - (timeElapsed > 5.0f ? timeElapsed-5.0f : 0.0f)) / 5.0f);
 				break;
 			case FAILED:
-				color = RED;
+				color = ColorAlpha(RED, (5.f - (timeElapsed > 5.0f ? timeElapsed-5.0f : 0.0f)) / 5.0f);
 				break;
 			case MISSED:
-				color = GRAY;
+				color = ColorAlpha(GRAY, (5.f - (timeElapsed > 5.0f ? timeElapsed-5.0f : 0.0f)) / 5.0f);
 				break;
 			default:
 				color = LIGHTGRAY;
 				break;
 		}
-		DrawText(("Mission '" + name + "' here").c_str(), position.x, position.y, 20, color);
+		DrawText("!", position.x, position.y, 50, color);
+		DrawRectangleLines(position.x-15, position.y-5, 35, 50, BLACK);
 	}
 }
 
@@ -165,7 +166,7 @@ void Mission::handleInput() {
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 		Vector2 mousePos = raylib::Mouse::GetPosition();
 		if (status == PENDING) {
-			if (abs(mousePos.x - position.x) <= 50 && abs(mousePos.y - position.y) <= 10) status = SELECTED;
+			if (mousePos.x >= (position.x-15) && mousePos.x <= (position.x+20) && mousePos.y >= (position.y-5) && mousePos.y <= (position.y+45) ) status = SELECTED;
 		} else {
 			if (status == SELECTED) {
 				if (mousePos.x >= 640 && mousePos.x <= 720 && mousePos.y >= 270 && mousePos.y <= 320) changeStatus(TRAVELLING);

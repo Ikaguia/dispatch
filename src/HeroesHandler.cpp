@@ -1,4 +1,5 @@
 #include <string>
+#include <algorithm>
 #include <HeroesHandler.hpp>
 #include <Hero.hpp>
 #include <Mission.hpp>
@@ -61,6 +62,24 @@ HeroesHandler::HeroesHandler() {
 		{"intelligence", 2}
 	}});
 }
+
+HeroesHandler& HeroesHandler::inst() {
+	static HeroesHandler singleton;
+	return singleton;
+}
+
+
+std::shared_ptr<const Hero> HeroesHandler::operator[](const std::string& name) const {
+	auto it = std::find_if(active_heroes.begin(), active_heroes.end(), [&](const std::shared_ptr<Hero>& hero) { return hero->name == name; });
+	if (it != active_heroes.end()) return std::const_pointer_cast<const Hero>(*it);
+	return nullptr;
+}
+std::shared_ptr<Hero> HeroesHandler::operator[](const std::string& name) {
+	auto it = std::find_if(active_heroes.begin(), active_heroes.end(), [&](const std::shared_ptr<Hero>& hero) { return hero->name == name; });
+	if (it != active_heroes.end()) return *it;
+	return nullptr;
+}
+
 
 void HeroesHandler::renderUI() {
 	// // for (auto& hero : active_heroes) hero->renderUI();

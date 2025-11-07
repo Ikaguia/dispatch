@@ -2,6 +2,11 @@
 
 MissionsHandler::MissionsHandler() {}
 
+MissionsHandler& MissionsHandler::inst() {
+	static MissionsHandler singleton;
+	return singleton;
+}
+
 Mission& MissionsHandler::addRandomMission(int difficulty, int slots) {
 	static int missionCount = 0;
 	return *active_missions.emplace_back(new Mission{
@@ -32,8 +37,8 @@ void MissionsHandler::unselectMission() {
 }
 
 void MissionsHandler::renderUI() {
+	for (auto& mission : active_missions) mission->renderUI(false);
 	if (selectedMissionIndex != -1) active_missions[selectedMissionIndex]->renderUI(true);
-	else for (auto& mission : active_missions) mission->renderUI(false);
 }
 
 void MissionsHandler::handleInput() {
@@ -57,7 +62,7 @@ void MissionsHandler::update(float deltaTime) {
 	else for (int i = 0; i < static_cast<int>(active_missions.size()); ++i) {
 		std::shared_ptr<Mission> mission = active_missions[i];
 		mission->update(deltaTime);
-		if ((mission->status == Mission::COMPLETED || mission->status == Mission::FAILED || mission->status == Mission::MISSED) && mission->timeElapsed >= 5.0f) {
+		if ((mission->status == Mission::COMPLETED || mission->status == Mission::FAILED || mission->status == Mission::MISSED) && mission->timeElapsed >= 10.0f) {
 			previous_missions.push_back(mission);
 			active_missions.erase(active_missions.begin() + i);
 			--i;
