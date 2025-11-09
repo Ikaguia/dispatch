@@ -1,8 +1,10 @@
 #include <string>
 #include <algorithm>
-#include <HeroesHandler.hpp>
-#include <Hero.hpp>
+
+#include <Utils.hpp>
 #include <Mission.hpp>
+#include <Hero.hpp>
+#include <HeroesHandler.hpp>
 
 HeroesHandler::HeroesHandler() {
 	active_heroes.emplace_back(new Hero{"Sonar", {

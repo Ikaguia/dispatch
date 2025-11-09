@@ -101,97 +101,125 @@ void Mission::update(float deltaTime) {
 }
 
 void Mission::renderUI(bool full) const {
-	static raylib::Font defaultFont{};
-	static raylib::Font emojiFont{"resources/fonts/NotoEmoji-Regular.ttf", 32, (int[]){ 0x2713, 0x2714, 0x1F3C3, 0x1F5F8, 0 }, 4};
-	static raylib::Font symbolsFont{"resources/fonts/NotoSansSymbols2-Regular.ttf", 32, (int[]){ 0x2713, 0x2714, 0x1F3C3, 0x1F5F8, 0 }, 4};
+	// static raylib::Font defaultFont{};
+	// static raylib::Font emojiFont{"resources/fonts/NotoEmoji-Regular.ttf", 32, (int[]){ 0x2713, 0x2714, 0x1F3C3, 0x1F5F8, 0 }, 4};
+	// static raylib::Font symbolsFont{"resources/fonts/NotoSansSymbols2-Regular.ttf", 32, (int[]){ 0x2713, 0x2714, 0x1F3C3, 0x1F5F8, 0 }, 4};
+	// static raylib::Font fontTitle{"resources/fonts/NotoSans-Bold.ttf", 32};
+	// static raylib::Font fontText{"resources/fonts/NotoSans-Regular.ttf", 22};
 
-	float progress = 0.0f;
-	if (full) {
-		raylib::Rectangle rect = {170, 100, 550, 240};
-		raylib::Vector2 start = rect.GetPosition();
-		rect.Draw(Fade(DARKGRAY, 0.9f));
+	// float progress = 0.0f;
+	// if (full) {
+	// 	const float panelWidth = 800;
+	// 	const float panelHeight = 400;
+	// 	const raylib::Vector2 panelPos{(GetScreenWidth() - panelWidth) / 2, (GetScreenHeight() - panelHeight) / 2};
 
-		raylib::Vector2 offset = {100, 10};
-		defaultFont.DrawText("Mission '" + name + "' (Selected)", start + offset, 20, 2, BLUE); offset.y += 25;
-		defaultFont.DrawText("Description: " + description, start + offset, 20, 2, LIGHTGRAY); offset.y += 20;
+	// 	// MAIN BACKGROUND PANEL
+	// 	raylib::Rectangle mainRect(panelPos.x, panelPos.y, panelWidth, panelHeight);
+	// 	mainRect.Draw(Fade(LIGHTGRAY, 0.5f));
+	// 	DrawRectangleLinesEx(mainRect, 2, DARKGRAY);
 
-		offset = raylib::Vector2{20, 80};
-		defaultFont.DrawText("Assigned Heroes:", start + offset, 20, 2, LIGHTGRAY); offset.y += 20;
-		for (const auto& hero : assignedHeroes) {
-			defaultFont.DrawText(" - " + hero->name, start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
-		}
-		for (int i = static_cast<int>(assignedHeroes.size()); i < slots; ++i) {
-			defaultFont.DrawText(" - [Empty Slot]", start + offset, 15, 2, GRAY); offset.y += 20;
-		}
+	// 	// TITLE BAR
+	// 	float titleBarHeight = 40;
+	// 	DrawRectangle(mainRect.x, mainRect.y, panelWidth, titleBarHeight, BLUE);
+	// 	fontTitle.DrawText(name, {mainRect.x + 20, mainRect.y + 6}, 24, 2, WHITE);
 
-		offset = raylib::Vector2{170, 80};
-		defaultFont.DrawText("Required Attributes:", start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
-		for (const auto& [attr, value] : requiredAttributes) {
-			defaultFont.DrawText(std::format(" {} : {}", attr.toString(), value), start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
-		}
+	// 	// LEFT PANEL (incident source)
+	// 	raylib::Rectangle leftRect(mainRect.x + 10, mainRect.y + 50, 220, 320);
+	// 	leftRect.Draw(Fade(DARKGRAY, 0.3f));
+	// 	DrawRectangleLinesEx(leftRect, 1, GRAY);
+	// 	fontText.DrawText("Caller: Ronaldo", leftRect.GetPosition() + raylib::Vector2{10, 10}, 18, 1, ORANGE);
+	// 	fontText.DrawText("\"Someone's robbing the museum...\"", leftRect.GetPosition() + raylib::Vector2{10, 40}, 16, 1, LIGHTGRAY);
 
-		offset = raylib::Vector2{320, 80};
-		defaultFont.DrawText("Attributes from Heroes:", start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
-		for (const auto& [attr, value] : getTotalAttributes()) {
-			defaultFont.DrawText(std::format(" {} : {}", attr.toString(), value), start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
-		}
+	// 	// CENTER PANEL (radar + heroes)
+	// 	raylib::Rectangle centerRect(leftRect.x + leftRect.width + 10, leftRect.y, 340, 320);
+	// 	centerRect.Draw(Fade(RAYWHITE, 0.4f));
+	// 	DrawRectangleLinesEx(centerRect, 1, GRAY);
+	// 	fontText.DrawText("Attributes", centerRect.GetPosition() + raylib::Vector2{10, 10}, 18, 1, GRAY);
 
-		raylib::Color color = assignedHeroes.size() > 0 ? LIGHTGRAY : ColorAlpha(LIGHTGRAY, 0.3f);
-		raylib::Vector2 textSize = defaultFont.MeasureText("Cancel", 15, 2);
-		rect = raylib::Rectangle{540, 305, 80, 30};
+	// 	// === Radar graph ===
+	// 	raylib::Vector2 radarCenter = centerRect.GetPosition() + raylib::Vector2{170, 130};
+	// 	float radarRadius = 60;
+	// 	DrawPolyLines(radarCenter, 5, radarRadius, 0, GRAY); // pentagon background
+	// 	std::tuple<AttrMap<int>, raylib::Color, bool> total{getTotalAttributes(), (raylib::Color)ORANGE, false};
+	// 	Utils::drawRadarGraph(radarCenter, radarRadius, {total});
 
-		rect.DrawLines(LIGHTGRAY);
-		defaultFont.DrawText("Cancel", rect.GetPosition() + rect.GetSize()/2 - textSize/2, 15, 2, LIGHTGRAY);
+	// 	// Hero portraits
+	// 	float heroY = centerRect.y + 220;
+	// 	float heroX = centerRect.x + 20;
+	// 	for (const auto& hero : assignedHeroes) {
+	// 		DrawRectangle(heroX, heroY, 64, 64, Fade(DARKGRAY, 0.5f));
+	// 		DrawRectangleLines(heroX, heroY, 64, 64, GRAY);
+	// 		fontText.DrawText(hero->name.substr(0, 8), {heroX + 5, heroY + 70}, 14, 1, LIGHTGRAY);
+	// 		heroX += 74;
+	// 	}
 
-		rect.x += 95;
-		textSize = defaultFont.MeasureText("Start", 15, 2);
-		rect.DrawLines(LIGHTGRAY);
-		defaultFont.DrawText("Cancel", rect.GetPosition() + rect.GetSize()/2 - textSize/2, 15, 2, color);
-	} else {
-		std::string text = "!";
-		raylib::Font* font = &defaultFont;
-		raylib::Color textColor{RED}, backgroundColor{ORANGE}, timeRemainingColor{LIGHTGRAY}, timeElapsedColor{GRAY};
-		switch (status) {
-			case PENDING:
-				progress = timeElapsed / failureTime;
-				break;
-			case SELECTED:
-				progress = timeElapsed / failureTime;
-				textColor = WHITE;
-				backgroundColor = SKYBLUE;
-				timeElapsedColor = BLUE;
-				timeRemainingColor = WHITE;
-				break;
-			case PROGRESS:
-				progress = timeElapsed / missionDuration;
-			case TRAVELLING:
-				text = "🏃";
-				font = &emojiFont;
-				textColor = WHITE;
-				backgroundColor = SKYBLUE;
-				timeElapsedColor = BLUE;
-				timeRemainingColor = WHITE;
-				break;
-			case COMPLETED:
-			case FAILED:
-				text = "✔";
-				font = &symbolsFont;
-				textColor = WHITE;
-				backgroundColor = ColorLerp(ORANGE, YELLOW, 0.5f);
-				timeRemainingColor = DARKGRAY;
-				break;
-			default:
-				textColor = LIGHTGRAY;
-				break;
-		}
-		position.DrawCircle(28, BLACK);
-		position.DrawCircle(27, timeRemainingColor);
-		DrawCircleSector(position, 27, 0.0f, 360.0f * progress, 180, timeElapsedColor);
-		position.DrawCircle(24, BLACK);
-		position.DrawCircle(23, backgroundColor);
-		raylib::Vector2 textSize = font->MeasureText(text, 36, 2);
-		font->DrawText(text, position-textSize/2, 36, 2);
-	}
+	// 	// RIGHT PANEL (requirements)
+	// 	raylib::Rectangle rightRect(centerRect.x + centerRect.width + 10, leftRect.y, 210, 320);
+	// 	rightRect.Draw(Fade(DARKGRAY, 0.2f));
+	// 	DrawRectangleLinesEx(rightRect, 1, GRAY);
+	// 	fontText.DrawText("Requirements", rightRect.GetPosition() + raylib::Vector2{10, 10}, 18, 1, GRAY);
+
+	// 	std::vector<std::string> reqs = {
+	// 		"Security system taken over by robbers",
+	// 		"Avoid motion sensors",
+	// 		"Apprehend the thieves"
+	// 	};
+	// 	float reqY = rightRect.y + 40;
+	// 	for (auto& r : reqs) {
+	// 		fontText.DrawText("- " + r, {rightRect.x + 10, reqY}, 16, 1, ORANGE);
+	// 		reqY += 22;
+	// 	}
+
+	// 	// BUTTONS
+	// 	raylib::Rectangle btnStart{mainRect.x + panelWidth - 120, mainRect.y + panelHeight - 40, 100, 28};
+	// 	btnStart.Draw(Fade(SKYBLUE, 0.6f));
+	// 	DrawRectangleLinesEx(btnStart, 1, BLUE);
+	// 	fontText.DrawText("DISPATCH", {btnStart.x + 10, btnStart.y + 5}, 18, 1, WHITE);
+	// } else {
+	// 	std::string text = "!";
+	// 	raylib::Font* font = &defaultFont;
+	// 	raylib::Color textColor{RED}, backgroundColor{ORANGE}, timeRemainingColor{LIGHTGRAY}, timeElapsedColor{GRAY};
+	// 	switch (status) {
+	// 		case PENDING:
+	// 			progress = timeElapsed / failureTime;
+	// 			break;
+	// 		case SELECTED:
+	// 			progress = timeElapsed / failureTime;
+	// 			textColor = WHITE;
+	// 			backgroundColor = SKYBLUE;
+	// 			timeElapsedColor = BLUE;
+	// 			timeRemainingColor = WHITE;
+	// 			break;
+	// 		case PROGRESS:
+	// 			progress = timeElapsed / missionDuration;
+	// 		case TRAVELLING:
+	// 			text = "🏃";
+	// 			font = &emojiFont;
+	// 			textColor = WHITE;
+	// 			backgroundColor = SKYBLUE;
+	// 			timeElapsedColor = BLUE;
+	// 			timeRemainingColor = WHITE;
+	// 			break;
+	// 		case COMPLETED:
+	// 		case FAILED:
+	// 			text = "✔";
+	// 			font = &symbolsFont;
+	// 			textColor = WHITE;
+	// 			backgroundColor = ColorLerp(ORANGE, YELLOW, 0.5f);
+	// 			timeRemainingColor = DARKGRAY;
+	// 			break;
+	// 		default:
+	// 			textColor = LIGHTGRAY;
+	// 			break;
+	// 	}
+	// 	position.DrawCircle(28, BLACK);
+	// 	position.DrawCircle(27, timeRemainingColor);
+	// 	DrawCircleSector(position, 27, 0.0f, 360.0f * progress, 180, timeElapsedColor);
+	// 	position.DrawCircle(24, BLACK);
+	// 	position.DrawCircle(23, backgroundColor);
+	// 	raylib::Vector2 textSize = font->MeasureText(text, 36, 2);
+	// 	font->DrawText(text, position-textSize/2, 36, 2);
+	// }
 }
 
 void Mission::handleInput() {

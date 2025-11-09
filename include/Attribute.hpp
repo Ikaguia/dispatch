@@ -5,7 +5,20 @@
 #include <string_view>
 #include <unordered_map>
 
-#include <Utils.hpp>
+namespace {
+	constexpr char toLower(char c) {
+		return (c >= 'A' && c <= 'Z') ? static_cast<char>(c + ('a' - 'A')) : c;
+	}
+
+	constexpr bool equals(std::string_view a, std::string_view b) {
+		if (a.size() != b.size()) return false;
+		for (size_t i = 0; i < a.size(); ++i) if (toLower(a[i]) != toLower(b[i])) return false;
+		return true;
+	}
+	template<typename... Args>
+	constexpr bool equals(std::string_view a, std::string_view b, Args... args) { return equals(a, b) && equals(a, args...); }
+};
+
 
 class Attribute {
 public:
@@ -34,11 +47,11 @@ public:
 	}
 
 	static constexpr Attribute fromString(std::string_view s) {
-		if (Utils::equals(s, "com", "combat")) return COMBAT;
-		if (Utils::equals(s, "vig", "vigor")) return VIGOR;
-		if (Utils::equals(s, "mob", "mobility")) return MOBILITY;
-		if (Utils::equals(s, "cha", "charisma")) return CHARISMA;
-		if (Utils::equals(s, "int", "intelligence")) return INTELLIGENCE;
+		if (equals(s, "com", "combat")) return COMBAT;
+		if (equals(s, "vig", "vigor")) return VIGOR;
+		if (equals(s, "mob", "mobility")) return MOBILITY;
+		if (equals(s, "cha", "charisma")) return CHARISMA;
+		if (equals(s, "int", "intelligence")) return INTELLIGENCE;
 		throw std::invalid_argument("Unknown attribute: " + std::string(s));
 	}
 

@@ -1,4 +1,5 @@
 #include <MissionsHandler.hpp>
+#include <Utils.hpp>
 
 MissionsHandler::MissionsHandler() {}
 
