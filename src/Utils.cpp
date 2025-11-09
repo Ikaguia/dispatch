@@ -11,3 +11,5 @@ std::string Utils::toUpper(std::string str) {
 		[](unsigned char c){ return static_cast<char>(std::toupper(c)); });
 	return str;
 }
+
+int Utils::randInt(int low, int high) { return rand()%(high-low+1) + low; }

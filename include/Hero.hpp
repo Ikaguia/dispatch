@@ -3,14 +3,54 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
+
+class Hero;
 
 #include <Attribute.hpp>
+#include <Mission.hpp>
 
 class Hero {
 public:
 	const std::string name;
-	AttrMap<int> attributes;
+private:
+	AttrMap<int> real_attributes;
+public:
+	enum Status {
+		ASSIGNED,
+		TRAVELLING,
+		WORKING,
+		RETURNING,
+		RESTING,
+		AVAILABLE,
+		UNAVAILABLE
+	};
+	enum Health {
+		NORMAL,
+		WOUNDED,
+		DOWNED
+	};
+	Health health=NORMAL;
+	float travelSpeedMult = 1.0f;
+	float elapsedTime = 0.0f;
+	float finishTime = 0.0f;
+	float restingTime = 10.0f;
+	Status status=AVAILABLE;
+	std::weak_ptr<Mission> mission{};
+	raylib::Vector2 pos{};
 
 	Hero(const std::string& name, const std::map<std::string,int> &attr = {});
+
+	AttrMap<int> attributes() const;
+	float travelSpeed() const;
+
+	void update(float deltaTime);
+	void renderUI(raylib::Vector2 pos) const;
+
+	void changeStatus(Status st, float fnTime);
+	void changeStatus(Status st, std::weak_ptr<Mission> msn=std::weak_ptr<Mission>{}, float fnTime=0.0f);
+	void wound();
+	void heal();
+
 	bool operator<(const Hero& other) const;
 };

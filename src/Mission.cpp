@@ -1,19 +1,23 @@
-#include <Mission.hpp>
-#include <Utils.hpp>
 #include <cctype>
 #include <algorithm>
 #include <iostream>
 #include <format>
+#include <memory>
+
+#include <Utils.hpp>
+#include <Mission.hpp>
+#include <Hero.hpp>
 
 Mission::Mission(
 	const std::string& name,
 	const std::string& description,
-	Vector2 position,
+	raylib::Vector2 position,
 	const std::map<std::string, int> &attr,
 	int slots,
 	float failureTime,
 	float travelDuration,
-	float missionDuration
+	float missionDuration,
+	bool dangerous
 ) :
 	name(name),
 	description(description),
@@ -22,7 +26,8 @@ Mission::Mission(
 	slots(slots),
 	failureTime(failureTime),
 	travelDuration(travelDuration),
-	missionDuration(missionDuration)
+	missionDuration(missionDuration),
+	dangerous(dangerous)
 {
 	for (auto [attrName, value] : attr) {
 		Attribute attribute = Attribute::fromString(attrName);
@@ -31,146 +36,173 @@ Mission::Mission(
 };
 
 void Mission::toggleHero(std::shared_ptr<Hero> hero) {
-	if (status != SELECTED) return;
 	bool assigned = assignedHeroes.count(hero);
-	int cnt = static_cast<int>(assignedHeroes.size());
-	if (assigned) assignedHeroes.erase(hero);
-	else if (cnt < slots) assignedHeroes.insert(hero);
+	if (assigned) unassignHero(hero);
+	else assignHero(hero);
 }
 
 void Mission::assignHero(std::shared_ptr<Hero> hero) {
-	if (status != SELECTED) return;
 	int cnt = static_cast<int>(assignedHeroes.size());
-	if (cnt < slots) assignedHeroes.insert(hero);
+	if (cnt < slots && hero->status == Hero::AVAILABLE) {
+		assignedHeroes.insert(hero);
+		hero->changeStatus(Hero::ASSIGNED, weak_from_this());
+	}
 }
 
 void Mission::unassignHero(std::shared_ptr<Hero> hero) {
-	if (status != SELECTED) return;
-	assignedHeroes.erase(hero);
-}
-
-void Mission::start() {
-	if (status != SELECTED) return;
-	status = TRAVELLING;
-	timeElapsed = 0.0f;
+	if (assignedHeroes.count(hero)) {
+		assignedHeroes.erase(hero);
+		hero->changeStatus(Hero::AVAILABLE);
+	}
 }
 
 void Mission::changeStatus(Status newStatus) {
+	Status oldStatus = status;
 	status = newStatus;
-	timeElapsed = 0.0f;
+	if (newStatus != PENDING && newStatus != SELECTED) timeElapsed = 0.0f;
+
+	if (oldStatus == SELECTED && newStatus == PENDING) for (auto hero : assignedHeroes) unassignHero(hero);
+	if (newStatus == TRAVELLING) for (auto hero : assignedHeroes) hero->changeStatus(Hero::TRAVELLING, travelDuration);
+	if (oldStatus == PROGRESS) for (auto hero : assignedHeroes) {
+		std::cout << "Mission " << name << " completed, it was a " << (newStatus==COMPLETED ? "success" : "failure") << std::endl;
+		hero->changeStatus(Hero::RETURNING, travelDuration);
+		if (newStatus == COMPLETED) {
+			// TODO:
+			// int exp = 1000 / std::sqrt(getSuccessChance() || 0.001f);
+			// for (auto hero : assignedHeroes) hero.addExp(exp);
+		} else if (newStatus == FAILED && dangerous) {
+			auto hero = Utils::random_element(assignedHeroes);
+			hero->wound();
+			std::cout << hero->name << " was wounded" << std::endl;
+		}
+	}
 }
 
 void Mission::update(float deltaTime) {
-	timeElapsed += deltaTime;
+	int working = std::count_if(assignedHeroes.begin(), assignedHeroes.end(), [&](auto hero){ return hero->status == Hero::WORKING; });
 	switch (status) {
 		case PENDING:
+			timeElapsed += deltaTime;
 			if (timeElapsed >= failureTime) changeStatus(MISSED);
 			break;
 		case TRAVELLING:
-			if (timeElapsed >= travelDuration) changeStatus(PROGRESS);
+			if (working > 0) changeStatus(PROGRESS);
 			break;
 		case PROGRESS:
+			timeElapsed += deltaTime * (working / assignedHeroes.size());
 			if (timeElapsed >= missionDuration) changeStatus(isSuccessful() ? COMPLETED : FAILED);
 			break;
+		case SELECTED:
+			break;
 		default:
+			timeElapsed += deltaTime;
 			break;
 	}
 }
 
 void Mission::renderUI(bool full) const {
-	if (full) {
-		Vector2 start = {170, 100};
-		Vector2 size = {550, 220};
-		DrawRectangle(start.x, start.y, size.x, size.y, Fade(DARKGRAY, 0.9f));
+	static raylib::Font defaultFont{};
+	static raylib::Font emojiFont{"resources/fonts/NotoEmoji-Regular.ttf", 32, (int[]){ 0x2713, 0x2714, 0x1F3C3, 0x1F5F8, 0 }, 4};
+	static raylib::Font symbolsFont{"resources/fonts/NotoSansSymbols2-Regular.ttf", 32, (int[]){ 0x2713, 0x2714, 0x1F3C3, 0x1F5F8, 0 }, 4};
 
-		Vector2 offset = {100, 10};
-		DrawText(("Mission '" + name + "' (Selected)").c_str(), start.x + offset.x, start.y + offset.y, 20, BLUE); offset.y += 25;
-		DrawText(("Description: " + description).c_str(), start.x + offset.x, start.y + offset.y, 15, LIGHTGRAY); offset.y += 20;
+	float progress = 0.0f;
+	if (full) {
+		raylib::Rectangle rect = {170, 100, 550, 240};
+		raylib::Vector2 start = rect.GetPosition();
+		rect.Draw(Fade(DARKGRAY, 0.9f));
+
+		raylib::Vector2 offset = {100, 10};
+		defaultFont.DrawText("Mission '" + name + "' (Selected)", start + offset, 20, 2, BLUE); offset.y += 25;
+		defaultFont.DrawText("Description: " + description, start + offset, 20, 2, LIGHTGRAY); offset.y += 20;
 
 		offset = {20, 80};
-		DrawText("Assigned Heroes:", start.x + offset.x, start.y + offset.y, 15, LIGHTGRAY); offset.y += 20;
+		defaultFont.DrawText("Assigned Heroes:", start + offset, 20, 2, LIGHTGRAY); offset.y += 20;
 		for (const auto& hero : assignedHeroes) {
-			DrawText(
-				std::format(" - {}", hero->name).c_str(),
-				start.x + offset.x, start.y + offset.y, 15, LIGHTGRAY
-			);
-			offset.y += 20;
+			defaultFont.DrawText(" - " + hero->name, start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
 		}
 		for (int i = static_cast<int>(assignedHeroes.size()); i < slots; ++i) {
-			DrawText(
-				" - [Empty Slot]",
-				start.x + offset.x, start.y + offset.y, 15, GRAY
-			);
-			offset.y += 20;
+			defaultFont.DrawText(" - [Empty Slot]", start + offset, 15, 2, GRAY); offset.y += 20;
 		}
 
 		offset = {170, 80};
-		DrawText("Required Attributes:", start.x + offset.x, start.y + offset.y, 15, LIGHTGRAY); offset.y += 20;
+		defaultFont.DrawText("Required Attributes:", start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
 		for (const auto& [attr, value] : requiredAttributes) {
-			DrawText(
-				std::format(" {} : {}", attr.toString(), value).c_str(),
-				start.x + offset.x, start.y + offset.y, 15, LIGHTGRAY
-			);
-			offset.y += 20;
+			defaultFont.DrawText(std::format(" {} : {}", attr.toString(), value), start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
 		}
 
 		offset = {320, 80};
-		DrawText("Total Attributes from Heroes:", start.x + offset.x, start.y + offset.y, 15, LIGHTGRAY); offset.y += 20;
+		defaultFont.DrawText("Attributes from Heroes:", start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
 		for (const auto& [attr, value] : getTotalAttributes()) {
-			DrawText(
-				std::format(" {} : {}", attr.toString(), value).c_str(),
-				start.x + offset.x, start.y + offset.y, 15, LIGHTGRAY
-			);
-			offset.y += 20;
+			defaultFont.DrawText(std::format(" {} : {}", attr.toString(), value), start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
 		}
 
-		DrawRectangleLines(540, 285, 80, 30, LIGHTGRAY);
-		DrawText("Cancel", 555, 295, 15, LIGHTGRAY);
+		raylib::Color color = assignedHeroes.size() > 0 ? LIGHTGRAY : ColorAlpha(LIGHTGRAY, 0.3f);
+		raylib::Vector2 textSize = defaultFont.MeasureText("Cancel", 15, 2);
+		rect = {540, 305, 80, 30};
 
-		DrawRectangleLines(635, 285, 80, 30, LIGHTGRAY);
-		DrawText("Start", 650, 295, 15, LIGHTGRAY);
+		rect.DrawLines(LIGHTGRAY);
+		defaultFont.DrawText("Cancel", rect.GetPosition() + rect.GetSize()/2 - textSize/2, 15, 2, LIGHTGRAY);
+
+		rect.x += 95;
+		textSize = defaultFont.MeasureText("Start", 15, 2);
+		rect.DrawLines(LIGHTGRAY);
+		defaultFont.DrawText("Cancel", rect.GetPosition() + rect.GetSize()/2 - textSize/2, 15, 2, color);
 	} else {
-		Color color;
+		std::string text = "!";
+		raylib::Font* font = &defaultFont;
+		raylib::Color textColor{RED}, backgroundColor{ORANGE}, timeRemainingColor{LIGHTGRAY}, timeElapsedColor{GRAY};
 		switch (status) {
 			case PENDING:
-				color = ColorLerp(YELLOW, GRAY, timeElapsed / failureTime);
+				progress = timeElapsed / failureTime;
 				break;
 			case SELECTED:
-				color = BLUE;
-				break;
-			case TRAVELLING:
-				color = ColorLerp(BLUE, GREEN, timeElapsed / failureTime);
+				progress = timeElapsed / failureTime;
+				textColor = WHITE;
+				backgroundColor = SKYBLUE;
+				timeElapsedColor = BLUE;
+				timeRemainingColor = WHITE;
 				break;
 			case PROGRESS:
-				color = ColorLerp(GREEN, DARKGREEN, timeElapsed / failureTime);
+				progress = timeElapsed / missionDuration;
+			case TRAVELLING:
+				text = "🏃";
+				font = &emojiFont;
+				textColor = WHITE;
+				backgroundColor = SKYBLUE;
+				timeElapsedColor = BLUE;
+				timeRemainingColor = WHITE;
 				break;
 			case COMPLETED:
-				color = ColorAlpha(DARKGREEN, (5.f - (timeElapsed > 5.0f ? timeElapsed-5.0f : 0.0f)) / 5.0f);
-				break;
 			case FAILED:
-				color = ColorAlpha(RED, (5.f - (timeElapsed > 5.0f ? timeElapsed-5.0f : 0.0f)) / 5.0f);
-				break;
-			case MISSED:
-				color = ColorAlpha(GRAY, (5.f - (timeElapsed > 5.0f ? timeElapsed-5.0f : 0.0f)) / 5.0f);
+				text = "✔";
+				font = &symbolsFont;
+				textColor = WHITE;
+				backgroundColor = ColorLerp(ORANGE, YELLOW, 0.5f);
+				timeRemainingColor = DARKGRAY;
 				break;
 			default:
-				color = LIGHTGRAY;
+				textColor = LIGHTGRAY;
 				break;
 		}
-		DrawText("!", position.x, position.y, 50, color);
-		DrawRectangleLines(position.x-15, position.y-5, 35, 50, BLACK);
+		position.DrawCircle(28, BLACK);
+		position.DrawCircle(27, timeRemainingColor);
+		DrawCircleSector(position, 27, 0.0f, 360.0f * progress, 180, timeElapsedColor);
+		position.DrawCircle(24, BLACK);
+		position.DrawCircle(23, backgroundColor);
+		raylib::Vector2 textSize = font->MeasureText(text, 36, 2);
+		font->DrawText(text, position-textSize/2, 36, 2);
 	}
 }
 
 void Mission::handleInput() {
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
-		Vector2 mousePos = raylib::Mouse::GetPosition();
+		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 		if (status == PENDING) {
-			if (mousePos.x >= (position.x-15) && mousePos.x <= (position.x+20) && mousePos.y >= (position.y-5) && mousePos.y <= (position.y+45) ) status = SELECTED;
+			if (abs(mousePos.x - position.x) <= 28 && abs(mousePos.y - position.y) <= 28) status = SELECTED;
 		} else {
 			if (status == SELECTED) {
-				if (mousePos.x >= 640 && mousePos.x <= 720 && mousePos.y >= 270 && mousePos.y <= 320) changeStatus(TRAVELLING);
-				else if (mousePos.x >= 540 && mousePos.x <= 620 && mousePos.y >= 270 && mousePos.y <= 320) changeStatus(PENDING);
+				if (mousePos.x >= 635 && mousePos.x <= 715 && mousePos.y >= 305 && mousePos.y <= 335 && assignedHeroes.size() > 0) changeStatus(TRAVELLING);
+				else if (mousePos.x >= 540 && mousePos.x <= 620 && mousePos.y >= 305 && mousePos.y <= 335) changeStatus(PENDING);
 			}
 		}
 	}
@@ -179,7 +211,7 @@ void Mission::handleInput() {
 AttrMap<int> Mission::getTotalAttributes() const {
 	AttrMap<int> totalAttributes{};
 
-	for (const auto& hero : assignedHeroes) for (const auto& [attr, value] : hero->attributes) totalAttributes[attr] += value;
+	for (const auto& hero : assignedHeroes) for (const auto& [attr, value] : hero->attributes()) totalAttributes[attr] += value;
 
 	return totalAttributes;
 }

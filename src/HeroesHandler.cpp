@@ -85,20 +85,25 @@ void HeroesHandler::renderUI() {
 	// // for (auto& hero : active_heroes) hero->renderUI();
 	// if (selectedHeroIndex != -1) {
 	// 	DrawText(("Selected Hero: " + active_heroes[selectedHeroIndex]->name).c_str(), 190, 200, 20, LIGHTGRAY);
-	// 	DrawText(("  Combat: " + std::to_string(active_heroes[selectedHeroIndex]->attributes[Attribute::COMBAT])).c_str(), 190, 230, 20, LIGHTGRAY);
-	// 	DrawText(("  Vigor: " + std::to_string(active_heroes[selectedHeroIndex]->attributes[Attribute::VIGOR])).c_str(), 190, 260, 20, LIGHTGRAY);
-	// 	DrawText(("  Mobility: " + std::to_string(active_heroes[selectedHeroIndex]->attributes[Attribute::MOBILITY])).c_str(), 190, 290, 20, LIGHTGRAY);
-	// 	DrawText(("  Charisma: " + std::to_string(active_heroes[selectedHeroIndex]->attributes[Attribute::CHARISMA])).c_str(), 190, 320, 20, LIGHTGRAY);
-	// 	DrawText(("  Intelligence: " + std::to_string(active_heroes[selectedHeroIndex]->attributes[Attribute::INTELLIGENCE])).c_str(), 190, 350, 20, LIGHTGRAY);
+	// 	DrawText(("  Combat: " + std::to_string(active_heroes[selectedHeroIndex]->attributes().[Attribute::COMBAT])).c_str(), 190, 230, 20, LIGHTGRAY);
+	// 	DrawText(("  Vigor: " + std::to_string(active_heroes[selectedHeroIndex]->attributes().[Attribute::VIGOR])).c_str(), 190, 260, 20, LIGHTGRAY);
+	// 	DrawText(("  Mobility: " + std::to_string(active_heroes[selectedHeroIndex]->attributes().[Attribute::MOBILITY])).c_str(), 190, 290, 20, LIGHTGRAY);
+	// 	DrawText(("  Charisma: " + std::to_string(active_heroes[selectedHeroIndex]->attributes().[Attribute::CHARISMA])).c_str(), 190, 320, 20, LIGHTGRAY);
+	// 	DrawText(("  Intelligence: " + std::to_string(active_heroes[selectedHeroIndex]->attributes().[Attribute::INTELLIGENCE])).c_str(), 190, 350, 20, LIGHTGRAY);
 	// } else {
 	// 	DrawText("No Hero Selected", 190, 200, 20, DARKGRAY);
 	// }
+	raylib::Vector2 pos{125, 400};
+	for (auto [idx, hero] : Utils::enumerate(active_heroes)) {
+		hero->renderUI(pos);
+		pos.x += 103;
+	}
 }
 
 void HeroesHandler::handleInput() {
 	// for (auto& hero : active_heroes) hero->handleInput();
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
-		Vector2 mousePos = raylib::Mouse::GetPosition();
+		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 		if (mousePos.y >= 400 && mousePos.y <= 515) {
 			int idx = ((int)mousePos.x - 120) / 100;
 			int rem = ((int)mousePos.x - 120) % 100;
@@ -110,10 +115,10 @@ void HeroesHandler::handleInput() {
 bool HeroesHandler::handleInput(Mission& selectedMission) {
 	// for (auto& hero : active_heroes) hero->handleInput();
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
-		Vector2 mousePos = raylib::Mouse::GetPosition();
+		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 		if (mousePos.y >= 400 && mousePos.y <= 515) {
-			int idx = ((int)mousePos.x - 120) / 100;
-			int rem = ((int)mousePos.x - 120) % 100;
+			int idx = ((int)mousePos.x - 125) / 103;
+			int rem = ((int)mousePos.x - 125) % 103;
 			if (rem <= 90 && idx >=0 && idx < (int)active_heroes.size()) {
 				selectedHeroIndex = idx;
 				selectedMission.toggleHero(active_heroes[selectedHeroIndex]);
@@ -125,5 +130,5 @@ bool HeroesHandler::handleInput(Mission& selectedMission) {
 }
 
 void HeroesHandler::update(float deltaTime) {
-	// for (auto& hero : active_heroes) hero->update(deltaTime);
+	for (auto& hero : active_heroes) hero->update(deltaTime);
 }

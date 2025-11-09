@@ -9,23 +9,36 @@ MissionsHandler& MissionsHandler::inst() {
 
 Mission& MissionsHandler::addRandomMission(int difficulty, int slots) {
 	static int missionCount = 0;
+	difficulty = difficulty == -1 ? Utils::randInt(1, 5) : difficulty;
 	return *active_missions.emplace_back(new Mission{
+		// name
 		"Random Mission " + std::to_string(++missionCount),
+		// description
 		"A randomly generated mission.",
-		Vector2{ rand() % 800 + 100.0f, rand() % 400 + 50.0f },
+		// position
+		{ (float)Utils::randInt(50, 900), (float)Utils::randInt(50, 350) },
+		// required attributes
 		std::map<std::string, int>{
-			{"com", ((rand() % 10) + 1) * (5 + (difficulty == -1 ? 0 : difficulty)) / 10},
-			{"vig", ((rand() % 10) + 1) * (5 + (difficulty == -1 ? 0 : difficulty)) / 10},
-			{"mob", ((rand() % 10) + 1) * (5 + (difficulty == -1 ? 0 : difficulty)) / 10},
-			{"int", ((rand() % 10) + 1) * (5 + (difficulty == -1 ? 0 : difficulty)) / 10},
-			{"cha", ((rand() % 10) + 1) * (5 + (difficulty == -1 ? 0 : difficulty)) / 10}
+			{"com", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)},
+			{"vig", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)},
+			{"mob", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)},
+			{"int", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)},
+			{"cha", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)}
 		},
-		slots == -1 ? ((rand() % 4) + 1) : slots,
-		10.0f + (rand()%50),
+		// slots
+		slots == -1 ? Utils::clamp(difficulty * Utils::randInt(10, 15) / 10, 1, 4) : slots,
+		// failure time
+		(float)Utils::randInt(10, 60),
+		// travel duration
 		10.0f,
-		20.0f
+		// mission duration
+		20.0f,
+		// dangerous
+		(difficulty >= 3) ? true : ((rand()%5) < difficulty)
 	});
 }
+
+bool MissionsHandler::paused() const { return selectedMissionIndex != -1; }
 
 void MissionsHandler::selectMission(int index) {
 	if (index < 0 || index >= static_cast<int>(active_missions.size())) return;
@@ -67,5 +80,11 @@ void MissionsHandler::update(float deltaTime) {
 			active_missions.erase(active_missions.begin() + i);
 			--i;
 		}
+	}
+
+	timeToNext -= deltaTime;
+	if (timeToNext <= 0) {
+		addRandomMission();
+		timeToNext = rand() % 6 + 5;
 	}
 }

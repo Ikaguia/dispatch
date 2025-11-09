@@ -20,6 +20,7 @@ public:
 
 	constexpr Attribute(Value v) : value(v) {}
 	constexpr operator Value() const { return value; }
+	constexpr bool operator==(const Attribute& rhs) const noexcept { return value == rhs.value; }
 
 	constexpr std::string_view toString() const {
 		switch (value) {

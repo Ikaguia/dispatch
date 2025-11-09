@@ -6,11 +6,13 @@
 #include <iostream>
 #include <memory>
 
+class Mission;
+
 #include <raylib-cpp.hpp>
 #include <Attribute.hpp>
 #include <Hero.hpp>
 
-class Mission {
+class Mission : public std::enable_shared_from_this<Mission> {
 public:
 	enum Status {
 		PENDING,
@@ -24,18 +26,19 @@ public:
 
 	std::string name;
 	std::string description;
-	Vector2 position{0.0f, 0.0f};
+	raylib::Vector2 position{0.0f, 0.0f};
 	AttrMap<int> requiredAttributes{};
 	int slots;
 	float failureTime = 60.0f;
 	float travelDuration = 10.0f;
 	float missionDuration = 20.0f;
+	bool dangerous = false;
 
 	std::set<std::shared_ptr<Hero>> assignedHeroes{};
 	Status status = PENDING;
 	float timeElapsed = 0.0f;
 
-	Mission(const std::string& name, const std::string& description, Vector2 pos, const std::map<std::string,int> &attr, int slots, float failureTime, float travelDuration, float missionDuration);
+	Mission(const std::string& name, const std::string& description, raylib::Vector2 pos, const std::map<std::string,int> &attr, int slots, float failureTime, float travelDuration, float missionDuration, bool dangerous);
 	Mission(const Mission&) = delete;
 	Mission& operator=(const Mission&) = delete;
 
