@@ -110,7 +110,7 @@ void Mission::renderUI(bool full) {
 	float progress = 0.0f;
 	if (full) {
 		// MAIN BACKGROUND PANEL
-		raylib::Rectangle mainRect{(GetScreenWidth() - 800.0f) / 2, (GetScreenHeight() - 400.0f) / 2, 800, 400};
+		raylib::Rectangle mainRect{(GetScreenWidth() - 800.0f) / 2, 10, 800, 400};
 		mainRect.Draw(Fade(LIGHTGRAY, 0.5f));
 		DrawRectangleLinesEx(mainRect, 2, DARKGRAY);
 
@@ -137,11 +137,18 @@ void Mission::renderUI(bool full) {
 		Utils::drawRadarGraph(radarCenter, 60.0f, {total});
 
 		// Hero portraits
-		raylib::Rectangle heroRect{centerRect.y + 220, centerRect.x + 20, 64, 64};
+		float start = centerRect.x + (centerRect.width - (slots*74 - 10)) / 2;
+		raylib::Rectangle heroRect{start, centerRect.y + centerRect.height - 80, 64, 64};
 		for (const auto& hero : assignedHeroes) {
 			heroRect.Draw(Fade(DARKGRAY, 0.5f));
 			DrawRectangleLines(heroRect.x, heroRect.y, heroRect.width, heroRect.height, GRAY);
 			fontText.DrawText(hero->name.substr(0, 8), {heroRect.x + 5, heroRect.y + 70}, 14, 1, LIGHTGRAY);
+			heroRect.x += 74;
+		}
+		for (size_t i = assignedHeroes.size(); i < static_cast<size_t>(slots); i++) {
+			heroRect.Draw(Fade(LIGHTGRAY, 0.4f));
+			DrawRectangleLines(heroRect.x, heroRect.y, heroRect.width, heroRect.height, GRAY);
+			fontText.DrawText("Empty Slot", {heroRect.x + 5, heroRect.y + 70}, 14, 1, LIGHTGRAY);
 			heroRect.x += 74;
 		}
 

@@ -86,6 +86,6 @@ void MissionsHandler::update(float deltaTime) {
 	timeToNext -= deltaTime;
 	if (timeToNext <= 0) {
 		addRandomMission();
-		timeToNext = rand() % 6 + 5;
+		timeToNext = rand() % 6 + rand() % 6 + 2;
 	}
 }
