@@ -115,7 +115,7 @@ void Mission::renderUI(bool full) const {
 		defaultFont.DrawText("Mission '" + name + "' (Selected)", start + offset, 20, 2, BLUE); offset.y += 25;
 		defaultFont.DrawText("Description: " + description, start + offset, 20, 2, LIGHTGRAY); offset.y += 20;
 
-		offset = {20, 80};
+		offset = raylib::Vector2{20, 80};
 		defaultFont.DrawText("Assigned Heroes:", start + offset, 20, 2, LIGHTGRAY); offset.y += 20;
 		for (const auto& hero : assignedHeroes) {
 			defaultFont.DrawText(" - " + hero->name, start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
@@ -124,13 +124,13 @@ void Mission::renderUI(bool full) const {
 			defaultFont.DrawText(" - [Empty Slot]", start + offset, 15, 2, GRAY); offset.y += 20;
 		}
 
-		offset = {170, 80};
+		offset = raylib::Vector2{170, 80};
 		defaultFont.DrawText("Required Attributes:", start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
 		for (const auto& [attr, value] : requiredAttributes) {
 			defaultFont.DrawText(std::format(" {} : {}", attr.toString(), value), start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
 		}
 
-		offset = {320, 80};
+		offset = raylib::Vector2{320, 80};
 		defaultFont.DrawText("Attributes from Heroes:", start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
 		for (const auto& [attr, value] : getTotalAttributes()) {
 			defaultFont.DrawText(std::format(" {} : {}", attr.toString(), value), start + offset, 15, 2, LIGHTGRAY); offset.y += 20;
@@ -138,7 +138,7 @@ void Mission::renderUI(bool full) const {
 
 		raylib::Color color = assignedHeroes.size() > 0 ? LIGHTGRAY : ColorAlpha(LIGHTGRAY, 0.3f);
 		raylib::Vector2 textSize = defaultFont.MeasureText("Cancel", 15, 2);
-		rect = {540, 305, 80, 30};
+		rect = raylib::Rectangle{540, 305, 80, 30};
 
 		rect.DrawLines(LIGHTGRAY);
 		defaultFont.DrawText("Cancel", rect.GetPosition() + rect.GetSize()/2 - textSize/2, 15, 2, LIGHTGRAY);

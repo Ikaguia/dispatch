@@ -34,11 +34,11 @@ public:
 	}
 
 	static constexpr Attribute fromString(std::string_view s) {
-		if (Utils::equals(s, "com") || Utils::equals(s, "combat")) return COMBAT;
-		if (Utils::equals(s, "vig") || Utils::equals(s, "vigor")) return VIGOR;
-		if (Utils::equals(s, "mob") || Utils::equals(s, "mobility")) return MOBILITY;
-		if (Utils::equals(s, "cha") || Utils::equals(s, "charisma")) return CHARISMA;
-		if (Utils::equals(s, "int") || Utils::equals(s, "intelligence")) return INTELLIGENCE;
+		if (Utils::equals(s, "com", "combat")) return COMBAT;
+		if (Utils::equals(s, "vig", "vigor")) return VIGOR;
+		if (Utils::equals(s, "mob", "mobility")) return MOBILITY;
+		if (Utils::equals(s, "cha", "charisma")) return CHARISMA;
+		if (Utils::equals(s, "int", "intelligence")) return INTELLIGENCE;
 		throw std::invalid_argument("Unknown attribute: " + std::string(s));
 	}
 
