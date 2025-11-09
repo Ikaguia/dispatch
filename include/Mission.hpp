@@ -13,6 +13,8 @@ class Mission;
 #include <Hero.hpp>
 
 class Mission : public std::enable_shared_from_this<Mission> {
+private:
+	raylib::Rectangle btnCancel, btnStart;
 public:
 	enum Status {
 		PENDING,
@@ -46,11 +48,10 @@ public:
 	void assignHero(std::shared_ptr<Hero> hero);
 	void unassignHero(std::shared_ptr<Hero> hero);
 
-	void start();
 	void changeStatus(Status newStatus);
 	void update(float deltaTime);
 
-	void renderUI(bool full=false) const;
+	void renderUI(bool full=false);
 	void handleInput();
 
 	AttrMap<int> getTotalAttributes() const;

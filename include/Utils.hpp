@@ -5,8 +5,8 @@
 #include <iterator>
 #include <random>
 
-// #include <raylib-cpp.hpp>
-// #include <Attribute.hpp>
+#include <raylib-cpp.hpp>
+#include <Attribute.hpp>
 
 namespace Utils {
 	std::string toUpper(std::string str);
@@ -57,5 +57,5 @@ namespace Utils {
 		return *std::next(s.begin(), dist(rng));
 	}
 
-	// void drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg = BLACK, raylib::Color bgLines = BROWN, int sides=5);
+	void drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg = BLACK, raylib::Color bgLines = BROWN, int sides=5);
 }
