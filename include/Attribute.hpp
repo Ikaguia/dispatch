@@ -37,7 +37,13 @@ public:
 	};
 	
 	constexpr Attribute(Value v) : value(v) {}
+	constexpr Attribute(int i) : value(Values[i]) {}
+	constexpr Attribute(std::string s) : value(fromString(s)) {}
+
 	constexpr operator Value() const { return value; }
+	constexpr operator std::string_view() const { return toString(); }
+	constexpr operator std::string() const { return std::string{toString()}; }
+
 	constexpr bool operator==(const Attribute& rhs) const noexcept { return value == rhs.value; }
 
 	constexpr std::string_view toString() const {

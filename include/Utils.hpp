@@ -61,6 +61,14 @@ namespace Utils {
 
 	void drawTextCentered(const std::string& text, raylib::Vector2 center, int size=12, raylib::Color color=WHITE, int spacing=2, bool shadow=false, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
 	void drawTextCentered(const std::string& text, raylib::Vector2 center, const raylib::Font& font, int size=12, raylib::Color color=WHITE, int spacing=2, bool shadow=false, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
+	void drawTextCenteredX(const std::string& text, raylib::Vector2 center, const raylib::Font& font, int size=12, raylib::Color color=WHITE, int spacing=2, bool shadow=false, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
+	void drawTextCenteredY(const std::string& text, raylib::Vector2 center, const raylib::Font& font, int size=12, raylib::Color color=WHITE, int spacing=2, bool shadow=false, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
 	void drawTextCenteredShadow(const std::string& text, raylib::Vector2 center, int size=12, raylib::Color color=WHITE, int spacing=2, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
 	void drawTextCenteredShadow(const std::string& text, raylib::Vector2 center, const raylib::Font& font, int size=12, raylib::Color color=WHITE, int spacing=2, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
+
+	std::string addLineBreaks(const std::string_view& text, float maxWidth, const raylib::Font& font, float fontSize=12, float spacing=2, const std::string& dividers=" ");
+
+	raylib::Vector2 center(const raylib::Rectangle& rect);
+	raylib::Rectangle inset(const raylib::Rectangle& rect, int inset);
+	raylib::Rectangle inset(const raylib::Rectangle& rect, raylib::Vector2 inset);
 }

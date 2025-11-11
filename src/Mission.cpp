@@ -110,78 +110,118 @@ void Mission::renderUI(bool full) {
 	static raylib::Font fontTitle{"resources/fonts/NotoSans-Bold.ttf", 32};
 	static raylib::Font fontText{"resources/fonts/NotoSans-Regular.ttf", 22};
 
+	raylib::Color bgLgt{244, 225, 203}, bgMed{198, 175, 145}, bgDrk{114, 100, 86}, textColor = ColorLerp(BROWN, BLACK, 0.8f), shadow = ColorAlpha(BLACK, 0.4);
+
 	float progress = 0.0f;
 	if (full) {
 		// MAIN BACKGROUND PANEL
 		raylib::Rectangle mainRect{(GetScreenWidth() - 800.0f) / 2, 10, 800, 400};
-		mainRect.Draw(Fade(LIGHTGRAY, 0.5f));
-		DrawRectangleLinesEx(mainRect, 2, DARKGRAY);
-
-		// TITLE BAR
-		DrawRectangle(mainRect.x, mainRect.y, mainRect.width, 40.0f, BLUE);
-		fontTitle.DrawText(name, {mainRect.x + 20, mainRect.y + 6}, 24, 2, WHITE);
 
 		// LEFT PANEL (incident source)
 		raylib::Rectangle leftRect{mainRect.x + 10, mainRect.y + 50, 220, 320};
-		leftRect.Draw(Fade(DARKGRAY, 0.3f));
-		DrawRectangleLinesEx(leftRect, 1, GRAY);
-		fontText.DrawText("Caller: Ronaldo", leftRect.GetPosition() + raylib::Vector2{10, 10}, 18, 1, ORANGE);
-		fontText.DrawText("\"Someone's robbing the museum...\"", leftRect.GetPosition() + raylib::Vector2{10, 40}, 16, 1, LIGHTGRAY);
+		raylib::Rectangle{leftRect.GetPosition() + raylib::Vector2{5,5}, leftRect.GetSize()}.Draw(shadow);
+		leftRect.DrawGradient(bgMed, bgMed, bgDrk, bgMed);
+		// Type
+		raylib::Vector2 typePos = leftRect.GetPosition() + raylib::Vector2{10, 10};
+		fontText.DrawText("CRIME TYPE", typePos, 18, 1, textColor);
+		raylib::Vector2 linePos = {typePos.x + fontText.MeasureText("CRIME TYPE", 18, 1).x + 4, leftRect.y + 10};
+		for (int i = 1; i <= 5; i++) {
+			linePos.DrawLine({leftRect.x + leftRect.width - 4, linePos.y}, (i*i)%3 + 1, bgDrk);
+			linePos.y += 5;
+		}
+		// Image
+		raylib::Rectangle imgRect{leftRect.x + 5, typePos.y + 30, leftRect.width - 10, 100};
+		imgRect.Draw(bgDrk);
+		imgRect.DrawLines(BLACK);
+		// Caller
+		raylib::Rectangle callerBox{leftRect.x + 5, imgRect.y + imgRect.height, leftRect.width - 10, 40};
+		callerBox.DrawLines(BLACK);
+		Utils::drawTextCenteredY("Caller: Ronaldo", raylib::Vector2{callerBox.x + 5, callerBox.y + callerBox.height/2}, fontText, 18, textColor);
+		// Description
+		raylib::Rectangle descriptionBox{leftRect.x + 5, callerBox.y + callerBox.height, leftRect.width - 10, leftRect.y + leftRect.height - (callerBox.y + callerBox.height) - 5};
+		descriptionBox.DrawGradient(bgLgt, bgMed, bgLgt, bgMed);
+		descriptionBox.DrawLines(BLACK);
+		Utils::drawTextCentered("\"Someone's robbing\n the museum...\"", Utils::center(descriptionBox), fontText, 14, textColor);
 
-		// CENTER PANEL (radar + heroes)
-		raylib::Rectangle centerRect{leftRect.x + leftRect.width + 10, leftRect.y, 340, 320};
-		centerRect.Draw(Fade(WHITE, 0.4f));
-		DrawRectangleLinesEx(centerRect, 1, GRAY);
-		fontText.DrawText("Attributes", centerRect.GetPosition() + raylib::Vector2{10, 10}, 18, 1, GRAY);
-
-		// === Radar graph ===
-		raylib::Vector2 radarCenter = centerRect.GetPosition() + raylib::Vector2{170, 130};
-		std::tuple<AttrMap<int>, raylib::Color, bool> total{getTotalAttributes(), (raylib::Color)ORANGE, true};
-		Utils::drawRadarGraph(radarCenter, 60.0f, {total}, ColorLerp(BLACK, BROWN, 0.2f), BROWN);
-
+		// CENTER PANEL (title + radar + heroes + buttons)
+		raylib::Rectangle centerRect{leftRect.x + leftRect.width + 10, leftRect.y-44, 340, 380};
+		raylib::Rectangle{centerRect.GetPosition() + raylib::Vector2{5,5}, centerRect.GetSize()}.Draw(shadow);
+		centerRect.Draw(bgMed);
+		centerRect = Utils::inset(centerRect, 4);
+		// Title Bar
+		raylib::Rectangle titleRect{centerRect.x, centerRect.y, centerRect.width, 40.0f};
+		titleRect.DrawGradient(ORANGE, ORANGE, ORANGE, ColorLerp(ORANGE, YELLOW, 0.7));
+		titleRect.DrawLines(BLACK);
+		Utils::drawTextCentered(name, Utils::center(titleRect), fontTitle, 24);
+		// BUTTONS
+		raylib::Rectangle btnsRect{centerRect.x, centerRect.y + centerRect.height - 30, centerRect.width, 28};
+		btnCancel = raylib::Rectangle{btnsRect.x, btnsRect.y, btnsRect.width/2 - 2, btnsRect.height};
+		btnCancel.Draw(bgLgt);
+		btnCancel.DrawLines(BLACK);
+		Utils::drawTextCentered("CLOSE", Utils::center(btnCancel), fontText, 18, BLACK);
+		btnStart = raylib::Rectangle{btnsRect.x + btnsRect.width/2 + 2, btnsRect.y, btnsRect.width/2 - 2, btnsRect.height};
+		btnStart.Draw(bgLgt);
+		btnStart.DrawLines(BLACK);
+		Utils::drawTextCentered("DISPATCH", Utils::center(btnStart), fontText, 18, BLACK);
+		if (assignedHeroes.empty()) btnStart.Draw(Fade(bgDrk, 0.6f));
+		// Main panel (radar graph + heroes)
+		raylib::Rectangle mainPanel{centerRect.x, titleRect.y + titleRect.height, centerRect.width, btnsRect.y - (titleRect.y + titleRect.height) - 4};
+		mainPanel.DrawLines(BLACK);
+		Utils::inset(mainPanel, 2).DrawGradient(bgLgt, bgLgt, bgMed, bgLgt);
+		// Radar graph
+		raylib::Vector2 radarCenter{mainPanel.x + mainPanel.width/2, mainPanel.y + 5*mainPanel.height/14};
+		std::tuple<AttrMap<int>, raylib::Color, bool> total{getTotalAttributes(), ORANGE, true};
+		Utils::drawRadarGraph(radarCenter, 60.0f, {total}, textColor, BROWN);
 		// Hero portraits
-		float start = centerRect.x + (centerRect.width - (slots*74 - 10)) / 2;
-		raylib::Rectangle heroRect{start, centerRect.y + centerRect.height - 80, 64, 64};
+		float start = mainPanel.x + (mainPanel.width - (slots*74 - 10)) / 2;
+		raylib::Rectangle heroRect{start, mainPanel.y + mainPanel.height - 74, 64, 64};
 		for (const auto& hero : assignedHeroes) {
 			heroRect.Draw(Fade(DARKGRAY, 0.5f));
-			DrawRectangleLines(heroRect.x, heroRect.y, heroRect.width, heroRect.height, GRAY);
-			fontText.DrawText(hero->name.substr(0, 8), {heroRect.x + 5, heroRect.y + 70}, 14, 1, LIGHTGRAY);
+			heroRect.DrawLines(GRAY);
+			Utils::drawTextCentered(hero->name.substr(0, 9), Utils::center(heroRect), fontText, 14, textColor);
 			heroRect.x += 74;
 		}
 		for (size_t i = assignedHeroes.size(); i < static_cast<size_t>(slots); i++) {
 			heroRect.Draw(Fade(LIGHTGRAY, 0.4f));
-			DrawRectangleLines(heroRect.x, heroRect.y, heroRect.width, heroRect.height, GRAY);
-			fontText.DrawText("Empty Slot", {heroRect.x + 5, heroRect.y + 70}, 14, 1, LIGHTGRAY);
+			heroRect.DrawLines(GRAY);
+			Utils::drawTextCentered("Empty Slot", Utils::center(heroRect), fontText, 14, textColor);
 			heroRect.x += 74;
 		}
+		centerRect = Utils::inset(centerRect, -4);
 
 		// RIGHT PANEL (requirements)
 		raylib::Rectangle rightRect{centerRect.x + centerRect.width + 10, leftRect.y, 210, 320};
-		rightRect.Draw(Fade(DARKGRAY, 0.2f));
-		DrawRectangleLinesEx(rightRect, 1, GRAY);
-		fontText.DrawText("Requirements", rightRect.GetPosition() + raylib::Vector2{10, 10}, 18, 1, GRAY);
-
-		std::vector<std::string> reqs = {
-			"Security system taken over by robbers",
-			"Avoid motion sensors",
-			"Apprehend the thieves"
-		};
-		float reqY = rightRect.y + 40;
-		for (auto& r : reqs) {
-			fontText.DrawText("- " + r, {rightRect.x + 10, reqY}, 16, 1, ORANGE);
-			reqY += 22;
+		raylib::Rectangle{rightRect.GetPosition() + raylib::Vector2{5,5}, rightRect.GetSize()}.Draw(shadow);
+		rightRect.Draw(bgMed);
+		raylib::Vector2 requirementsPos = rightRect.GetPosition() + raylib::Vector2{10, 5};
+		fontText.DrawText("Requirements", requirementsPos, 18, 1, textColor);
+		linePos = raylib::Vector2{requirementsPos.x + fontText.MeasureText("Requirements", 18, 1).x + 4, rightRect.y + 10};
+		for (int i = 1; i <= 5; i++) {
+			linePos.DrawLine({rightRect.x + rightRect.width - 4, linePos.y}, (i*i*i)%3 + 1, bgDrk);
+			linePos.y += 5;
 		}
 
-		// BUTTONS
-		btnCancel = raylib::Rectangle{mainRect.x + mainRect.width - 240, mainRect.y + mainRect.height - 40, 100, 28};
-		btnCancel.Draw(Fade(SKYBLUE, 0.6f));
-		DrawRectangleLinesEx(btnCancel, 1, BLUE);
-		fontText.DrawText("CANCEL", {btnCancel.x + 10, btnCancel.y + 5}, 18, 1, WHITE);
-
-		btnStart = raylib::Rectangle{mainRect.x + mainRect.width - 120, mainRect.y + mainRect.height - 40, 100, 28};
-		btnStart.Draw(Fade(SKYBLUE, 0.6f));
-		DrawRectangleLinesEx(btnStart, 1, BLUE);
-		fontText.DrawText("DISPATCH", {btnStart.x + 10, btnStart.y + 5}, 18, 1, assignedHeroes.size() ? WHITE : GRAY);
+		raylib::Rectangle reqsRet = Utils::inset(rightRect, {4, 30}); reqsRet.y += 10;
+		reqsRet.DrawLines(BLACK);
+		Utils::inset(reqsRet, 2).DrawGradient(bgLgt, bgLgt, bgMed, bgLgt);
+		std::vector<std::pair<std::string, float>> reqs = {
+			{"Security system taken over by robbers", 0},
+			{"Avoid motion sensors", 0},
+			{"Apprehend the thieves", 0}
+		};
+		float indentSize = fontText.MeasureText("> ", 16, 1).x, totalH=0;
+		for (auto& [txt, h] : reqs) {
+			txt = Utils::addLineBreaks(txt, reqsRet.width - 8 - indentSize, fontText, 16, 1);
+			h = fontText.MeasureText(txt, 16, 1).y;
+			if (totalH) totalH += 10;
+			totalH += h;
+		}
+		raylib::Vector2 reqPos = {reqsRet.x + 4 + indentSize, reqsRet.y + (reqsRet.height - totalH) / 2 + 4 };
+		for (auto& [txt, h] : reqs) {
+			fontText.DrawText("> ", {reqPos.x - indentSize, reqPos.y}, 16, 1, textColor);
+			fontText.DrawText(txt, reqPos, 16, 1, textColor);
+			reqPos.y += h + 10;
+		}
 	} else {
 		std::string text = "!";
 		raylib::Font* font = &defaultFont;
