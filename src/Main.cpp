@@ -21,10 +21,8 @@ int main() {
 	HeroesHandler& heroesHandler = HeroesHandler::inst();
 	MissionsHandler& missionsHandler = MissionsHandler::inst();
 
-	float previousTime = GetTime();
 	while (!window.ShouldClose()) {
-		float deltaTime = GetTime() - previousTime;
-		previousTime = GetTime();
+		float deltaTime = GetFrameTime();
 
 		if (missionsHandler.paused()) deltaTime = 0;
 

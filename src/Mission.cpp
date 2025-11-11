@@ -61,7 +61,10 @@ void Mission::changeStatus(Status newStatus) {
 	status = newStatus;
 	if (newStatus != PENDING && newStatus != SELECTED) timeElapsed = 0.0f;
 
-	if (oldStatus == SELECTED && newStatus == PENDING) for (auto hero : assignedHeroes) unassignHero(hero);
+	if (oldStatus == SELECTED && newStatus == PENDING) {
+		for (auto hero : assignedHeroes) hero->changeStatus(Hero::AVAILABLE);
+		assignedHeroes.clear();
+	}
 	if (newStatus == TRAVELLING) for (auto hero : assignedHeroes) hero->changeStatus(Hero::TRAVELLING, travelDuration);
 	if (oldStatus == PROGRESS) for (auto hero : assignedHeroes) {
 		std::cout << "Mission " << name << " completed, it was a " << (newStatus==COMPLETED ? "success" : "failure") << std::endl;
@@ -133,8 +136,8 @@ void Mission::renderUI(bool full) {
 
 		// === Radar graph ===
 		raylib::Vector2 radarCenter = centerRect.GetPosition() + raylib::Vector2{170, 130};
-		std::tuple<AttrMap<int>, raylib::Color, bool> total{getTotalAttributes(), (raylib::Color)ORANGE, false};
-		Utils::drawRadarGraph(radarCenter, 60.0f, {total});
+		std::tuple<AttrMap<int>, raylib::Color, bool> total{getTotalAttributes(), (raylib::Color)ORANGE, true};
+		Utils::drawRadarGraph(radarCenter, 60.0f, {total}, ColorLerp(BLACK, BROWN, 0.2f), BROWN);
 
 		// Hero portraits
 		float start = centerRect.x + (centerRect.width - (slots*74 - 10)) / 2;

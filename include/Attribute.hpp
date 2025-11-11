@@ -27,6 +27,7 @@ public:
 		INTELLIGENCE,
 		COUNT
 	};
+	inline static constexpr Value Values[COUNT] = { COMBAT, VIGOR, MOBILITY, CHARISMA, INTELLIGENCE };
 
 	constexpr Attribute(Value v) : value(v) {}
 	constexpr operator Value() const { return value; }
@@ -62,5 +63,16 @@ struct AttrHash {
 	}
 };
 
-template<typename ValueType>
-using AttrMap = std::unordered_map<Attribute, ValueType, AttrHash>;
+template <typename ValueType>
+class AttrMap : public std::unordered_map<Attribute::Value, ValueType, AttrHash> {
+public:
+	ValueType& operator[](int idx) {
+		if (idx < 0 || idx >= Attribute::COUNT) throw std::out_of_range("Invalid Attribute index");
+		return std::unordered_map<Attribute::Value, ValueType, AttrHash>::operator[](Attribute::Values[idx]);
+	}
+
+	const ValueType& operator[](int idx) const {
+		if (idx < 0 || idx >= Attribute::COUNT) throw std::out_of_range("Invalid Attribute index");
+		return this->at(Attribute::Values[idx]);
+	}
+};
