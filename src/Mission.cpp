@@ -171,7 +171,8 @@ void Mission::renderUI(bool full) {
 		// Radar graph
 		raylib::Vector2 radarCenter{mainPanel.x + mainPanel.width/2, mainPanel.y + 5*mainPanel.height/14};
 		std::tuple<AttrMap<int>, raylib::Color, bool> total{getTotalAttributes(), ORANGE, true};
-		Utils::drawRadarGraph(radarCenter, 60.0f, {total}, textColor, BROWN);
+		std::tuple<AttrMap<int>, raylib::Color, bool> required{requiredAttributes, LIGHTGRAY, false};
+		Utils::drawRadarGraph(radarCenter, 60.0f, {total, required}, textColor, BROWN);
 		// Hero portraits
 		float start = mainPanel.x + (mainPanel.width - (slots*74 - 10)) / 2;
 		raylib::Rectangle heroRect{start, mainPanel.y + mainPanel.height - 74, 64, 64};
@@ -179,6 +180,7 @@ void Mission::renderUI(bool full) {
 			heroRect.Draw(Fade(DARKGRAY, 0.5f));
 			heroRect.DrawLines(GRAY);
 			Utils::drawTextCentered(hero->name.substr(0, 9), Utils::center(heroRect), fontText, 14, textColor);
+			// TODO: Draw hero portrait
 			heroRect.x += 74;
 		}
 		for (size_t i = assignedHeroes.size(); i < static_cast<size_t>(slots); i++) {
@@ -277,7 +279,7 @@ void Mission::handleInput() {
 		} else {
 			if (status == SELECTED) {
 				if (mousePos.CheckCollision(btnCancel)) changeStatus(PENDING);
-				else if (mousePos.CheckCollision(btnStart)) changeStatus(TRAVELLING);
+				else if (mousePos.CheckCollision(btnStart) && !assignedHeroes.empty()) changeStatus(TRAVELLING);
 			}
 		}
 	}

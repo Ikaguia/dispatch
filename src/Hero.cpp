@@ -40,28 +40,47 @@ void Hero::update(float deltaTime) {
 
 void Hero::renderUI(raylib::Vector2 pos) const {
 	bool draw = true;
-	raylib::Vector2 sz{93, 115};
-	raylib::Color color{};
+	raylib::Rectangle rect{pos.x, pos.y, 93, 115};
+	raylib::Color color{ColorAlpha(GRAY, 0.4f)}, txtColor{};
+	std::string txt;
 	switch(status) {
 		case Hero::ASSIGNED:
-			color = ColorAlpha(BLUE, 0.2f); break;
+			color = ColorAlpha(ORANGE, 0.15f); break;
 		case Hero::TRAVELLING:
 		case Hero::WORKING:
+			txt = "BUSY";
+			txtColor = SKYBLUE;
+			break;
+		case Hero::DISRUPTED:
+			txt = "DISRUPTED";
+			txtColor = RED;
+			break;
 		case Hero::RETURNING:
-			color = ColorAlpha(GREEN, 0.1f); break;
+			txt = "RETURNING";
+			txtColor = ColorLerp(YELLOW, ORANGE, 0.5f);
+			break;
 		case Hero::RESTING:
-			color = ColorAlpha(YELLOW, 0.1f); break;
+			txt = "RESTING";
+			txtColor = ColorLerp(LIME, SKYBLUE, 0.6f);
+			break;
 		// case Hero::AVAILABLE:
 		case Hero::UNAVAILABLE:
+			txt = "BUSY";
+			txtColor = GRAY;
 			color = ColorAlpha(LIGHTGRAY, 0.3f); break;
-			break;
 		default:
 			draw = false;
 	}
-	if (health != Health::NORMAL) draw = true;
-	if (health == Health::WOUNDED) color.Lerp(RED, 0.2f);
-	if (health == Health::DOWNED) color.Lerp(RED, 0.4f);
-	if (draw) pos.DrawRectangle(sz, color);
+	if (draw) rect.Draw(color);
+	if (health == Health::WOUNDED) rect.Draw(ColorAlpha(RED, 0.2f));
+	if (health == Health::DOWNED) rect.Draw(ColorAlpha(RED, 0.4f));
+
+	if (!txt.empty()) {
+		raylib::Rectangle txtRect{rect.x+3, rect.y+3, rect.width-6, 20};
+		txtRect.Draw(txtColor);
+		txtRect.DrawLines(BLACK);
+		Utils::drawTextCentered(txt, Utils::center(txtRect), raylib::Font{}, 12, WHITE, 2, true);
+	}
 
 	if (status == TRAVELLING || status == RETURNING) {
 		raylib::Vector2 origin{500,200};
@@ -69,7 +88,10 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 		if (status == RETURNING) std::swap(origin, dest);
 		float pct = 1.0f * elapsedTime / finishTime;
 		raylib::Vector2 travelPos = (dest - origin) * pct + origin;
-		travelPos.DrawCircle(10, BLUE);
+		travelPos.DrawCircle(12, BLACK);
+		travelPos.DrawCircle(11, WHITE);
+		travelPos.DrawCircle(10, status == TRAVELLING ? BLUE : YELLOW);
+		// TODO: Draw hero portrait
 	}
 }
 
