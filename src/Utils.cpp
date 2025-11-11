@@ -17,15 +17,19 @@ int Utils::randInt(int low, int high) { return rand()%(high-low+1) + low; }
 void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg, raylib::Color bgLines) {
 	const int sides = Attribute::COUNT;
 	static raylib::Font font{};
+	static raylib::Font emojiFont{"resources/fonts/NotoEmoji-Regular.ttf", 32, (int[]){ 0x2694, 0x1F6E1, 0x1F3C3, 0x1F4AC, 0x1F9E0, 0 }, 5};
 	float baseRotation = 90.0f + 180.0f / sides;
 	DrawPoly(center, sides, sideLength, baseRotation, bg);
 	DrawPolyLines(center, sides, sideLength-1, baseRotation, WHITE);
 	for (int i = 1; i < 5; i++) DrawPolyLines(center, sides, i * sideLength / 5, baseRotation, bgLines);
 	for (int i = 0; i < sides; i++) center.DrawLine(center + raylib::Vector2{0, -sideLength}.Rotate(i * 2.0f * PI / sides), bgLines);
 	for (int i = 0; i < sides; i++) {
-		std::string attrName = (std::string)Attribute{Attribute::Values[i]}.toString().substr(0, 3);
-		auto pos = center + raylib::Vector2{0, -(sideLength * 1.2f)}.Rotate(i * 2.0f * PI / sides);
-		Utils::drawTextCenteredShadow(attrName, pos, font, 16);
+		Attribute attr = Attribute{Attribute::Values[i]};
+		auto pos = center + raylib::Vector2{0, -(sideLength * 1.3f)}.Rotate(i * 2.0f * PI / sides);
+		std::string attrIcon{attr.toIcon()};
+		Utils::drawTextCenteredShadow(attrIcon, pos, emojiFont, 32);
+		// std::string attrName = (std::string)attr.toString().substr(0, 3);
+		// Utils::drawTextCenteredShadow(attrName, pos, font, 16);
 	}
 	for (auto [attrs, color, drawNumbers] : attributes) {
 		if (attrs.size() != sides) continue;

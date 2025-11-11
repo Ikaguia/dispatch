@@ -28,7 +28,14 @@ public:
 		COUNT
 	};
 	inline static constexpr Value Values[COUNT] = { COMBAT, VIGOR, MOBILITY, CHARISMA, INTELLIGENCE };
-
+	inline static constexpr std::string_view Icons[COUNT] = {
+		"⚔", // COMBAT
+		"🛡", // VIGOR
+		"🏃", // MOBILITY
+		"💬", // CHARISMA
+		"🧠"  // INTELLIGENCE
+	};
+	
 	constexpr Attribute(Value v) : value(v) {}
 	constexpr operator Value() const { return value; }
 	constexpr bool operator==(const Attribute& rhs) const noexcept { return value == rhs.value; }
@@ -43,6 +50,7 @@ public:
 			default: return "Unknown";
 		}
 	}
+	constexpr std::string_view toIcon() const { return Icons[value]; }
 
 	static constexpr Attribute fromString(std::string_view s) {
 		if (AttributeUtils::equals(s, "com", "combat")) return COMBAT;
