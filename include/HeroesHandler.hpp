@@ -21,7 +21,6 @@ public:
 	std::shared_ptr<Hero> operator[](const std::string& name);
 
 	void renderUI();
-	void handleInput();
-	bool handleInput(Mission& selectedMission);
+	bool handleInput();
 	void update(float deltaTime);
 };

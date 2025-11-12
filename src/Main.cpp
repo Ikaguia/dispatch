@@ -26,13 +26,8 @@ int main() {
 
 		if (missionsHandler.paused()) deltaTime = 0;
 
-		if (missionsHandler.selectedMissionIndex != -1) {
-			Mission& selectedMission = *missionsHandler.active_missions[missionsHandler.selectedMissionIndex];
-			if (!heroesHandler.handleInput(selectedMission)) missionsHandler.handleInput();
-		} else {
-			heroesHandler.handleInput();
-			missionsHandler.handleInput();
-		}
+		bool handled = heroesHandler.handleInput();
+		if (!handled) missionsHandler.handleInput();
 		heroesHandler.update(deltaTime);
 		missionsHandler.update(deltaTime);
 
@@ -44,9 +39,8 @@ int main() {
 		BeginDrawing();
 
 		window.ClearBackground(RAYWHITE);
-
-		// Object methods.
 		background.Draw({0, 0}, 0, 1.0f * screenWidth / background.GetWidth());
+
 		heroesHandler.renderUI();
 		missionsHandler.renderUI();
 

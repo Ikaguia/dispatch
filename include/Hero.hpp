@@ -24,7 +24,8 @@ public:
 		RETURNING,
 		RESTING,
 		AVAILABLE,
-		UNAVAILABLE
+		UNAVAILABLE,
+		AWAITING_REVIEW
 	};
 	enum Health {
 		NORMAL,

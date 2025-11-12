@@ -7,6 +7,7 @@
 #include <Utils.hpp>
 #include <Mission.hpp>
 #include <Hero.hpp>
+#include <MissionsHandler.hpp>
 
 Mission::Mission(
 	const std::string& name,
@@ -64,21 +65,30 @@ void Mission::changeStatus(Status newStatus) {
 	if (oldStatus == SELECTED && newStatus == PENDING) {
 		for (auto hero : assignedHeroes) hero->changeStatus(Hero::AVAILABLE);
 		assignedHeroes.clear();
-	}
-	if (newStatus == TRAVELLING) for (auto hero : assignedHeroes) hero->changeStatus(Hero::TRAVELLING, travelDuration);
-	if (oldStatus == PROGRESS) for (auto hero : assignedHeroes) {
-		std::cout << "Mission " << name << " completed, it was a " << (newStatus==COMPLETED ? "success" : "failure") << std::endl;
-		hero->changeStatus(Hero::RETURNING, travelDuration);
-		if (newStatus == COMPLETED) {
+	} else if (oldStatus == SELECTED && newStatus == TRAVELLING) for (auto hero : assignedHeroes) hero->changeStatus(Hero::TRAVELLING, travelDuration);
+	else if (oldStatus == TRAVELLING && newStatus == PROGRESS) {}
+	else if (oldStatus == PROGRESS && newStatus == AWAITING_REVIEW) for (auto hero : assignedHeroes) hero->changeStatus(Hero::RETURNING, travelDuration);
+	else if (oldStatus == AWAITING_REVIEW) {
+		std::cout << "Mission " << name << " completed, it was a " << (newStatus==REVIEWING_SUCESS ? "success" : "failure") << std::endl;
+		if (newStatus == REVIEWING_SUCESS) {
 			// TODO:
 			// int exp = 1000 / std::sqrt(getSuccessChance() || 0.001f);
 			// for (auto hero : assignedHeroes) hero.addExp(exp);
-		} else if (newStatus == FAILED && dangerous) {
+		} else if (newStatus == REVIEWING_FAILURE && dangerous) {
 			auto hero = Utils::random_element(assignedHeroes);
 			hero->wound();
 			std::cout << hero->name << " was wounded" << std::endl;
 		}
-	}
+	} else if (newStatus == DONE) {
+		for (auto& hero : assignedHeroes) {
+			if (hero->status == Hero::AWAITING_REVIEW) hero->changeStatus(Hero::AVAILABLE);
+			else hero->mission.reset();
+		}
+		auto ptr = shared_from_this();
+		MissionsHandler::inst().previous_missions.insert(ptr);
+		MissionsHandler::inst().active_missions.erase(ptr);
+	} else if (newStatus == MISSED) {}
+	else throw std::invalid_argument("Invalid mission status change");
 }
 
 void Mission::update(float deltaTime) {
@@ -93,9 +103,12 @@ void Mission::update(float deltaTime) {
 			break;
 		case PROGRESS:
 			timeElapsed += deltaTime * (working / assignedHeroes.size());
-			if (timeElapsed >= missionDuration) changeStatus(isSuccessful() ? COMPLETED : FAILED);
+			if (timeElapsed >= missionDuration) changeStatus(AWAITING_REVIEW);
 			break;
 		case SELECTED:
+		case AWAITING_REVIEW:
+		case REVIEWING_SUCESS:
+		case REVIEWING_FAILURE:
 			break;
 		default:
 			timeElapsed += deltaTime;
@@ -155,24 +168,30 @@ void Mission::renderUI(bool full) {
 		Utils::drawTextCentered(name, Utils::center(titleRect), fontTitle, 24);
 		// BUTTONS
 		raylib::Rectangle btnsRect{centerRect.x, centerRect.y + centerRect.height - 30, centerRect.width, 28};
-		btnCancel = raylib::Rectangle{btnsRect.x, btnsRect.y, btnsRect.width/2 - 2, btnsRect.height};
-		btnCancel.Draw(bgLgt);
-		btnCancel.DrawLines(BLACK);
-		Utils::drawTextCentered("CLOSE", Utils::center(btnCancel), fontText, 18, BLACK);
-		btnStart = raylib::Rectangle{btnsRect.x + btnsRect.width/2 + 2, btnsRect.y, btnsRect.width/2 - 2, btnsRect.height};
-		btnStart.Draw(bgLgt);
-		btnStart.DrawLines(BLACK);
-		Utils::drawTextCentered("DISPATCH", Utils::center(btnStart), fontText, 18, BLACK);
-		if (assignedHeroes.empty()) btnStart.Draw(Fade(bgDrk, 0.6f));
+		std::vector<std::pair<std::string, raylib::Rectangle&>> btns{{"CLOSE", btnCancel}};
+		if (status == SELECTED) btns.emplace_back("DISPATCH", btnStart);
+		for (auto [idx, btn] : Utils::enumerate(btns)) {
+			auto [name, rect] = btn; auto sz = btns.size(); auto width = btnsRect.width/sz;
+			rect = raylib::Rectangle{btnsRect.x + idx*(width+2), btnsRect.y, width - 2, btnsRect.height};
+			rect.Draw(bgLgt);
+			rect.DrawLines(BLACK);
+			Utils::drawTextCentered(name, Utils::center(rect), fontText, 18, BLACK);
+		}
+		if (status == SELECTED && assignedHeroes.empty()) btnStart.Draw(Fade(bgDrk, 0.6f));
 		// Main panel (radar graph + heroes)
 		raylib::Rectangle mainPanel{centerRect.x, titleRect.y + titleRect.height, centerRect.width, btnsRect.y - (titleRect.y + titleRect.height) - 4};
 		mainPanel.DrawLines(BLACK);
 		Utils::inset(mainPanel, 2).DrawGradient(bgLgt, bgLgt, bgMed, bgLgt);
 		// Radar graph
 		raylib::Vector2 radarCenter{mainPanel.x + mainPanel.width/2, mainPanel.y + 5*mainPanel.height/14};
-		std::tuple<AttrMap<int>, raylib::Color, bool> total{getTotalAttributes(), ORANGE, true};
-		std::tuple<AttrMap<int>, raylib::Color, bool> required{requiredAttributes, LIGHTGRAY, false};
-		Utils::drawRadarGraph(radarCenter, 60.0f, {total, required}, textColor, BROWN);
+		auto totalAttributes = getTotalAttributes();
+		std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attrs{{totalAttributes, ORANGE, true}};
+		if (status != SELECTED) {
+			attrs.emplace_back(requiredAttributes, LIGHTGRAY, true);
+			AttrMap<int> intersect; for (auto& [k, v] : requiredAttributes) intersect[k] = std::min(v, totalAttributes[k]);
+			attrs.emplace_back(intersect, status == REVIEWING_SUCESS ? GREEN : RED, false);
+		}
+		Utils::drawRadarGraph(radarCenter, 60.0f, attrs, textColor, BROWN);
 		// Hero portraits
 		float start = mainPanel.x + (mainPanel.width - (slots*74 - 10)) / 2;
 		raylib::Rectangle heroRect{start, mainPanel.y + mainPanel.height - 74, 64, 64};
@@ -249,8 +268,7 @@ void Mission::renderUI(bool full) {
 				timeElapsedColor = BLUE;
 				timeRemainingColor = WHITE;
 				break;
-			case COMPLETED:
-			case FAILED:
+			case AWAITING_REVIEW:
 				text = "✔";
 				font = &symbolsFont;
 				textColor = WHITE;
@@ -276,11 +294,13 @@ void Mission::handleInput() {
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 		if (status == PENDING) {
 			if (mousePos.CheckCollision(position, 28)) status = SELECTED;
-		} else {
-			if (status == SELECTED) {
-				if (mousePos.CheckCollision(btnCancel)) changeStatus(PENDING);
-				else if (mousePos.CheckCollision(btnStart) && !assignedHeroes.empty()) changeStatus(TRAVELLING);
-			}
+		} else if (status == SELECTED) {
+			if (mousePos.CheckCollision(btnCancel)) changeStatus(PENDING);
+			else if (mousePos.CheckCollision(btnStart) && !assignedHeroes.empty()) changeStatus(TRAVELLING);
+		} else if (status == AWAITING_REVIEW) {
+			if (mousePos.CheckCollision(position, 28)) status = isSuccessful() ? REVIEWING_SUCESS : REVIEWING_FAILURE;
+		} else if (status == REVIEWING_SUCESS || status == REVIEWING_FAILURE) {
+			if (mousePos.CheckCollision(btnCancel)) changeStatus(DONE);
 		}
 	}
 }

@@ -30,9 +30,11 @@ void Hero::update(float deltaTime) {
 		case TRAVELLING:
 			changeStatus(WORKING, mission); break;
 		case RETURNING:
-			changeStatus(RESTING, std::weak_ptr<Mission>{}, restingTime); break;
+			changeStatus(RESTING, restingTime); break;
 		case RESTING:
-			changeStatus(AVAILABLE); break;
+			if (mission.expired()) changeStatus(AVAILABLE);
+			else changeStatus(AWAITING_REVIEW);
+			break;
 		default:
 			break;
 	}
@@ -63,9 +65,13 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 			txt = "RESTING";
 			txtColor = ColorLerp(LIME, SKYBLUE, 0.6f);
 			break;
+		case Hero::AWAITING_REVIEW:
+			txt = "AWAITING REVIEW";
+			txtColor = ColorLerp(LIGHTGRAY, SKYBLUE, 0.6f);
+			break;
 		// case Hero::AVAILABLE:
 		case Hero::UNAVAILABLE:
-			txt = "BUSY";
+			txt = "UNAVAILABLE";
 			txtColor = GRAY;
 			color = ColorAlpha(LIGHTGRAY, 0.3f); break;
 		default:
