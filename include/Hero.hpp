@@ -37,9 +37,9 @@ public:
 	float elapsedTime = 0.0f;
 	float finishTime = 0.0f;
 	float restingTime = 10.0f;
-	Status status=AVAILABLE;
+	Status status=Hero::AVAILABLE;
 	std::weak_ptr<Mission> mission{};
-	raylib::Vector2 pos{};
+	raylib::Vector2 pos{500, 200};
 
 	Hero(const std::string& name, const std::map<std::string,int> &attr = {});
 
@@ -49,10 +49,13 @@ public:
 	void update(float deltaTime);
 	void renderUI(raylib::Vector2 pos) const;
 
-	void changeStatus(Status st, float fnTime);
-	void changeStatus(Status st, std::weak_ptr<Mission> msn=std::weak_ptr<Mission>{}, float fnTime=0.0f);
+	void changeStatus(Status st, float fnTime=0.0f);
+	void changeStatus(Status st, std::weak_ptr<Mission> msn, float fnTime=0.0f);
 	void wound();
 	void heal();
 
 	bool operator<(const Hero& other) const;
+
+	static constexpr std::string_view StatusToString(Status st);
+	static constexpr std::string_view HealthToString(Health hlt);
 };

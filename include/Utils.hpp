@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <iterator>
 #include <random>
+#include <iostream>
+#include <format>
 
 #include <raylib-cpp.hpp>
 #include <Attribute.hpp>
@@ -71,4 +73,16 @@ namespace Utils {
 	raylib::Vector2 center(const raylib::Rectangle& rect);
 	raylib::Rectangle inset(const raylib::Rectangle& rect, int inset);
 	raylib::Rectangle inset(const raylib::Rectangle& rect, raylib::Vector2 inset);
+
+	template <typename... Args>
+	inline void print(std::string_view fmt, Args&&... args) {
+		std::cout << std::vformat(fmt, std::make_format_args(args...));
+	}
+
+	template <typename... Args>
+	inline void println(std::string_view fmt, Args&&... args) {
+		std::cout << std::vformat(fmt, std::make_format_args(args...)) << '\n';
+	}
+
+	inline void println(std::string_view text) { std::cout << text << '\n'; }
 }

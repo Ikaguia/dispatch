@@ -20,20 +20,28 @@ AttrMap<int> Hero::attributes() const {
 	return attrs;
 }
 
-float Hero::travelSpeed() const { return travelSpeedMult * (1 + attributes()[Attribute::MOBILITY] / 5.0f); }
+float Hero::travelSpeed() const { return travelSpeedMult * (30 + 1.5f*attributes()[Attribute::MOBILITY]); }
 
 void Hero::update(float deltaTime) {
-	if (status == TRAVELLING) elapsedTime += deltaTime * travelSpeed();
-	else elapsedTime += deltaTime;
+	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
+		std::shared_ptr<Mission> ms = (status == Hero::TRAVELLING) ? mission.lock() : nullptr;
+		raylib::Vector2 dest = (status == Hero::TRAVELLING) ? ms->position : raylib::Vector2{500,200};
+		float dist = pos.Distance(dest);
+		float speed = travelSpeed() * deltaTime;
+		if (dist <= speed) {
+			pos = dest;
+			if (status == Hero::TRAVELLING) {
+				changeStatus(Hero::WORKING);
+				if (ms->status != Mission::PROGRESS) ms->changeStatus(Mission::PROGRESS);
+			}
+			else changeStatus(Hero::RESTING, restingTime);
+		} else pos = pos.MoveTowards(dest, speed);
+	} else elapsedTime += deltaTime;
 
 	if (elapsedTime >= finishTime) switch (status) {
-		case TRAVELLING:
-			changeStatus(WORKING, mission); break;
-		case RETURNING:
-			changeStatus(RESTING, restingTime); break;
-		case RESTING:
-			if (mission.expired()) changeStatus(AVAILABLE);
-			else changeStatus(AWAITING_REVIEW);
+		case Hero::RESTING:
+			if (mission.expired()) changeStatus(Hero::AVAILABLE);
+			else changeStatus(Hero::AWAITING_REVIEW);
 			break;
 		default:
 			break;
@@ -88,15 +96,10 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 		Utils::drawTextCentered(txt, Utils::center(txtRect), raylib::Font{}, 12, WHITE, 2, true);
 	}
 
-	if (status == TRAVELLING || status == RETURNING) {
-		raylib::Vector2 origin{500,200};
-		raylib::Vector2 dest = (mission.lock()->position);
-		if (status == RETURNING) std::swap(origin, dest);
-		float pct = 1.0f * elapsedTime / finishTime;
-		raylib::Vector2 travelPos = (dest - origin) * pct + origin;
-		travelPos.DrawCircle(12, BLACK);
-		travelPos.DrawCircle(11, WHITE);
-		travelPos.DrawCircle(10, status == TRAVELLING ? BLUE : YELLOW);
+	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
+		this->pos.DrawCircle(12, BLACK);
+		this->pos.DrawCircle(11, WHITE);
+		this->pos.DrawCircle(10, status == Hero::TRAVELLING ? BLUE : YELLOW);
 		// TODO: Draw hero portrait
 	}
 }
@@ -108,6 +111,7 @@ void Hero::changeStatus(Status st, std::weak_ptr<Mission> msn, float fnTime) {
 	mission = msn;
 	finishTime = fnTime;
 	elapsedTime = 0;
+	Utils::println("changeStatus hero:{}, st:{}, msn:{}, fnTime:{}", name, StatusToString(st), msn.expired() ? "null" : msn.lock()->name, fnTime);
 }
 void Hero::wound(){
 	if (health == Health::NORMAL) health = Health::WOUNDED;
@@ -120,3 +124,23 @@ void Hero::heal(){
 
 
 bool Hero::operator<(const Hero& other) const { return name < other.name; }
+
+
+constexpr std::string_view Hero::StatusToString(Status st) {
+	if (st == ASSIGNED) return "ASSIGNED";
+	if (st == TRAVELLING) return "TRAVELLING";
+	if (st == WORKING) return "WORKING";
+	if (st == DISRUPTED) return "DISRUPTED";
+	if (st == RETURNING) return "RETURNING";
+	if (st == RESTING) return "RESTING";
+	if (st == AVAILABLE) return "AVAILABLE";
+	if (st == UNAVAILABLE) return "UNAVAILABLE";
+	if (st == AWAITING_REVIEW) return "AWAITING_REVIEW";
+	throw std::invalid_argument("Invalid status");
+}
+constexpr std::string_view Hero::HealthToString(Health hlt) {
+	if (hlt == NORMAL) return "NORMAL";
+	if (hlt == WOUNDED) return "WOUNDED";
+	if (hlt == DOWNED) return "DOWNED";
+	throw std::invalid_argument("Invalid health");
+}

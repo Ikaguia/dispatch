@@ -110,6 +110,4 @@ bool HeroesHandler::handleInput() {
 	return false;
 }
 
-void HeroesHandler::update(float deltaTime) {
-	for (auto& hero : active_heroes) hero->update(deltaTime);
-}
+void HeroesHandler::update(float deltaTime) { for (auto& hero : active_heroes) hero->update(deltaTime); }

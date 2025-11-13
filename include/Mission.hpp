@@ -34,15 +34,14 @@ public:
 	AttrMap<int> requiredAttributes{};
 	int slots;
 	float failureTime = 60.0f;
-	float travelDuration = 10.0f;
 	float missionDuration = 20.0f;
 	bool dangerous = false;
 
 	std::set<std::shared_ptr<Hero>> assignedHeroes{};
-	Status status = PENDING;
+	Status status = Mission::PENDING;
 	float timeElapsed = 0.0f;
 
-	Mission(const std::string& name, const std::string& description, raylib::Vector2 pos, const std::map<std::string,int> &attr, int slots, float failureTime, float travelDuration, float missionDuration, bool dangerous);
+	Mission(const std::string& name, const std::string& description, raylib::Vector2 pos, const std::map<std::string,int> &attr, int slots, float failureTime, float missionDuration, bool dangerous);
 	Mission(const Mission&) = delete;
 	Mission& operator=(const Mission&) = delete;
 
