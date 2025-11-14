@@ -14,14 +14,14 @@ HeroesHandler::HeroesHandler() {
 		{"mobility", 4},
 		{"charisma", 3},
 		{"intelligence", 5}
-	}});
+	}, true});
 	active_heroes.emplace_back(new Hero{"Flambae", {
 		{"combat", 4},
 		{"vigor", 1},
 		{"mobility", 3},
 		{"charisma", 2},
 		{"intelligence", 1}
-	}});
+	}, true});
 	active_heroes.emplace_back(new Hero{"Invisigal", {
 		{"combat", 2},
 		{"vigor", 1},
@@ -63,7 +63,7 @@ HeroesHandler::HeroesHandler() {
 		{"mobility", 3},
 		{"charisma", 1},
 		{"intelligence", 2}
-	}});
+	}, true});
 }
 
 HeroesHandler& HeroesHandler::inst() {

@@ -37,11 +37,12 @@ public:
 	float elapsedTime = 0.0f;
 	float finishTime = 0.0f;
 	float restingTime = 10.0f;
+	bool flies = false;
 	Status status=Hero::AVAILABLE;
 	std::weak_ptr<Mission> mission{};
 	raylib::Vector2 pos{500, 200}, path;
 
-	Hero(const std::string& name, const std::map<std::string,int> &attr = {});
+	Hero(const std::string& name, const std::map<std::string,int> &attr = {}, bool flies=false);
 
 	AttrMap<int> attributes() const;
 	float travelSpeed() const;
