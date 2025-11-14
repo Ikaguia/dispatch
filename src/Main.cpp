@@ -7,6 +7,7 @@
 #include <Attribute.hpp>
 #include <MissionsHandler.hpp>
 #include <HeroesHandler.hpp>
+#include <CityMap.hpp>
 
 int main() {
 	AttachConsole();
@@ -20,6 +21,7 @@ int main() {
 
 	HeroesHandler& heroesHandler = HeroesHandler::inst();
 	MissionsHandler& missionsHandler = MissionsHandler::inst();
+	CityMap& cityMap = CityMap::inst();
 
 	while (!window.ShouldClose()) {
 		float deltaTime = GetFrameTime();
@@ -28,6 +30,8 @@ int main() {
 
 		bool handled = heroesHandler.handleInput();
 		if (!handled) missionsHandler.handleInput();
+
+		cityMap.update(deltaTime);
 		heroesHandler.update(deltaTime);
 		missionsHandler.update(deltaTime);
 
@@ -41,8 +45,9 @@ int main() {
 		window.ClearBackground(RAYWHITE);
 		background.Draw({0, 0}, 0, 1.0f * screenWidth / background.GetWidth());
 
+		cityMap.renderUI(window);
 		heroesHandler.renderUI();
-		missionsHandler.renderUI();
+		// missionsHandler.renderUI();
 
 		EndDrawing();
 	}

@@ -94,6 +94,19 @@ void Utils::drawTextCenteredShadow(const std::string& text, raylib::Vector2 cent
 	Utils::drawTextCentered(text, center, font, size, color, spacing, true, shadowColor, shadowSpacing);
 }
 
+void Utils::drawLineGradient(const raylib::Vector2& src, const raylib::Vector2& dest, raylib::Color srcColor, raylib::Color destColor, int steps) {
+	if (steps < 2) throw std::invalid_argument("Steps needs to be >= 2");
+	raylib::Vector2 step = (dest-src) / float(steps), cur = src, nxt;
+	raylib::Color color;
+	for (int i = 0; i < (steps+1); i++) {
+		nxt = cur + step;
+		color = srcColor.Lerp(destColor, (1.0f*i)/steps);
+		DrawLineEx(cur, nxt, 4, color);
+		cur = nxt;
+	}
+}
+
+
 std::string Utils::addLineBreaks(const std::string_view& text, float maxWidth, const raylib::Font& font, float fontSize, float spacing, const std::string& dividers) {
 	std::string out;
 	std::string cur(text);
