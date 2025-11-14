@@ -67,6 +67,7 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 	raylib::Rectangle rect{pos.x, pos.y, 93, 115};
 	raylib::Color color{ColorAlpha(GRAY, 0.4f)}, txtColor{};
 	std::string txt;
+	float progress = 1.0f;
 	switch(status) {
 		case Hero::ASSIGNED:
 			color = ColorAlpha(ORANGE, 0.15f); break;
@@ -86,6 +87,7 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 		case Hero::RESTING:
 			txt = "RESTING";
 			txtColor = ColorLerp(LIME, SKYBLUE, 0.6f);
+			progress = 1.0f - (elapsedTime / restingTime);
 			break;
 		case Hero::AWAITING_REVIEW:
 			txt = "AWAITING REVIEW";
@@ -105,7 +107,10 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 
 	if (!txt.empty()) {
 		raylib::Rectangle txtRect{rect.x+3, rect.y+3, rect.width-6, 20};
-		txtRect.Draw(txtColor);
+		raylib::Rectangle txtRect1{txtRect.x, txtRect.y, progress * txtRect.width, txtRect.height};
+		raylib::Rectangle txtRect2{txtRect.x + (progress * txtRect.width), txtRect.y, (1-progress) * txtRect.width, txtRect.height};
+		txtRect1.Draw(txtColor);
+		txtRect2.Draw(LIGHTGRAY);
 		txtRect.DrawLines(BLACK);
 		Utils::drawTextCentered(txt, Utils::center(txtRect), raylib::Font{}, 12, WHITE, 2, true);
 	}
