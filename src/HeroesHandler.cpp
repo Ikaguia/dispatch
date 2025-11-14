@@ -72,15 +72,15 @@ HeroesHandler& HeroesHandler::inst() {
 }
 
 
-std::shared_ptr<const Hero> HeroesHandler::operator[](const std::string& name) const {
+std::weak_ptr<const Hero> HeroesHandler::operator[](const std::string& name) const {
 	auto it = std::find_if(active_heroes.begin(), active_heroes.end(), [&](const std::shared_ptr<Hero>& hero) { return hero->name == name; });
 	if (it != active_heroes.end()) return std::const_pointer_cast<const Hero>(*it);
-	return nullptr;
+	return {};
 }
-std::shared_ptr<Hero> HeroesHandler::operator[](const std::string& name) {
+std::weak_ptr<Hero> HeroesHandler::operator[](const std::string& name) {
 	auto it = std::find_if(active_heroes.begin(), active_heroes.end(), [&](const std::shared_ptr<Hero>& hero) { return hero->name == name; });
 	if (it != active_heroes.end()) return *it;
-	return nullptr;
+	return {};
 }
 
 

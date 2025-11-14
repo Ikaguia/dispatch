@@ -39,7 +39,7 @@ public:
 	float restingTime = 10.0f;
 	Status status=Hero::AVAILABLE;
 	std::weak_ptr<Mission> mission{};
-	raylib::Vector2 pos{500, 200};
+	raylib::Vector2 pos{500, 200}, path;
 
 	Hero(const std::string& name, const std::map<std::string,int> &attr = {});
 
@@ -53,6 +53,7 @@ public:
 	void changeStatus(Status st, std::weak_ptr<Mission> msn, float fnTime=0.0f);
 	void wound();
 	void heal();
+	bool updatePath();
 
 	bool operator<(const Hero& other) const;
 

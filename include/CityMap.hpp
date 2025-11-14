@@ -15,7 +15,7 @@ public:
 	raylib::Vector2 sourceSize;
 
 	void load(std::string fileName);
-	void renderUI(const raylib::Window& window);
+	void renderUI();
 	void update(float elapsedTime);
 
 	int closestPoint(raylib::Vector2 p);

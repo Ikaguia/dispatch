@@ -3,6 +3,7 @@
 #include <Utils.hpp>
 #include <Hero.hpp>
 #include <Mission.hpp>
+#include <CityMap.hpp>
 
 Hero::Hero(const std::string& name, const std::map<std::string, int> &attr) : name(name), real_attributes{} {
 	for (auto [attrName, value] : attr) {
@@ -24,18 +25,20 @@ float Hero::travelSpeed() const { return travelSpeedMult * (30 + 1.5f*attributes
 
 void Hero::update(float deltaTime) {
 	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
-		std::shared_ptr<Mission> ms = (status == Hero::TRAVELLING) ? mission.lock() : nullptr;
-		raylib::Vector2 dest = (status == Hero::TRAVELLING) ? ms->position : raylib::Vector2{500,200};
-		float dist = pos.Distance(dest);
+		float dist = pos.Distance(path);
 		float speed = travelSpeed() * deltaTime;
 		if (dist <= speed) {
-			pos = dest;
-			if (status == Hero::TRAVELLING) {
-				changeStatus(Hero::WORKING);
-				if (ms->status != Mission::PROGRESS) ms->changeStatus(Mission::PROGRESS);
+			pos = path;
+			bool completed = updatePath();
+			if (completed) {
+				if (status == Hero::TRAVELLING) {
+					std::shared_ptr<Mission> ms = mission.lock();
+					changeStatus(Hero::WORKING);
+					if (ms->status != Mission::PROGRESS) ms->changeStatus(Mission::PROGRESS);
+				}
+				else changeStatus(Hero::RESTING, restingTime);
 			}
-			else changeStatus(Hero::RESTING, restingTime);
-		} else pos = pos.MoveTowards(dest, speed);
+		} else pos = pos.MoveTowards(path, speed);
 	} else elapsedTime += deltaTime;
 
 	if (elapsedTime >= finishTime) switch (status) {
@@ -111,7 +114,7 @@ void Hero::changeStatus(Status st, std::weak_ptr<Mission> msn, float fnTime) {
 	mission = msn;
 	finishTime = fnTime;
 	elapsedTime = 0;
-	Utils::println("changeStatus hero:{}, st:{}, msn:{}, fnTime:{}", name, StatusToString(st), msn.expired() ? "null" : msn.lock()->name, fnTime);
+	updatePath();
 }
 void Hero::wound(){
 	if (health == Health::NORMAL) health = Health::WOUNDED;
@@ -120,6 +123,35 @@ void Hero::wound(){
 void Hero::heal(){
 	if (health == Health::DOWNED) health = Health::WOUNDED;
 	else health = Health::NORMAL;
+}
+bool Hero::updatePath() {
+	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
+		Utils::println("Updating path for {}", name);
+		CityMap& cityMap = CityMap::inst();
+		raylib::Vector2 dest = (status == Hero::TRAVELLING) ? mission.lock()->position : cityMap.points[89];
+		int posIDX = cityMap.closestPoint(pos);
+		int destIDX = cityMap.closestPoint(dest);
+		int pathIDX = cityMap.shortestPath(posIDX, destIDX);
+		Utils::println("	posIDX:{}, destIdx:{}, pathIDX:{}", posIDX, destIDX, pathIDX);
+
+		if (path == raylib::Vector2{0,0}) {
+			if (status == Hero::TRAVELLING) posIDX = 89;
+			path = cityMap.points[posIDX];
+			Utils::println("	path was unitialized, setting to {}: {},{}", posIDX, path.x, path.y);
+		} else if (posIDX == destIDX) {
+			if (pos == dest) {
+				path = raylib::Vector2{0,0};
+				Utils::println("	path was completed, resetting to 0,0");
+				return true;
+			}
+			path = dest;
+			Utils::println("	path finishing, setting to dest: {},{}", path.x, path.y);
+		} else {
+			path = cityMap.points[pathIDX];
+			Utils::println("	path in progress, setting to {}: {},{}", pathIDX, path.x, path.y);
+		}
+	}
+	return false;
 }
 
 

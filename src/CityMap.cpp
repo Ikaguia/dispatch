@@ -5,6 +5,8 @@
 #include <CityMap.hpp>
 #include <Utils.hpp>
 
+extern raylib::Window window;
+
 CityMap::CityMap(std::string fileName) { load(fileName); }
 
 CityMap& CityMap::inst() {
@@ -18,11 +20,14 @@ void CityMap::load(std::string fileName) {
 	std::ifstream file{fileName};
 	int n, m, k;
 	file >> n >> sourceSize.x >> sourceSize.y;
+	raylib::Vector2 scaling{window.GetWidth() / sourceSize.x, window.GetHeight() / sourceSize.y};
 	points.resize(n);
 	roads.resize(n);
 	for (int i = 0; i < n; i++) {
 		auto& point = points[i];
 		file >> point.x >> point.y >> m;
+		point.x *= scaling.x;
+		point.y *= scaling.y;
 		Utils::println("Loaded point {}: {},{}", i, point.x, point.y);
 		for (int j = 0; j < m; j++) {
 			file >> k;
@@ -32,22 +37,21 @@ void CityMap::load(std::string fileName) {
 	}
 	Utils::println("Loaded {} with {} points", fileName, n);
 }
-void CityMap::renderUI(const raylib::Window& window) {
-	raylib::Vector2 scaling{window.GetWidth() / sourceSize.x, window.GetHeight() / sourceSize.y};
+void CityMap::renderUI() {
 	int sz = static_cast<int>(points.size());
 	for (int i = 0; i < sz; i++) {
-		raylib::Vector2 src{points[i].x * scaling.x, points[i].y * scaling.y};
+		raylib::Vector2 src = points[i];
 		raylib::Color srcColor{static_cast<unsigned int>(i * static_cast<int>(src.x) * static_cast<int>(src.y))};
 		srcColor = srcColor.Alpha(1.0f);
 		for (int j : roads[i]) {
-			raylib::Vector2 dest{points[j].x * scaling.x, points[j].y * scaling.y};
+			raylib::Vector2 dest = points[j];
 			raylib::Color destColor{static_cast<unsigned int>(i * static_cast<int>(dest.x) * static_cast<int>(dest.y))};
 			destColor = destColor.Alpha(1.0f);
 			Utils::drawLineGradient(src, dest, srcColor, destColor, 20);
 		}
 	}
 	for (int i = 0; i < sz; i++) {
-		raylib::Vector2 src{points[i].x * scaling.x, points[i].y * scaling.y};
+		raylib::Vector2 src = points[i];
 		raylib::Color srcColor{static_cast<unsigned int>(i * static_cast<int>(src.x) * static_cast<int>(src.y))};
 		srcColor = srcColor.Alpha(1.0f);
 		src.DrawCircle(12, srcColor);
@@ -78,15 +82,15 @@ int CityMap::shortestPath(int src, int dest) {
 		std::queue<int> to_visit;
 		for (int i = 0; i < sz; i++) best.emplace_back(-1, 100000000);
 		to_visit.push(dest);
-		best[dest] = {-1, 0};
+		best[dest] = {dest, 0};
 		while(!to_visit.empty()) {
 			int cur = to_visit.front();
 			to_visit.pop();
-			for(int i : roads[cur]) {
-				float dst = best[i].second + points[cur].Distance(points[i]);
-				if (dst < best[i].second) {
-					best[i] = {i, dst};
-					to_visit.push(i);
+			for(int adj : roads[cur]) {
+				float dst = best[cur].second + points[cur].Distance(points[adj]);
+				if (best[adj].first == -1 || dst < best[adj].second) {
+					best[adj] = {cur, dst};
+					to_visit.push(adj);
 				}
 			}
 		}

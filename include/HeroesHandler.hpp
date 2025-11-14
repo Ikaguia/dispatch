@@ -17,8 +17,8 @@ public:
 
 	static HeroesHandler& inst();
 
-	std::shared_ptr<const Hero> operator[](const std::string& name) const;
-	std::shared_ptr<Hero> operator[](const std::string& name);
+	std::weak_ptr<const Hero> operator[](const std::string& name) const;
+	std::weak_ptr<Hero> operator[](const std::string& name);
 
 	void renderUI();
 	bool handleInput();

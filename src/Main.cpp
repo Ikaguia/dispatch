@@ -9,12 +9,11 @@
 #include <HeroesHandler.hpp>
 #include <CityMap.hpp>
 
+raylib::Window window(960, 540, "raylib-cpp - basic window");
+
 int main() {
 	AttachConsole();
 
-	int screenWidth = 960;
-	int screenHeight = 540;
-	raylib::Window window(screenWidth, screenHeight, "raylib-cpp - basic window");
 	raylib::Texture background("resources/images/background.png");
 	SetTargetFPS(60);
 	srand(time(nullptr));
@@ -22,18 +21,21 @@ int main() {
 	HeroesHandler& heroesHandler = HeroesHandler::inst();
 	MissionsHandler& missionsHandler = MissionsHandler::inst();
 	CityMap& cityMap = CityMap::inst();
+	bool paused = false;
 
 	while (!window.ShouldClose()) {
 		float deltaTime = GetFrameTime();
 
-		if (missionsHandler.paused()) deltaTime = 0;
+		paused = missionsHandler.paused();
 
 		bool handled = heroesHandler.handleInput();
 		if (!handled) missionsHandler.handleInput();
 
-		cityMap.update(deltaTime);
-		heroesHandler.update(deltaTime);
-		missionsHandler.update(deltaTime);
+		if (!paused) {
+			cityMap.update(deltaTime);
+			heroesHandler.update(deltaTime);
+			missionsHandler.update(deltaTime);
+		}
 
 		if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 			raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
@@ -43,11 +45,11 @@ int main() {
 		BeginDrawing();
 
 		window.ClearBackground(RAYWHITE);
-		background.Draw({0, 0}, 0, 1.0f * screenWidth / background.GetWidth());
+		background.Draw({0, 0}, 0, 1.0f * window.GetWidth() / background.GetWidth());
 
-		cityMap.renderUI(window);
+		// cityMap.renderUI();
 		heroesHandler.renderUI();
-		// missionsHandler.renderUI();
+		missionsHandler.renderUI();
 
 		EndDrawing();
 	}
