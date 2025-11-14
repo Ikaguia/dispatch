@@ -70,8 +70,18 @@ void MissionsHandler::handleInput() {
 }
 
 void MissionsHandler::update(float deltaTime) {
+	std::vector<std::shared_ptr<Mission>> finished;
+
 	if (!selectedMission.expired()) selectedMission.lock()->update(deltaTime);
-	else for (auto& mission : active_missions) mission->update(deltaTime);
+	else for (auto& mission : active_missions) {
+		mission->update(deltaTime);
+		if (mission->status == Mission::DONE || mission->status == Mission::MISSED) finished.push_back(mission);
+	}
+
+	for (auto& mission : finished) {
+		active_missions.erase(mission);
+		previous_missions.insert(mission);
+	}
 
 	timeToNext -= deltaTime;
 	if (timeToNext <= 0) {

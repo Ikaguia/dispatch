@@ -77,16 +77,12 @@ void Mission::changeStatus(Status newStatus) {
 			hero->wound();
 			std::cout << hero->name << " was wounded" << std::endl;
 		}
-	} else if (newStatus == Mission::DONE) {
+	} else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		for (auto& hero : assignedHeroes) {
 			if (hero->status == Hero::AWAITING_REVIEW) hero->changeStatus(Hero::AVAILABLE, {}, 0.0f);
 			else hero->mission.reset();
 		}
-		auto ptr = shared_from_this();
-		MissionsHandler::inst().previous_missions.insert(ptr);
-		MissionsHandler::inst().active_missions.erase(ptr);
-	} else if (newStatus == Mission::MISSED) {}
-	else throw std::invalid_argument("Invalid mission status change");
+	} else throw std::invalid_argument("Invalid mission status change");
 }
 
 void Mission::update(float deltaTime) {

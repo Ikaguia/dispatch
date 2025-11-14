@@ -46,6 +46,7 @@ public:
 
 	AttrMap<int> attributes() const;
 	float travelSpeed() const;
+	bool canFly() const;
 
 	void update(float deltaTime);
 	void renderUI(raylib::Vector2 pos) const;

@@ -23,6 +23,17 @@ AttrMap<int> Hero::attributes() const {
 
 float Hero::travelSpeed() const { return travelSpeedMult * (50 + 2.5f*attributes()[Attribute::MOBILITY]); }
 
+bool Hero::canFly() const {
+	if (flies) return true;
+	if (!mission.expired()) {
+		auto heroes = mission.lock()->assignedHeroes;
+		for (auto& hero : heroes) {
+			if (hero->name == "Sonar") return true;
+		}
+	}
+	return false;
+}
+
 void Hero::update(float deltaTime) {
 	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
 		float dist = pos.Distance(path);
@@ -129,11 +140,6 @@ bool Hero::updatePath() {
 		CityMap& cityMap = CityMap::inst();
 		raylib::Vector2 dest = (status == Hero::TRAVELLING) ? mission.lock()->position : cityMap.points[89];
 
-		if (flies) {
-			path = dest;
-			return pos == dest;
-		}
-
 		int posIDX = cityMap.closestPoint(pos);
 		int destIDX = cityMap.closestPoint(dest);
 		int pathIDX = cityMap.shortestPath(posIDX, destIDX);
@@ -141,6 +147,9 @@ bool Hero::updatePath() {
 		if (path == raylib::Vector2{0,0}) {
 			if (status == Hero::TRAVELLING) posIDX = 89;
 			path = cityMap.points[posIDX];
+		} else if (canFly()) {
+			path = dest;
+			return pos == dest;
 		} else if (posIDX == destIDX) {
 			if (pos == dest) {
 				path = raylib::Vector2{0,0};
