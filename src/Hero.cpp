@@ -1,26 +1,37 @@
 #include <cctype>
 
 #include <Utils.hpp>
+#include <Common.hpp>
 #include <Hero.hpp>
 #include <Mission.hpp>
 #include <CityMap.hpp>
 
-Hero::Hero(const std::string& name, const std::map<std::string, int> &attr, bool flies, int lvl) : name{name}, real_attributes{}, flies{flies} {
+Hero::Hero(const std::string& name, const std::string& nickname, const std::string& bio, const std::vector<std::string>& tags, const std::map<std::string,int> &attr, bool flies, int lvl) :
+	name{name},
+	nickname{nickname},
+	bio{bio},
+	tags{tags},
+	real_attributes{},
+	flies{flies}
+{
 	int total = 0;
 	for (auto [attrName, value] : attr) {
 		Attribute attribute = Attribute::fromString(attrName);
 		real_attributes[attribute] = value;
 		total += value;
 	}
-	level = (lvl == -1) ? std::max(total - 5, 1) : lvl;
+	total += skillPoints;
+	level = (lvl == -1) ? std::max(total - 11, 1) : lvl;
 };
 
 
 AttrMap<int> Hero::attributes() const {
 	if (health == Health::NORMAL) return real_attributes;
 	AttrMap<int> attrs = real_attributes;
-	if (health == Health::WOUNDED) for (auto& [key, val] : attrs) if (val > 1) val--;
-	if (health == Health::DOWNED) for (auto& [key, val] : attrs) val = 1;
+	for (auto& [key, val] : attrs) {
+		if (health == Health::WOUNDED) if (val > 1) val--;
+		if (health == Health::DOWNED) val = 1;
+	}
 	return attrs;
 }
 
@@ -117,7 +128,7 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 		txtRect1.Draw(txtColor);
 		txtRect2.Draw(LIGHTGRAY);
 		txtRect.DrawLines(BLACK);
-		Utils::drawTextCentered(txt, Utils::center(txtRect), raylib::Font{}, 12, WHITE, 2, true);
+		Utils::drawTextCentered(txt, Utils::center(txtRect), Dispatch::UI::defaultFont, 12, WHITE, 2, true);
 	}
 
 	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
@@ -129,7 +140,7 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 
 	raylib::Vector2 xpPos{rect.x + rect.width - 17, rect.y + rect.height - 25};
 	Utils::drawFilledCircleVertical(xpPos, 10, (float)exp / maxExp(), DARKGRAY, GOLD, WHITE);
-	Utils::drawTextCentered("*", xpPos, raylib::Font{}, 16, WHITE);
+	Utils::drawTextCentered("*", xpPos, Dispatch::UI::defaultFont, 16, WHITE);
 }
 
 
@@ -153,7 +164,25 @@ void Hero::addExp(int xp) {
 	exp += xp;
 	while (exp >= maxExp()) {
 		exp -= maxExp();
-		level++;
+		levelUp();
+	}
+}
+void Hero::levelUp() {
+	level++;
+	skillPoints++;
+}
+void Hero::applyAttributeChanges() {
+	for (int i = 0; i < Attribute::COUNT; i++) {
+		Attribute attr = Attribute::Values[i];
+		real_attributes[attr] += unconfirmed_attributes[attr];
+		unconfirmed_attributes[attr] = 0;
+	}
+}
+void Hero::resetAttributeChanges() {
+	for (int i = 0; i < Attribute::COUNT; i++) {
+		Attribute attr = Attribute::Values[i];
+		skillPoints += unconfirmed_attributes[attr];
+		unconfirmed_attributes[attr] = 0;
 	}
 }
 bool Hero::updatePath() {
@@ -188,7 +217,7 @@ bool Hero::updatePath() {
 bool Hero::operator<(const Hero& other) const { return name < other.name; }
 
 
-constexpr std::string_view Hero::StatusToString(Status st) {
+std::string_view Hero::StatusToString(Status st) {
 	if (st == ASSIGNED) return "ASSIGNED";
 	if (st == TRAVELLING) return "TRAVELLING";
 	if (st == WORKING) return "WORKING";
@@ -200,7 +229,7 @@ constexpr std::string_view Hero::StatusToString(Status st) {
 	if (st == AWAITING_REVIEW) return "AWAITING_REVIEW";
 	throw std::invalid_argument("Invalid status");
 }
-constexpr std::string_view Hero::HealthToString(Health hlt) {
+std::string_view Hero::HealthToString(Health hlt) {
 	if (hlt == NORMAL) return "NORMAL";
 	if (hlt == WOUNDED) return "WOUNDED";
 	if (hlt == DOWNED) return "DOWNED";

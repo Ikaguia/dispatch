@@ -21,17 +21,19 @@ int main() {
 	HeroesHandler& heroesHandler = HeroesHandler::inst();
 	MissionsHandler& missionsHandler = MissionsHandler::inst();
 	CityMap& cityMap = CityMap::inst();
-	bool paused = false;
+	std::string paused = "";
 
 	while (!window.ShouldClose()) {
 		float deltaTime = GetFrameTime();
 
-		paused = missionsHandler.paused();
+		if (missionsHandler.paused()) paused = "mission";
+		else if (heroesHandler.paused()) paused = "hero";
+		else paused = "";
 
 		bool handled = heroesHandler.handleInput();
 		if (!handled) missionsHandler.handleInput();
 
-		if (!paused) {
+		if (paused == "") {
 			cityMap.update(deltaTime);
 			heroesHandler.update(deltaTime);
 			missionsHandler.update(deltaTime);
@@ -47,9 +49,15 @@ int main() {
 		window.ClearBackground(RAYWHITE);
 		background.Draw({0, 0}, 0, 1.0f * window.GetWidth() / background.GetWidth());
 
-		// cityMap.renderUI();
-		heroesHandler.renderUI();
-		missionsHandler.renderUI();
+		if (paused == "hero") {
+			// cityMap.renderUI();
+			missionsHandler.renderUI();
+			heroesHandler.renderUI();
+		} else {
+			// cityMap.renderUI();
+			heroesHandler.renderUI();
+			missionsHandler.renderUI();
+		}
 
 		EndDrawing();
 	}

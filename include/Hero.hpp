@@ -12,10 +12,12 @@ class Hero;
 
 class Hero {
 public:
-	const std::string name;
+	std::string name, nickname, bio;
+	std::vector<std::string> tags;
 private:
 	AttrMap<int> real_attributes;
 public:
+	AttrMap<int> unconfirmed_attributes;
 	enum Status {
 		ASSIGNED,
 		TRAVELLING,
@@ -40,11 +42,12 @@ public:
 	bool flies = false;
 	int level = 1;
 	int exp = 0;
-	Status status=Hero::AVAILABLE;
+	int skillPoints = 0;
+	Status status{Hero::AVAILABLE};
 	std::weak_ptr<Mission> mission{};
 	raylib::Vector2 pos{500, 200}, path;
 
-	Hero(const std::string& name, const std::map<std::string,int> &attr = {}, bool flies=false, int lvl=-1);
+	Hero(const std::string& name, const std::string& nickname, const std::string& bio, const std::vector<std::string>& tags, const std::map<std::string,int> &attr = {}, bool flies=false, int lvl=-1);
 
 	AttrMap<int> attributes() const;
 	float travelSpeed() const;
@@ -59,10 +62,13 @@ public:
 	void wound();
 	void heal();
 	void addExp(int xp);
+	void levelUp();
+	void applyAttributeChanges();
+	void resetAttributeChanges();
 	bool updatePath();
 
 	bool operator<(const Hero& other) const;
 
-	static constexpr std::string_view StatusToString(Status st);
-	static constexpr std::string_view HealthToString(Health hlt);
+	static std::string_view StatusToString(Status st);
+	static std::string_view HealthToString(Health hlt);
 };

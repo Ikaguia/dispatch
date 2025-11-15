@@ -6,6 +6,7 @@
 #include <format>
 
 #include <Utils.hpp>
+#include <Common.hpp>
 
 std::string Utils::toUpper(std::string str) {
 	std::transform(str.begin(), str.end(), str.begin(),
@@ -17,8 +18,6 @@ int Utils::randInt(int low, int high) { return rand()%(high-low+1) + low; }
 
 void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg, raylib::Color bgLines) {
 	const int sides = Attribute::COUNT;
-	static raylib::Font font{};
-	static raylib::Font emojiFont{"resources/fonts/NotoEmoji-Regular.ttf", 32, (int[]){ 0x2694, 0x1F6E1, 0x1F3C3, 0x1F4AC, 0x1F9E0, 0 }, 5};
 	float baseRotation = 90.0f + 180.0f / sides;
 	DrawPoly(center, sides, sideLength+1, baseRotation, bg);
 	DrawPolyLines(center, sides, sideLength-1, baseRotation, WHITE);
@@ -30,9 +29,9 @@ void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector
 		auto pos = center + raylib::Vector2{0, -(sideLength * 1.33f)}.Rotate(i * 2.0f * PI / sides);
 		pos.DrawCircle(18, bg);
 		DrawCircleLines(pos.x, pos.y, 16, WHITE);
-		Utils::drawTextCenteredShadow(attrIcon, pos, emojiFont, 26);
+		Utils::drawTextCenteredShadow(attrIcon, pos, Dispatch::UI::emojiFont, 26);
 		// std::string attrName = (std::string)attr.toString().substr(0, 3);
-		// Utils::drawTextCenteredShadow(attrName, pos, font, 16);
+		// Utils::drawTextCenteredShadow(attrName, pos, Dispatch::UI::defaultFont, 16);
 	}
 	for (auto [attrs, color, drawNumbers] : attributes) {
 		if (attrs.size() != sides) continue;
@@ -59,8 +58,8 @@ void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector
 			if (drawNumbers) {
 				point.DrawCircle(6, color);
 				auto text = std::to_string(value);
-				auto sz = font.MeasureText(text, 12, 2);
-				font.DrawText(text, point - sz/2, 12, 2, BLACK);
+				auto sz = Dispatch::UI::defaultFont.MeasureText(text, 12, 2);
+				Dispatch::UI::defaultFont.DrawText(text, point - sz/2, 12, 2, BLACK);
 			} else point.DrawCircle(3, color.Fade(0.4f));
 		}
 	}
@@ -115,7 +114,7 @@ void Utils::drawFilledCircleVertical(const raylib::Vector2& center, float radius
 	center.DrawCircle(radius, topColor);
 	float filledHeight = 2.0f * radius * filled;
 	raylib::Rectangle clip{center.x - radius, center.y + radius - filledHeight, radius * 2.0f, filledHeight};
-	BeginScissorMode(int{clip.x}, int{clip.y}, int{clip.width}, int{clip.height});
+	BeginScissorMode(static_cast<int>(clip.x), static_cast<int>(clip.y), static_cast<int>(clip.width), static_cast<int>(clip.height));
 		center.DrawCircle(radius, bottomColor);
 	EndScissorMode();
 }
