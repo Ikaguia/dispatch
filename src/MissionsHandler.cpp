@@ -7,7 +7,9 @@
 #include <Utils.hpp>
 #include <Attribute.hpp>
 
-MissionsHandler::MissionsHandler() {}
+MissionsHandler::MissionsHandler() {
+	active_missions.emplace(new Mission{"resources/data/missions/MuseumHeist.txt"});
+}
 
 MissionsHandler& MissionsHandler::inst() {
 	static MissionsHandler singleton;

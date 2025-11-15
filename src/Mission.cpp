@@ -3,6 +3,7 @@
 #include <iostream>
 #include <format>
 #include <memory>
+#include <fstream>
 
 #include <Utils.hpp>
 #include <Common.hpp>
@@ -42,6 +43,31 @@ Mission::Mission(
 		requiredAttributes[attribute] = value;
 	}
 };
+
+Mission::Mission(const std::string& fileName) {
+	std::ifstream file(fileName);
+	int n;
+	file.ignore(); std::getline(file, name);
+	file.ignore(); std::getline(file, type);
+	file.ignore(); std::getline(file, caller);
+	file.ignore(); std::getline(file, description);
+	file >> n;
+	requirements.resize(n);
+	file.ignore(); for (int i = 0; i < n; i++) std::getline(file, requirements[i]);
+	file >> position.x >> position.y;
+	for (Attribute attr : Attribute::Values) file >> requiredAttributes[attr];
+	file >> slots;
+	file >> difficulty;
+	file >> failureTime;
+	file >> missionDuration;
+	file >> dangerous;
+	Utils::println("Loaded mission {} from {}", name, fileName);
+	Utils::println("  Type: {}, Caller: {}", type, caller);
+	Utils::println("  Description: {}", description);
+	Utils::println("  Position: ({}, {}), Slots: {}, Difficulty: {}, Dangerous: {}", position.x, position.y, slots, difficulty, dangerous);
+	for (int i = 0; i < n; i++) Utils::println("  Requirement {}: {}", i+1, requirements[i]);
+	for (Attribute attr : Attribute::Values) Utils::println("  Required {}: {}", attr.toString(), requiredAttributes[attr]);
+}
 
 void Mission::toggleHero(std::shared_ptr<Hero> hero) {
 	bool assigned = assignedHeroes.count(hero);

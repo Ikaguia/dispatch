@@ -43,6 +43,7 @@ public:
 	float timeElapsed = 0.0f;
 
 	Mission(const std::string& name, const std::string& type, const std::string& caller, const std::string& description, const std::vector<std::string>& requirements, raylib::Vector2 pos, const std::map<std::string,int> &attr, int slots, int difficulty, float failureTime, float missionDuration, bool dangerous);
+	Mission(const std::string& fileName);
 	Mission(const Mission&) = delete;
 	Mission& operator=(const Mission&) = delete;
 

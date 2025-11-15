@@ -1,0 +1,15 @@
+MuseumHeist
+Robbery
+Ronaldo
+Thieves are breaking into the museum. Avoid sensors and capture them.
+3
+Security system taken over
+Avoid motion sensors
+Apprehend the thieves
+540.0 320.0
+4 3 6 1 2
+3
+2
+90.0
+45.0
+0
