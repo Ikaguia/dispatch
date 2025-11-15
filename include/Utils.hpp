@@ -70,6 +70,8 @@ namespace Utils {
 
 	void drawLineGradient(const raylib::Vector2& src, const raylib::Vector2& dest, raylib::Color srcColor, raylib::Color destColor, int steps=50);
 
+	void drawFilledCircleVertical(const raylib::Vector2& center, float radius, float filled, raylib::Color topColor, raylib::Color bottomColor, raylib::Color borderColor=BLACK, float borderThickness=1.0f);
+
 	std::string addLineBreaks(const std::string_view& text, float maxWidth, const raylib::Font& font, float fontSize=12, float spacing=2, const std::string& dividers=" ");
 
 	raylib::Vector2 center(const raylib::Rectangle& rect);

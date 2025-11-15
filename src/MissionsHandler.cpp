@@ -30,6 +30,8 @@ Mission& MissionsHandler::addRandomMission(int difficulty, int slots) {
 		},
 		// slots
 		slots == -1 ? Utils::clamp(difficulty * Utils::randInt(10, 15) / 10, 1, 4) : slots,
+		// difficulty
+		difficulty,
 		// failure time
 		(float)Utils::randInt(10, 60),
 		// mission duration

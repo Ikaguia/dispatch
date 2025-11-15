@@ -5,11 +5,14 @@
 #include <Mission.hpp>
 #include <CityMap.hpp>
 
-Hero::Hero(const std::string& name, const std::map<std::string, int> &attr, bool flies) : name{name}, real_attributes{}, flies{flies} {
+Hero::Hero(const std::string& name, const std::map<std::string, int> &attr, bool flies, int lvl) : name{name}, real_attributes{}, flies{flies} {
+	int total = 0;
 	for (auto [attrName, value] : attr) {
 		Attribute attribute = Attribute::fromString(attrName);
 		real_attributes[attribute] = value;
+		total += value;
 	}
+	level = (lvl == -1) ? std::max(total - 5, 1) : lvl;
 };
 
 
@@ -33,6 +36,8 @@ bool Hero::canFly() const {
 	}
 	return false;
 }
+
+int Hero::maxExp() const { return 1000 * (1 + ((level-1) * (level-1) / 10)); }
 
 void Hero::update(float deltaTime) {
 	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
@@ -121,6 +126,10 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 		this->pos.DrawCircle(10, status == Hero::TRAVELLING ? BLUE : YELLOW);
 		// TODO: Draw hero portrait
 	}
+
+	raylib::Vector2 xpPos{rect.x + rect.width - 17, rect.y + rect.height - 25};
+	Utils::drawFilledCircleVertical(xpPos, 10, (float)exp / maxExp(), DARKGRAY, GOLD, WHITE);
+	Utils::drawTextCentered("*", xpPos, raylib::Font{}, 16, WHITE);
 }
 
 
@@ -139,6 +148,13 @@ void Hero::wound(){
 void Hero::heal(){
 	if (health == Health::DOWNED) health = Health::WOUNDED;
 	else health = Health::NORMAL;
+}
+void Hero::addExp(int xp) {
+	exp += xp;
+	while (exp >= maxExp()) {
+		exp -= maxExp();
+		level++;
+	}
 }
 bool Hero::updatePath() {
 	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {

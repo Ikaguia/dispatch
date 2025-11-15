@@ -101,6 +101,8 @@ bool HeroesHandler::handleInput() {
 			int idx = ((int)mousePos.x - 125) / 103;
 			int rem = ((int)mousePos.x - 125) % 103;
 			if (rem <= 90 && idx >=0 && idx < (int)active_heroes.size()) {
+				auto& hero = active_heroes[idx];
+				if (hero->status != Hero::AVAILABLE || hero->health == Hero::DOWNED) return false;
 				selectedHeroIndex = idx;
 				mission.lock()->toggleHero(active_heroes[selectedHeroIndex]);
 				return true;

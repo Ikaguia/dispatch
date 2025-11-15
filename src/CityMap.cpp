@@ -28,7 +28,7 @@ void CityMap::load(std::string fileName) {
 		file >> point.x >> point.y >> m;
 		point.x *= scaling.x;
 		point.y *= scaling.y;
-		Utils::println("Loaded point {}: {},{}", i, point.x, point.y);
+		// Utils::println("Loaded point {}: {},{}", i, point.x, point.y);
 		for (int j = 0; j < m; j++) {
 			file >> k;
 			roads[i].insert(k);

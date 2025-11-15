@@ -106,6 +106,21 @@ void Utils::drawLineGradient(const raylib::Vector2& src, const raylib::Vector2& 
 	}
 }
 
+void Utils::drawFilledCircleVertical(const raylib::Vector2& center, float radius, float filled, raylib::Color topColor, raylib::Color bottomColor, raylib::Color borderColor, float borderThickness) {
+	filled = std::clamp(filled, 0.0f, 1.0f);
+	if (borderThickness > 0.0f) {
+		center.DrawCircle(radius, borderColor);
+		radius -= borderThickness;
+	}
+	center.DrawCircle(radius, topColor);
+	float filledHeight = 2.0f * radius * filled;
+	raylib::Rectangle clip{center.x - radius, center.y + radius - filledHeight, radius * 2.0f, filledHeight};
+	BeginScissorMode(int{clip.x}, int{clip.y}, int{clip.width}, int{clip.height});
+		center.DrawCircle(radius, bottomColor);
+	EndScissorMode();
+}
+
+
 
 std::string Utils::addLineBreaks(const std::string_view& text, float maxWidth, const raylib::Font& font, float fontSize, float spacing, const std::string& dividers) {
 	std::string out;

@@ -15,6 +15,7 @@ Mission::Mission(
 	raylib::Vector2 position,
 	const std::map<std::string, int> &attr,
 	int slots,
+	int difficulty,
 	float failureTime,
 	float missionDuration,
 	bool dangerous
@@ -24,6 +25,7 @@ Mission::Mission(
 	position(position),
 	requiredAttributes{},
 	slots(slots),
+	difficulty(difficulty),
 	failureTime(failureTime),
 	missionDuration(missionDuration),
 	dangerous(dangerous)
@@ -60,7 +62,8 @@ void Mission::changeStatus(Status newStatus) {
 	status = newStatus;
 	if (newStatus != Mission::PENDING && newStatus != Mission::SELECTED) timeElapsed = 0.0f;
 
-	if (oldStatus == Mission::SELECTED && newStatus == Mission::PENDING) {
+	if (oldStatus == Mission::PENDING && newStatus == Mission::SELECTED) {}
+	else if (oldStatus == Mission::SELECTED && newStatus == Mission::PENDING) {
 		for (auto hero : assignedHeroes) hero->changeStatus(Hero::AVAILABLE, {}, 0.0f);
 		assignedHeroes.clear();
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) for (auto hero : assignedHeroes) hero->changeStatus(Hero::TRAVELLING);
@@ -69,9 +72,9 @@ void Mission::changeStatus(Status newStatus) {
 	else if (oldStatus == Mission::AWAITING_REVIEW) {
 		std::cout << "Mission " << name << " completed, it was a " << (newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure") << std::endl;
 		if (newStatus == Mission::REVIEWING_SUCESS) {
-			// TODO:
-			// int exp = 1000 / std::sqrt(getSuccessChance() || 0.001f);
-			// for (auto hero : assignedHeroes) hero.addExp(exp);
+			int exp = 200 * difficulty / std::sqrt(getSuccessChance() || 0.001f) / assignedHeroes.size();
+			for (auto& hero : assignedHeroes) hero->addExp(exp);
+			Utils::println("Each hero gained {} exp", exp);
 		} else if (newStatus == Mission::REVIEWING_FAILURE && dangerous) {
 			auto hero = Utils::random_element(assignedHeroes);
 			hero->wound();
@@ -287,12 +290,12 @@ void Mission::handleInput() {
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 		if (status == Mission::PENDING) {
-			if (mousePos.CheckCollision(position, 28)) status = Mission::SELECTED;
+			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::SELECTED);
 		} else if (status == Mission::SELECTED) {
 			if (mousePos.CheckCollision(btnCancel)) changeStatus(Mission::PENDING);
 			else if (mousePos.CheckCollision(btnStart) && !assignedHeroes.empty()) changeStatus(Mission::TRAVELLING);
 		} else if (status == Mission::AWAITING_REVIEW) {
-			if (mousePos.CheckCollision(position, 28)) status = isSuccessful() ? Mission::REVIEWING_SUCESS : Mission::REVIEWING_FAILURE;
+			if (mousePos.CheckCollision(position, 28)) changeStatus(isSuccessful() ? Mission::REVIEWING_SUCESS : Mission::REVIEWING_FAILURE);
 		} else if (status == Mission::REVIEWING_SUCESS || status == Mission::REVIEWING_FAILURE) {
 			if (mousePos.CheckCollision(btnCancel)) changeStatus(Mission::DONE);
 		}
