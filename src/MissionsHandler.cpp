@@ -1,7 +1,11 @@
 #include <exception>
+#include <algorithm>
+#include <memory>
+#include <format>
 
 #include <MissionsHandler.hpp>
 #include <Utils.hpp>
+#include <Attribute.hpp>
 
 MissionsHandler::MissionsHandler() {}
 
@@ -13,21 +17,34 @@ MissionsHandler& MissionsHandler::inst() {
 Mission& MissionsHandler::addRandomMission(int difficulty, int slots) {
 	static int missionCount = 0;
 	difficulty = difficulty == -1 ? Utils::randInt(1, 5) : difficulty;
+	std::map<std::string, int> attributes{
+		{"com", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 10)},
+		{"vig", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 10)},
+		{"mob", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 10)},
+		{"int", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 10)},
+		{"cha", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 10)}
+	};
+	std::vector<std::pair<Attribute, int>> sorted; for (const auto& [k, v] : attributes) sorted.emplace_back(Attribute::fromString(k), v);
+	std::sort(sorted.begin(), sorted.end(), [&](auto& kv1, auto& kv2){ return kv1.second > kv2.second; });
+	std::vector<std::string> requirements;
+	for (auto& [attr, val] : sorted) if (requirements.size() <3) requirements.push_back(std::format("{} {} {}", attr.toIcon(), val > 6 ? "High" : val > 3 ? "Medium" : "Low", attr.toString()));
+
+
 	auto res = active_missions.emplace(new Mission{
 		// name
 		"Random Mission " + std::to_string(++missionCount),
+		// type
+		std::vector<std::string>{"Rescue", "Assault", "Recon", "Escort", "Sabotage"}[Utils::randInt(0,4)],
+		// caller
+		std::vector<std::string>{"Agency Alpha", "Bravo Corp", "Charlie Ops", "Delta Force", "Echo Unit"}[Utils::randInt(0,4)],
 		// description
 		"A randomly generated mission.",
+		// requirements
+		requirements,
 		// position
 		{ (float)Utils::randInt(50, 900), (float)Utils::randInt(50, 350) },
 		// required attributes
-		std::map<std::string, int>{
-			{"com", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)},
-			{"vig", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)},
-			{"mob", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)},
-			{"int", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)},
-			{"cha", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 12)}
-		},
+		attributes,
 		// slots
 		slots == -1 ? Utils::clamp(difficulty * Utils::randInt(10, 15) / 10, 1, 4) : slots,
 		// difficulty

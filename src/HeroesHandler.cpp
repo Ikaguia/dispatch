@@ -17,7 +17,7 @@ HeroesHandler::HeroesHandler() {
 		{"charisma", 3},
 		{"intelligence", 5}
 	}, true});
-	active_heroes.emplace_back(new Hero{"Flambae", "Bitch who's name is Robert", "He controls the fire and flames and his skin doesn't burn", {"FIRE", "FIGHTER"}, {
+	active_heroes.emplace_back(new Hero{"Flambae", "Bitch whose name is Robert", "He controls the fire and flames and his skin doesn't burn", {"FIRE", "FIGHTER"}, {
 		{"combat", 4},
 		{"vigor", 1},
 		{"mobility", 3},
@@ -240,7 +240,7 @@ void HeroesHandler::renderUI() {
 			raylib::Rectangle radarRect{ rightRect };
 			radarRect.Draw(Dispatch::UI::bgLgt);
 			radarRect.DrawLines(BLACK);
-			auto heroAttrs = hero->attributes();
+			auto heroAttrs = hero->attributes() + hero->unconfirmed_attributes;
 			std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attrs{{ heroAttrs, ORANGE, true }};
 			Utils::drawRadarGraph(Utils::center(radarRect), 60, attrs, Dispatch::UI::textColor, BROWN);
 		}

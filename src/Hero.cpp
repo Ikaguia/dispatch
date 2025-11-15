@@ -1,4 +1,6 @@
 #include <cctype>
+#include <tuple>
+#include <memory>
 
 #include <Utils.hpp>
 #include <Common.hpp>
@@ -141,6 +143,9 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 	raylib::Vector2 xpPos{rect.x + rect.width - 17, rect.y + rect.height - 25};
 	Utils::drawFilledCircleVertical(xpPos, 10, (float)exp / maxExp(), DARKGRAY, GOLD, WHITE);
 	Utils::drawTextCentered("*", xpPos, Dispatch::UI::defaultFont, 16, WHITE);
+
+	raylib::Vector2 attrPos{rect.x + 17, rect.y + rect.height - 25};
+	Utils::drawRadarGraph(attrPos, 10, {std::tuple<AttrMap<int>, raylib::Color, bool>{attributes(), ORANGE, false}}, BLACK, BROWN, false);
 }
 
 

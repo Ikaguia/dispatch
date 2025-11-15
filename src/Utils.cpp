@@ -16,14 +16,14 @@ std::string Utils::toUpper(std::string str) {
 
 int Utils::randInt(int low, int high) { return rand()%(high-low+1) + low; }
 
-void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg, raylib::Color bgLines) {
+void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg, raylib::Color bgLines, bool icons) {
 	const int sides = Attribute::COUNT;
 	float baseRotation = 90.0f + 180.0f / sides;
 	DrawPoly(center, sides, sideLength+1, baseRotation, bg);
 	DrawPolyLines(center, sides, sideLength-1, baseRotation, WHITE);
 	for (int i = 1; i < 5; i++) DrawPolyLines(center, sides, i * sideLength / 5, baseRotation, bgLines);
 	for (int i = 0; i < sides; i++) center.DrawLine(center + raylib::Vector2{0, -sideLength}.Rotate(i * 2.0f * PI / sides), bgLines);
-	for (int i = 0; i < sides; i++) {
+	if (icons) for (int i = 0; i < sides; i++) {
 		Attribute attr{i};
 		std::string attrIcon{attr.toIcon()};
 		auto pos = center + raylib::Vector2{0, -(sideLength * 1.33f)}.Rotate(i * 2.0f * PI / sides);

@@ -59,7 +59,7 @@ namespace Utils {
 		return *std::next(s.begin(), dist(rng));
 	}
 
-	void drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg = BLACK, raylib::Color bgLines = BROWN);
+	void drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg = BLACK, raylib::Color bgLines = BROWN, bool icons=true);
 
 	void drawTextCentered(const std::string& text, raylib::Vector2 center, int size=12, raylib::Color color=WHITE, int spacing=2, bool shadow=false, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
 	void drawTextCentered(const std::string& text, raylib::Vector2 center, const raylib::Font& font, int size=12, raylib::Color color=WHITE, int spacing=2, bool shadow=false, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);

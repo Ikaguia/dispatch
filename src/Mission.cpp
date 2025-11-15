@@ -12,7 +12,10 @@
 
 Mission::Mission(
 	const std::string& name,
+	const std::string& type,
+	const std::string& caller,
 	const std::string& description,
+	const std::vector<std::string>& requirements,
 	raylib::Vector2 position,
 	const std::map<std::string, int> &attr,
 	int slots,
@@ -21,15 +24,18 @@ Mission::Mission(
 	float missionDuration,
 	bool dangerous
 ) :
-	name(name),
-	description(description),
-	position(position),
+	name{name},
+	type{type},
+	caller{caller},
+	description{description},
+	requirements{requirements},
+	position{position},
 	requiredAttributes{},
-	slots(slots),
-	difficulty(difficulty),
-	failureTime(failureTime),
-	missionDuration(missionDuration),
-	dangerous(dangerous)
+	slots{slots},
+	difficulty{difficulty},
+	failureTime{failureTime},
+	missionDuration{missionDuration},
+	dangerous{dangerous}
 {
 	for (auto [attrName, value] : attr) {
 		Attribute attribute = Attribute::fromString(attrName);
@@ -126,8 +132,8 @@ void Mission::renderUI(bool full) {
 		leftRect.DrawGradient(Dispatch::UI::bgMed, Dispatch::UI::bgMed, Dispatch::UI::bgDrk, Dispatch::UI::bgMed);
 		// Type
 		raylib::Vector2 typePos = leftRect.GetPosition() + raylib::Vector2{10, 10};
-		Dispatch::UI::fontText.DrawText("CRIME TYPE", typePos, 18, 1, Dispatch::UI::textColor);
-		raylib::Vector2 linePos = {typePos.x + Dispatch::UI::fontText.MeasureText("CRIME TYPE", 18, 1).x + 4, leftRect.y + 10};
+		Dispatch::UI::fontText.DrawText(type, typePos, 18, 1, Dispatch::UI::textColor);
+		raylib::Vector2 linePos = {typePos.x + Dispatch::UI::fontText.MeasureText(type, 18, 1).x + 4, leftRect.y + 10};
 		for (int i = 1; i <= 5; i++) {
 			linePos.DrawLine({leftRect.x + leftRect.width - 4, linePos.y}, (i*i)%3 + 1, Dispatch::UI::bgDrk);
 			linePos.y += 5;
@@ -139,12 +145,13 @@ void Mission::renderUI(bool full) {
 		// Caller
 		raylib::Rectangle callerBox{leftRect.x + 5, imgRect.y + imgRect.height, leftRect.width - 10, 40};
 		callerBox.DrawLines(BLACK);
-		Utils::drawTextCenteredY("Caller: Ronaldo", raylib::Vector2{callerBox.x + 5, callerBox.y + callerBox.height/2}, Dispatch::UI::fontText, 18, Dispatch::UI::textColor);
+		Utils::drawTextCenteredY(std::format("Caller: {}", caller), raylib::Vector2{callerBox.x + 5, callerBox.y + callerBox.height/2}, Dispatch::UI::fontText, 18, Dispatch::UI::textColor);
 		// Description
 		raylib::Rectangle descriptionBox{leftRect.x + 5, callerBox.y + callerBox.height, leftRect.width - 10, leftRect.y + leftRect.height - (callerBox.y + callerBox.height) - 5};
 		descriptionBox.DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt, Dispatch::UI::bgMed);
 		descriptionBox.DrawLines(BLACK);
-		Utils::drawTextCentered("\"Someone's robbing\n the museum...\"", Utils::center(descriptionBox), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
+		std::string desc = Utils::addLineBreaks(description, descriptionBox.width, Dispatch::UI::fontText, 14, 2);
+		Utils::drawTextCentered(desc, Utils::center(descriptionBox), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
 
 		// CENTER PANEL (title + radar + heroes + buttons)
 		raylib::Rectangle centerRect{leftRect.x + leftRect.width + 10, leftRect.y-44, 340, 380};
@@ -215,11 +222,8 @@ void Mission::renderUI(bool full) {
 		raylib::Rectangle reqsRet = Utils::inset(rightRect, {4, 30}); reqsRet.y += 10;
 		reqsRet.DrawLines(BLACK);
 		Utils::inset(reqsRet, 2).DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt);
-		std::vector<std::pair<std::string, float>> reqs = {
-			{"Security system taken over by robbers", 0},
-			{"Avoid motion sensors", 0},
-			{"Apprehend the thieves", 0}
-		};
+		std::vector<std::pair<std::string, float>> reqs;
+		for (const auto& req : requirements) reqs.emplace_back(req, 0.0f);
 		float indentSize = Dispatch::UI::fontText.MeasureText("> ", 16, 1).x, totalH=0;
 		for (auto& [txt, h] : reqs) {
 			txt = Utils::addLineBreaks(txt, reqsRet.width - 8 - indentSize, Dispatch::UI::fontText, 16, 1);

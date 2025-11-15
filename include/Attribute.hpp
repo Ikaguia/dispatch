@@ -89,4 +89,24 @@ public:
 		if (idx < 0 || idx >= Attribute::COUNT) throw std::out_of_range("Invalid Attribute index");
 		return this->at(Attribute::Values[idx]);
 	}
+
+	AttrMap<ValueType> operator+(const AttrMap<ValueType>& other) const {
+		AttrMap<ValueType> result = *this;
+		result += other;
+		return result;
+	}
+	AttrMap<ValueType>& operator+=(const AttrMap<ValueType>& other) {
+		for (Attribute attr : Attribute::Values) (*this)[attr] += other[attr];
+		return *this;
+	}
+
+	AttrMap<ValueType> operator-(const AttrMap<ValueType>& other) const {
+		AttrMap<ValueType> result = *this;
+		result -= other;
+		return result;
+	}
+	AttrMap<ValueType>& operator-=(const AttrMap<ValueType>& other) {
+		for (Attribute attr : Attribute::Values) (*this)[attr] -= other[attr];
+		return *this;
+	}
 };
