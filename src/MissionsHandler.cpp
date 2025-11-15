@@ -83,9 +83,9 @@ void MissionsHandler::update(float deltaTime) {
 		previous_missions.insert(mission);
 	}
 
-	timeToNext -= deltaTime;
+	timeToNext -= deltaTime / (1 + active_missions.size());
 	if (timeToNext <= 0) {
 		addRandomMission();
-		timeToNext = rand() % 6 + rand() % 6 + 2;
+		timeToNext = rand() % 4 + rand() % 4 + 2;
 	}
 }
