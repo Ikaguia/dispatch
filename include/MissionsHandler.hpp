@@ -10,6 +10,7 @@ class MissionsHandler {
 private:
 	MissionsHandler();
 public:
+	std::set<std::shared_ptr<Mission>> loaded_missions;
 	std::set<std::shared_ptr<Mission>> active_missions;
 	std::set<std::shared_ptr<Mission>> previous_missions;
 	std::weak_ptr<Mission> selectedMission;
@@ -17,7 +18,11 @@ public:
 
 	static MissionsHandler& inst();
 
-	Mission& addRandomMission(int difficulty=-1, int slots=-1);
+	void loadMissions(const std::string& file);
+	void loadMissions(std::ifstream& input);
+	Mission& activateMission();
+	Mission& activateMission(std::weak_ptr<Mission> mission);
+	Mission& createRandomMission(int difficulty=-1, int slots=-1);
 
 	bool paused() const;
 

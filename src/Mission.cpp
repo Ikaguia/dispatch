@@ -44,30 +44,53 @@ Mission::Mission(
 	}
 };
 
-Mission::Mission(const std::string& fileName) {
-	std::ifstream file(fileName);
+Mission::Mission(const std::string& fileName) { load(fileName); }
+Mission::Mission(std::ifstream& input) { load(input); }
+
+void Mission::load(const std::string& fileName) {
+	std::ifstream input{fileName};
+	load(input);
+}
+void Mission::load(std::ifstream& input) {
 	int n;
-	file.ignore(); std::getline(file, name);
-	file.ignore(); std::getline(file, type);
-	file.ignore(); std::getline(file, caller);
-	file.ignore(); std::getline(file, description);
-	file >> n;
+	std::getline(input, name);
+	std::getline(input, type);
+	std::getline(input, caller);
+	std::getline(input, description);
+	input >> n; input.ignore();
 	requirements.resize(n);
-	file.ignore(); for (int i = 0; i < n; i++) std::getline(file, requirements[i]);
-	file >> position.x >> position.y;
-	for (Attribute attr : Attribute::Values) file >> requiredAttributes[attr];
-	file >> slots;
-	file >> difficulty;
-	file >> failureTime;
-	file >> missionDuration;
-	file >> dangerous;
-	Utils::println("Loaded mission {} from {}", name, fileName);
+	for (int i = 0; i < n; i++) std::getline(input, requirements[i]);
+	input >> position.x >> position.y;
+	for (Attribute attr : Attribute::Values) input >> requiredAttributes[attr];
+	input >> slots;
+	input >> difficulty;
+	input >> failureTime;
+	input >> missionDuration;
+	input >> dangerous; input.ignore();
+	Utils::println("Loaded mission {}", name);
 	Utils::println("  Type: {}, Caller: {}", type, caller);
 	Utils::println("  Description: {}", description);
 	Utils::println("  Position: ({}, {}), Slots: {}, Difficulty: {}, Dangerous: {}", position.x, position.y, slots, difficulty, dangerous);
 	for (int i = 0; i < n; i++) Utils::println("  Requirement {}: {}", i+1, requirements[i]);
 	for (Attribute attr : Attribute::Values) Utils::println("  Required {}: {}", attr.toString(), requiredAttributes[attr]);
+	validate();
 }
+void Mission::validate() const {
+	if (name.empty()) throw std::invalid_argument("Mission name cannot be empty");
+	if (type.empty()) throw std::invalid_argument("Mission type cannot be empty");
+	if (caller.empty()) throw std::invalid_argument("Mission caller cannot be empty");
+	if (description.empty()) throw std::invalid_argument("Mission description cannot be empty");
+	if (slots <= 0 || slots > 4) throw std::invalid_argument("Mission slots must be between 1 and 4");
+	if (difficulty < 1 || difficulty > 5) throw std::invalid_argument("Mission difficulty must be between 1 and 5");
+	if (failureTime < 1) throw std::invalid_argument("Mission failure time must be positive");
+	if (failureTime > 1000) throw std::invalid_argument("Mission failure time must be less than 1000 seconds");
+	if (missionDuration < 1) throw std::invalid_argument("Mission duration must be positive");
+	if (missionDuration > 1000) throw std::invalid_argument("Mission duration must be less than 1000 seconds");
+	if (requirements.size() < 1 || requirements.size() > 5) throw std::invalid_argument("Mission must have between 1 and 5 requirements");
+	for (Attribute attr : Attribute::Values) if (requiredAttributes[attr] < 0 || requiredAttributes[attr] > 10) throw std::invalid_argument(std::format("Mission required attribute {} must be between 0 and 10", attr.toString()));
+	if (position.x < 50 || position.x > 900 || position.y < 50 || position.y > 350) throw std::invalid_argument("Mission position is out of bounds");
+}
+
 
 void Mission::toggleHero(std::shared_ptr<Hero> hero) {
 	bool assigned = assignedHeroes.count(hero);

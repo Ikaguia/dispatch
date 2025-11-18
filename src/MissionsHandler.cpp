@@ -2,13 +2,16 @@
 #include <algorithm>
 #include <memory>
 #include <format>
+#include <fstream>
 
 #include <MissionsHandler.hpp>
 #include <Utils.hpp>
 #include <Attribute.hpp>
 
 MissionsHandler::MissionsHandler() {
-	active_missions.emplace(new Mission{"resources/data/missions/MuseumHeist.txt"});
+	loadMissions("resources/data/missions/Missions1.txt");
+	loadMissions("resources/data/missions/Missions2.txt");
+	loadMissions("resources/data/missions/Missions3.txt");
 }
 
 MissionsHandler& MissionsHandler::inst() {
@@ -16,7 +19,33 @@ MissionsHandler& MissionsHandler::inst() {
 	return singleton;
 }
 
-Mission& MissionsHandler::addRandomMission(int difficulty, int slots) {
+
+void MissionsHandler::loadMissions(const std::string& file) {
+	Utils::println("Loading missions from {}", file);
+	std::ifstream input(file);
+	loadMissions(input);
+}
+void MissionsHandler::loadMissions(std::ifstream& input) {
+	while (input.peek() != EOF) {
+		auto mission = std::make_shared<Mission>(input);
+		loaded_missions.insert(mission);
+	}
+}
+Mission& MissionsHandler::activateMission() {
+	if (loaded_missions.empty()) return createRandomMission();
+	auto mission = Utils::random_element(loaded_missions);
+	return activateMission(mission->weak_from_this());
+}
+Mission& MissionsHandler::activateMission(std::weak_ptr<Mission> mission) {
+	auto sharedMission = mission.lock();
+	if (!sharedMission) throw std::invalid_argument("Cannot activate expired mission");
+	if (!loaded_missions.count(sharedMission)) throw std::invalid_argument("Cannot activate mission that is not loaded");
+	if (active_missions.count(sharedMission)) throw std::invalid_argument("Cannot activate mission that is already active");
+	active_missions.insert(sharedMission);
+	loaded_missions.erase(sharedMission);
+	return *sharedMission;
+}
+Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 	static int missionCount = 0;
 	difficulty = difficulty == -1 ? Utils::randInt(1, 5) : difficulty;
 	std::map<std::string, int> attributes{
@@ -30,7 +59,6 @@ Mission& MissionsHandler::addRandomMission(int difficulty, int slots) {
 	std::sort(sorted.begin(), sorted.end(), [&](auto& kv1, auto& kv2){ return kv1.second > kv2.second; });
 	std::vector<std::string> requirements;
 	for (auto& [attr, val] : sorted) if (requirements.size() <3) requirements.push_back(std::format("{} {} {}", attr.toIcon(), val > 6 ? "High" : val > 3 ? "Medium" : "Low", attr.toString()));
-
 
 	auto res = active_missions.emplace(new Mission{
 		// name
@@ -106,7 +134,7 @@ void MissionsHandler::update(float deltaTime) {
 
 	timeToNext -= deltaTime / (1 + active_missions.size());
 	if (timeToNext <= 0) {
-		addRandomMission();
+		activateMission();
 		timeToNext = rand() % 4 + rand() % 4 + 2;
 	}
 }
