@@ -68,6 +68,8 @@ namespace Utils {
 	void drawTextCenteredShadow(const std::string& text, raylib::Vector2 center, int size=12, raylib::Color color=WHITE, int spacing=2, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
 	void drawTextCenteredShadow(const std::string& text, raylib::Vector2 center, const raylib::Font& font, int size=12, raylib::Color color=WHITE, int spacing=2, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
 
+	void drawTextSequence(const std::vector<std::tuple<std::string, raylib::Font&, int, raylib::Color, int, raylib::Color, float>>& text, raylib::Vector2 position, bool centerX=false, bool centerY=false, int text_spacing=0, bool horizontal=true);
+
 	void drawLineGradient(const raylib::Vector2& src, const raylib::Vector2& dest, raylib::Color srcColor, raylib::Color destColor, int steps=50);
 
 	void drawFilledCircleVertical(const raylib::Vector2& center, float radius, float filled, raylib::Color topColor, raylib::Color bottomColor, raylib::Color borderColor=BLACK, float borderThickness=1.0f);

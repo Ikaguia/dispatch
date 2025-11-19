@@ -229,7 +229,7 @@ void Mission::renderUI(bool full) {
 		mainPanel.DrawLines(BLACK);
 		Utils::inset(mainPanel, 2).DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt);
 		// Radar graph
-		raylib::Vector2 radarCenter{mainPanel.x + mainPanel.width/2, mainPanel.y + 5*mainPanel.height/14};
+		raylib::Vector2 radarCenter{mainPanel.x + mainPanel.width/2, mainPanel.y + ((status==Mission::SELECTED)?(5*mainPanel.height/14):(mainPanel.height/2))};
 		auto totalAttributes = getTotalAttributes();
 		std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attrs{{totalAttributes, ORANGE, true}};
 		if (status != Mission::SELECTED) {
@@ -237,22 +237,41 @@ void Mission::renderUI(bool full) {
 			AttrMap<int> intersect; for (auto& [k, v] : requiredAttributes) intersect[k] = std::min(v, totalAttributes[k]);
 			attrs.emplace_back(intersect, status == Mission::REVIEWING_SUCESS ? GREEN : RED, false);
 		}
-		Utils::drawRadarGraph(radarCenter, 60.0f, attrs, Dispatch::UI::textColor, BROWN);
-		// Hero portraits
-		float start = mainPanel.x + (mainPanel.width - (slots*74 - 10)) / 2;
-		raylib::Rectangle heroRect{start, mainPanel.y + mainPanel.height - 74, 64, 64};
-		for (const auto& hero : assignedHeroes) {
-			heroRect.Draw(Fade(DARKGRAY, 0.5f));
-			heroRect.DrawLines(GRAY);
-			Utils::drawTextCentered(hero->name.substr(0, 9), Utils::center(heroRect), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
-			// TODO: Draw hero portrait
-			heroRect.x += 74;
-		}
-		for (size_t i = assignedHeroes.size(); i < static_cast<size_t>(slots); i++) {
-			heroRect.Draw(Fade(LIGHTGRAY, 0.4f));
-			heroRect.DrawLines(GRAY);
-			Utils::drawTextCentered("Empty Slot", Utils::center(heroRect), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
-			heroRect.x += 74;
+		Utils::drawRadarGraph(radarCenter, (status==Mission::SELECTED?60.0f:90.0f), attrs, Dispatch::UI::textColor, BROWN);
+		if (status == Mission::SELECTED) {
+			// Hero portraits
+			float start = mainPanel.x + (mainPanel.width - (slots*74 - 10)) / 2;
+			raylib::Rectangle heroRect{start, mainPanel.y + mainPanel.height - 74, 64, 64};
+			for (const auto& hero : assignedHeroes) {
+				heroRect.Draw(Fade(DARKGRAY, 0.5f));
+				heroRect.DrawLines(GRAY);
+				Utils::drawTextCentered(hero->name.substr(0, 9), Utils::center(heroRect), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
+				// TODO: Draw hero portrait
+				heroRect.x += 74;
+			}
+			for (size_t i = assignedHeroes.size(); i < static_cast<size_t>(slots); i++) {
+				heroRect.Draw(Fade(LIGHTGRAY, 0.4f));
+				heroRect.DrawLines(GRAY);
+				Utils::drawTextCentered("Empty Slot", Utils::center(heroRect), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
+				heroRect.x += 74;
+			}
+		} else {
+			raylib::Rectangle reviewRect{mainPanel.x + 6, mainPanel.y + mainPanel.height - 35, mainPanel.width - 12, 32};
+			raylib::Rectangle chanceRect{mainPanel.x + mainPanel.width/2 - 45, mainPanel.y + mainPanel.height - 72, 90, 34};
+			reviewRect.Draw(Dispatch::UI::bgDrk);
+			chanceRect.Draw(GOLD);
+			Utils::inset(reviewRect, 1).DrawLines(WHITE);
+			Utils::inset(chanceRect, 1).DrawLines(WHITE);
+			reviewRect.DrawLines(Dispatch::UI::bgDrk);
+			chanceRect.DrawLines(Dispatch::UI::bgDrk);
+			std::string reviewText = std::format("MISSION {}!", status == Mission::REVIEWING_SUCESS ? "COMPLETED" : "FAILED");
+			std::string chanceText = std::format("{}%", getSuccessChance());
+			std::vector<std::tuple<std::string, raylib::Font&, int, raylib::Color, int, raylib::Color, float>> chanceTexts = {
+				{std::string{"🎯"}, Dispatch::UI::emojiFont, 32, WHITE, 2, raylib::Color{0,0,0,0}, 0.0f},
+				{chanceText, Dispatch::UI::defaultFont, 20, WHITE, 2, raylib::Color{0,0,0,0}, 0.0f}
+			};
+			Utils::drawTextCentered(reviewText, Utils::center(reviewRect), Dispatch::UI::fontText, 20, WHITE);
+			Utils::drawTextSequence(chanceTexts, Utils::center(chanceRect), true, true, 2, true);
 		}
 		centerRect = Utils::inset(centerRect, -4);
 

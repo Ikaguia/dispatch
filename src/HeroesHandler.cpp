@@ -134,7 +134,7 @@ void HeroesHandler::renderUI() {
 
 			// BACK BUTTON
 			auto& btnRect = btns["BACK"];
-			btnRect = raylib::Rectangle{Utils::center(ilmRect).x, ilmRect.y + ilmRect.height + 2, 80, 30};
+			btnRect = raylib::Rectangle{Utils::center(ilmRect).x - 40, ilmRect.y + ilmRect.height + 2, 80, 30};
 			btnRect.Draw(Dispatch::UI::bgLgt);
 			btnRect.DrawLines(BLACK);
 			Utils::drawTextCentered("BACK", Utils::center(btnRect), Dispatch::UI::fontText, 20, Dispatch::UI::textColor);

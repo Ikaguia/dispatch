@@ -93,6 +93,43 @@ void Utils::drawTextCenteredShadow(const std::string& text, raylib::Vector2 cent
 	Utils::drawTextCentered(text, center, font, size, color, spacing, true, shadowColor, shadowSpacing);
 }
 
+void Utils::drawTextSequence(const std::vector<std::tuple<std::string, raylib::Font&, int, raylib::Color, int, raylib::Color, float>>& texts, raylib::Vector2 position, bool centerX, bool centerY, int text_spacing, bool horizontal) {
+	raylib::Vector2 totalSize{0,0};
+	std::vector<raylib::Vector2> sizes;
+	for (const auto& [text, font, size, color, spacing, shadowColor, shadowSpacing] : texts) {
+		raylib::Vector2 sz = font.MeasureText(text, size, spacing);
+		sizes.push_back(sz);
+		if (horizontal) {
+			totalSize.y = std::max(totalSize.y, sz.y);
+			totalSize.x += sz.x + text_spacing;
+		} else {
+			totalSize.x = std::max(totalSize.x, sz.x);
+			totalSize.y += sz.y + text_spacing;
+		}
+	}
+	if (!texts.empty()) {
+		if (horizontal) totalSize.x -= text_spacing;
+		else totalSize.y -= text_spacing;
+	}
+
+	raylib::Vector2 drawPos = position;
+	if (horizontal && centerX) drawPos.x -= totalSize.x / 2;
+	if (!horizontal && centerY) drawPos.y -= totalSize.y / 2;
+
+	for (size_t i = 0; i < texts.size(); i++) {
+		const auto& [text, font, size, color, spacing, shadowColor, shadowSpacing] = texts[i];
+		raylib::Vector2 sz = sizes[i];
+		raylib::Vector2 pos = drawPos;
+		if (horizontal && centerY) pos.y -= sz.y / 2;
+		if (!horizontal && centerX) pos.x -= sz.x / 2;
+		font.DrawText(text, pos + raylib::Vector2{shadowSpacing, shadowSpacing}, size, spacing, shadowColor);
+		font.DrawText(text, pos, size, spacing, color);
+		if (horizontal) drawPos.x += sz.x + text_spacing;
+		else drawPos.y += sz.y + text_spacing;
+	}
+}
+
+
 void Utils::drawLineGradient(const raylib::Vector2& src, const raylib::Vector2& dest, raylib::Color srcColor, raylib::Color destColor, int steps) {
 	if (steps < 2) throw std::invalid_argument("Steps needs to be >= 2");
 	raylib::Vector2 step = (dest-src) / float(steps), cur = src, nxt;
