@@ -37,6 +37,7 @@ int main() {
 	cloudShader.SetValue(cloudsResLoc, (float[2]){ scaledMapRect.width, scaledMapRect.height }, SHADER_UNIFORM_VEC2);
 	cloudShader.SetValue(cloudsSpeedLoc, (float[1]){ 0.03f }, SHADER_UNIFORM_FLOAT);
 	cloudShader.SetValue(cloudsDensityLoc, (float[1]){ 0.5f }, SHADER_UNIFORM_FLOAT);
+	raylib::Texture dummy(raylib::Image{1,1,WHITE});
 
 	while (!window.ShouldClose()) {
 		float deltaTime = GetFrameTime();
@@ -62,45 +63,40 @@ int main() {
 			std::cout << "mousePos: " << mousePos.x << "," << mousePos.y << std::endl;
 		}
 
-		// target.BeginMode();
-		// 	ClearBackground(BLACK);
-		// 	background.Draw({0, 0}, 0, bgScale);
+		target.BeginMode();
+			ClearBackground(BLACK);
+			background.Draw({0, 0}, 0, bgScale);
 
-		// 	if (paused == "hero") {
-		// 		missionsHandler.renderUI();
-		// 		heroesHandler.renderUI();
-		// 	} else {
-		// 		heroesHandler.renderUI();
-		// 		missionsHandler.renderUI();
-		// 	}
-		// target.EndMode();
-
-		// BeginDrawing();
-		// 	window.ClearBackground(BLACK);
-		// 	crtShader.BeginMode();
-		// 		DrawTextureRec(
-		// 			target.texture,
-		// 			Rectangle{0, 0, (float)target.texture.width, -(float)target.texture.height},
-		// 			Vector2{0, 0},
-		// 			WHITE
-		// 		);
-		// 	crtShader.EndMode();
-		// EndDrawing();
-
-		BeginDrawing();
-			window.ClearBackground(BLACK);
-			background.Draw({0,0}, 0, bgScale);
 			cloudShader.BeginMode();
 				DrawTexturePro(
-					background,
-					mapRect,
+					dummy,
+					{0,0,1,1},
 					scaledMapRect,
 					{0,0},
 					0.0f,
 					WHITE
 				);
-				// mapRect.Draw(WHITE);
 			cloudShader.EndMode();
+
+			if (paused == "hero") {
+				missionsHandler.renderUI();
+				heroesHandler.renderUI();
+			} else {
+				heroesHandler.renderUI();
+				missionsHandler.renderUI();
+			}
+		target.EndMode();
+
+		BeginDrawing();
+			window.ClearBackground(BLACK);
+			crtShader.BeginMode();
+				DrawTextureRec(
+					target.texture,
+					Rectangle{0, 0, (float)target.texture.width, -(float)target.texture.height},
+					Vector2{0, 0},
+					WHITE
+				);
+			crtShader.EndMode();
 		EndDrawing();
 	}
 

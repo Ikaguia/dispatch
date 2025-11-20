@@ -7,7 +7,7 @@ extern raylib::Window window;
 int crtCurve(std::string inputPath, std::string outputPath, bool warp, raylib::Vector2 curveStrength, int iterations) {
 	// load source texture
 	raylib::Texture srcTex(inputPath);
-	raylib::Rectangle srcRect{0.0f, 0.0f, srcTex.GetWidth(), srcTex.GetHeight()};
+	raylib::Rectangle srcRect{0.0f, 0.0f, static_cast<float>(srcTex.GetWidth()), static_cast<float>(srcTex.GetHeight())};
 	raylib::Rectangle srcRectFlipped = srcRect; srcRectFlipped.height *= -1;
 
 	// create render target with same size
@@ -51,7 +51,7 @@ int crtCurve(std::string inputPath, std::string outputPath, bool warp, raylib::V
 			DrawTexturePro(
 				rt.texture,
 				srcRect,
-				Rectangle{0, 0, float{window.GetWidth()}, float{window.GetHeight()}},
+				Rectangle{0, 0, static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight())},
 				Vector2{0, 0},
 				0,
 				WHITE

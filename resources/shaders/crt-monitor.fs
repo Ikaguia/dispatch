@@ -7,7 +7,7 @@ uniform sampler2D texture0;
 uniform float time;
 
 // ---- PARAMETERS ----
-const vec2 CURVE = {0.014, 0.048};        // screen curvature strength
+const vec2 CURVE = vec2(0.014, 0.048);        // screen curvature strength
 const float SCAN_INTENSITY = 0.08;
 const float SCAN_SPEED_DIV = 400;
 const float VIGNETTE_INTENSITY = 0.48;
