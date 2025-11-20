@@ -10,56 +10,56 @@
 #include <MissionsHandler.hpp>
 
 HeroesHandler::HeroesHandler() {
-	active_heroes.emplace_back(new Hero{"Sonar", "Charlie", "?", {"INTELLECTUAL", "HYBRID"}, {
+	active_heroes.emplace_back(new Hero{"Sonar", "Batboy Conman", "?", {"INTELLECTUAL", "HYBRID"}, {
 		{"combat", 1},
 		{"vigor", 2},
 		{"mobility", 4},
 		{"charisma", 3},
 		{"intelligence", 5}
 	}, true});
-	active_heroes.emplace_back(new Hero{"Flambae", "Bitch whose name is Robert", "He controls the fire and flames and his skin doesn't burn", {"FIRE", "FIGHTER"}, {
+	active_heroes.emplace_back(new Hero{"Flambae", "Controls Fire and Flame", "He controls the fire and flames and his skin doesn't burn", {"FIRE", "FIGHTER"}, {
 		{"combat", 4},
 		{"vigor", 1},
 		{"mobility", 3},
 		{"charisma", 2},
 		{"intelligence", 1}
 	}, true});
-	active_heroes.emplace_back(new Hero{"Invisigal", "Invisibitch", "?", {"THIEF", "LONER"}, {
+	active_heroes.emplace_back(new Hero{"Invisigal", "AKA Invisibitch", "?", {"THIEF", "LONER"}, {
 		{"combat", 2},
 		{"vigor", 1},
 		{"mobility", 3},
 		{"charisma", 1},
 		{"intelligence", 2}
 	}});
-	active_heroes.emplace_back(new Hero{"Punch Up", "", "?", {"FLYWEIGHT", "BRAWLER"}, {
+	active_heroes.emplace_back(new Hero{"Punch Up", "Smallest Strongman", "?", {"FLYWEIGHT", "BRAWLER"}, {
 		{"combat", 3},
 		{"vigor", 4},
 		{"mobility", 1},
 		{"charisma", 3},
 		{"intelligence", 1}
 	}});
-	active_heroes.emplace_back(new Hero{"Prism", "", "?", {"POP STAR", "ILLUSIONIST"}, {
+	active_heroes.emplace_back(new Hero{"Prism", "Trick of the Light", "?", {"POP STAR", "ILLUSIONIST"}, {
 		{"combat", 3},
 		{"vigor", 1},
 		{"mobility", 3},
 		{"charisma", 4},
 		{"intelligence", 2}
 	}});
-	active_heroes.emplace_back(new Hero{"Malevola", "", "?", {"SORCERESS", "HALF-DEMON"}, {
+	active_heroes.emplace_back(new Hero{"Malevola", "Devil form Down Under", "?", {"SORCERESS", "HALF-DEMON"}, {
 		{"combat", 3},
 		{"vigor", 2},
 		{"mobility", 2},
 		{"charisma", 3},
 		{"intelligence", 2}
 	}});
-	active_heroes.emplace_back(new Hero{"Golem", "", "?", {"DEFENDER", "VERSATILE"}, {
+	active_heroes.emplace_back(new Hero{"Golem", "The Sentient Construct", "?", {"DEFENDER", "VERSATILE"}, {
 		{"combat", 2},
 		{"vigor", 4},
 		{"mobility", 1},
 		{"charisma", 2},
 		{"intelligence", 1}
 	}});
-	active_heroes.emplace_back(new Hero{"Coupé", "", "?", {"SHADOW", "ASSASSIN"}, {
+	active_heroes.emplace_back(new Hero{"Coupé", "Merciless Mercenary", "?", {"SHADOW", "ASSASSIN"}, {
 		{"combat", 4},
 		{"vigor", 2},
 		{"mobility", 3},
@@ -87,11 +87,19 @@ std::weak_ptr<Hero> HeroesHandler::operator[](const std::string& name) {
 
 bool HeroesHandler::paused() const { return selectedHeroIndex != -1; }
 
+bool HeroesHandler::isHeroSelected(const std::weak_ptr<Hero> hero) const { return selectedHeroIndex != -1 && active_heroes[selectedHeroIndex] == hero.lock(); }
+
 void HeroesHandler::renderUI() {
-	raylib::Vector2 pos{125, 400};
-	for (auto hero : active_heroes) {
-		hero->renderUI(pos);
-		pos.x += 103;
+	raylib::Rectangle heroesRect{81, 400, 800, 115};
+	raylib::Rectangle heroRect{heroesRect.x, heroesRect.y, 93, heroesRect.height};
+	int spacing = (heroesRect.width - heroRect.width * active_heroes.size()) / (active_heroes.size() - 1);
+	for (auto [idx, hero] : Utils::enumerate(active_heroes)) {
+		int i = std::min(idx, (active_heroes.size()-1)-idx);
+		heroRect.width = 89.4f + 2.3f * i;
+		heroRect.y = heroesRect.y + i - 1;
+		heroRect.height = heroesRect.height + i;
+		hero->renderUI(heroRect);
+		heroRect.x += heroRect.width + spacing;
 	}
 
 	if (selectedHeroIndex != -1) {
@@ -155,10 +163,10 @@ void HeroesHandler::renderUI() {
 					tagRect.x += tagRect.width + 10;
 				}
 
-				// AKA + RANK
+				// NICKNAME + RANK
 				raylib::Vector2 infoPos{ilmRect.x + 20, tagRect.y - 10};
 				std::string info = std::format("RANK {}", hero->level);
-				if (hero->nickname != "") info = std::format("AKA {} | {}", hero->nickname, info);
+				if (hero->nickname != "") info = std::format("{} | {}", hero->nickname, info);
 				infoPos.y -= Dispatch::UI::fontText.MeasureText(info, 18, 1).y;
 				Dispatch::UI::fontText.DrawText(info, infoPos, 18, 1, Dispatch::UI::textColor);
 
@@ -252,18 +260,18 @@ bool HeroesHandler::handleInput() {
 	auto missionStatus = mission.expired() ? Mission::DONE : mission.lock()->status;
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
-		if (mousePos.y >= 400 && mousePos.y <= 515) {
-			int idx = ((int)mousePos.x - 125) / 103;
-			int rem = ((int)mousePos.x - 125) % 103;
-			if (rem <= 90 && idx >=0 && idx < (int)active_heroes.size()) {
-				auto& hero = active_heroes[idx];
-				if (missionStatus == Mission::SELECTED) {
-					if ((hero->status != Hero::AVAILABLE && hero->status != Hero::ASSIGNED) || hero->health == Hero::DOWNED) return false;
-					mission.lock()->toggleHero(hero);
-					return true;
-				} else if (mission.expired()) {
-					selectedHeroIndex = idx;
-					return true;
+		raylib::Rectangle heroes{80, 400, 800, 115};
+		if (heroes.CheckCollision(mousePos)) {
+			for (auto [idx, hero] : Utils::enumerate(active_heroes)) {
+				if (hero->uiRect.CheckCollision(mousePos)) {
+					if (missionStatus == Mission::SELECTED) {
+						if ((hero->status != Hero::AVAILABLE && hero->status != Hero::ASSIGNED) || hero->health == Hero::DOWNED) return false;
+						mission.lock()->toggleHero(hero);
+						return true;
+					} else if (mission.expired()) {
+						selectedHeroIndex = idx;
+						return true;
+					}
 				}
 			}
 		} else if (selectedHeroIndex != -1) {

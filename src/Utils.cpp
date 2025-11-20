@@ -16,6 +16,16 @@ std::string Utils::toUpper(std::string str) {
 
 int Utils::randInt(int low, int high) { return rand()%(high-low+1) + low; }
 
+std::vector<int> range(int start, int end, int step) {
+	if (step == 0) throw std::invalid_argument("Step cannot be zero");
+	if (step < 0 && start < end) std::swap(start, end);
+	std::vector<int> result; result.reserve((std::abs(end - start) + 1) / std::abs(step));
+	if (step > 0) for (int i = start; i <= end; i += step) result.push_back(i);
+	else for (int i = start; i >= end; i += step) result.push_back(i);
+	return result;
+}
+
+
 void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg, raylib::Color bgLines, bool icons) {
 	const int sides = Attribute::COUNT;
 	float baseRotation = 90.0f + 180.0f / sides;
@@ -60,7 +70,7 @@ void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector
 				auto text = std::to_string(value);
 				auto sz = Dispatch::UI::defaultFont.MeasureText(text, 12, 2);
 				Dispatch::UI::defaultFont.DrawText(text, point - sz/2, 12, 2, BLACK);
-			} else point.DrawCircle(3, color.Fade(0.4f));
+			} else if (sideLength > 20) point.DrawCircle(3, color.Fade(0.4f));
 		}
 	}
 }

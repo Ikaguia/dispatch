@@ -28,6 +28,7 @@ public:
 	std::weak_ptr<Hero> operator[](const std::string& name);
 
 	bool paused() const;
+	bool isHeroSelected(const std::weak_ptr<Hero> hero) const;
 
 	void renderUI();
 	bool handleInput();

@@ -14,6 +14,7 @@ namespace Utils {
 	std::string toUpper(std::string str);
 
 	int randInt(int low, int high);
+	std::vector<int> range(int start, int end, int step=1);
 
 	namespace Detail {
 		constexpr char toLower(char c) {

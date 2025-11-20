@@ -10,7 +10,7 @@ class Hero;
 #include <Attribute.hpp>
 #include <Mission.hpp>
 
-class Hero {
+class Hero : public std::enable_shared_from_this<Hero> {
 public:
 	std::string name, nickname, bio;
 	std::vector<std::string> tags;
@@ -46,6 +46,7 @@ public:
 	Status status{Hero::AVAILABLE};
 	std::weak_ptr<Mission> mission{};
 	raylib::Vector2 pos{500, 200}, path;
+	raylib::Rectangle uiRect{};
 
 	Hero(const std::string& name, const std::string& nickname, const std::string& bio, const std::vector<std::string>& tags, const std::map<std::string,int> &attr = {}, bool flies=false, int lvl=-1);
 
@@ -55,7 +56,7 @@ public:
 	int maxExp() const;
 
 	void update(float deltaTime);
-	void renderUI(raylib::Vector2 pos) const;
+	void renderUI(raylib::Rectangle rect);
 
 	void changeStatus(Status st, float fnTime=0.0f);
 	void changeStatus(Status st, std::weak_ptr<Mission> msn, float fnTime=0.0f);

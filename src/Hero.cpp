@@ -7,6 +7,7 @@
 #include <Hero.hpp>
 #include <Mission.hpp>
 #include <CityMap.hpp>
+#include <HeroesHandler.hpp>
 
 Hero::Hero(const std::string& name, const std::string& nickname, const std::string& bio, const std::vector<std::string>& tags, const std::map<std::string,int> &attr, bool flies, int lvl) :
 	name{name},
@@ -80,13 +81,15 @@ void Hero::update(float deltaTime) {
 	}
 }
 
-void Hero::renderUI(raylib::Vector2 pos) const {
+void Hero::renderUI(raylib::Rectangle rect) {
 	bool draw = true;
-	raylib::Rectangle rect{pos.x, pos.y, 93, 115};
+	uiRect = rect;
 	raylib::Color color{ColorAlpha(GRAY, 0.4f)}, txtColor{};
 	std::string txt;
 	float progress = 1.0f;
-	switch(status) {
+	if (HeroesHandler::inst().isHeroSelected(shared_from_this())) {
+		color = ColorAlpha(SKYBLUE, 0.4f);
+	} else switch(status) {
 		case Hero::ASSIGNED:
 			color = ColorAlpha(ORANGE, 0.15f); break;
 		case Hero::TRAVELLING:
@@ -119,12 +122,13 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 		default:
 			draw = false;
 	}
-	if (draw) rect.Draw(color);
-	if (health == Health::WOUNDED) rect.Draw(ColorAlpha(RED, 0.2f));
-	if (health == Health::DOWNED) rect.Draw(ColorAlpha(RED, 0.4f));
+	raylib::Rectangle pictureRect = Utils::inset(rect, 2.0f); pictureRect.height -= 12.0f;
+	if (draw) pictureRect.Draw(color);
+	if (health == Health::WOUNDED) pictureRect.Draw(ColorAlpha(RED, 0.2f));
+	if (health == Health::DOWNED) pictureRect.Draw(ColorAlpha(RED, 0.4f));
 
 	if (!txt.empty()) {
-		raylib::Rectangle txtRect{rect.x+3, rect.y+3, rect.width-6, 20};
+		raylib::Rectangle txtRect = Utils::inset(pictureRect, 2.0f); txtRect.height = 20;
 		raylib::Rectangle txtRect1{txtRect.x, txtRect.y, progress * txtRect.width, txtRect.height};
 		raylib::Rectangle txtRect2{txtRect.x + (progress * txtRect.width), txtRect.y, (1-progress) * txtRect.width, txtRect.height};
 		txtRect1.Draw(txtColor);
@@ -145,7 +149,7 @@ void Hero::renderUI(raylib::Vector2 pos) const {
 	Utils::drawTextCentered("★", xpPos+raylib::Vector2{0.0f,2.0f}, Dispatch::UI::symbolsFont, 32, WHITE);
 
 	raylib::Vector2 attrPos{rect.x + 17, rect.y + rect.height - 25};
-	Utils::drawRadarGraph(attrPos, 16, {std::tuple<AttrMap<int>, raylib::Color, bool>{attributes(), ORANGE, false}}, BLACK, raylib::Color{0,0,0,0}, false);
+	Utils::drawRadarGraph(attrPos, 16, {std::tuple<AttrMap<int>, raylib::Color, bool>{attributes(), ORANGE, false}}, BLACK, ColorAlpha(BROWN, 0.4f), false);
 }
 
 

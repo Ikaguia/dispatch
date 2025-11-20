@@ -67,12 +67,12 @@ void Mission::load(std::ifstream& input) {
 	input >> failureTime;
 	input >> missionDuration;
 	input >> dangerous; input.ignore();
-	Utils::println("Loaded mission {}", name);
-	Utils::println("  Type: {}, Caller: {}", type, caller);
-	Utils::println("  Description: {}", description);
-	Utils::println("  Position: ({}, {}), Slots: {}, Difficulty: {}, Dangerous: {}", position.x, position.y, slots, difficulty, dangerous);
-	for (int i = 0; i < n; i++) Utils::println("  Requirement {}: {}", i+1, requirements[i]);
-	for (Attribute attr : Attribute::Values) Utils::println("  Required {}: {}", attr.toString(), requiredAttributes[attr]);
+	// Utils::println("Loaded mission {}", name);
+	// Utils::println("  Type: {}, Caller: {}", type, caller);
+	// Utils::println("  Description: {}", description);
+	// Utils::println("  Position: ({}, {}), Slots: {}, Difficulty: {}, Dangerous: {}", position.x, position.y, slots, difficulty, dangerous);
+	// for (int i = 0; i < n; i++) Utils::println("  Requirement {}: {}", i+1, requirements[i]);
+	// for (Attribute attr : Attribute::Values) Utils::println("  Required {}: {}", attr.toString(), requiredAttributes[attr]);
 	validate();
 }
 void Mission::validate() const {
