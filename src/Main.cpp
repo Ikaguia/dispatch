@@ -13,18 +13,30 @@ raylib::Window window(960, 540, "raylib-cpp - basic window");
 
 int main() {
 	AttachConsole();
-
-	raylib::RenderTexture2D target{window.GetWidth(), window.GetHeight()};
-	raylib::Shader crtShader{"", "resources/shaders/crt-monitor.fs"};
-	raylib::Texture background{"resources/images/background.png"};
-	int timeLoc = GetShaderLocation(crtShader, "time");
 	SetTargetFPS(60);
 	srand(time(nullptr));
 
+	raylib::RenderTexture2D target{window.GetWidth(), window.GetHeight()};
+	raylib::Texture background{"resources/images/background.png"}; float bgScale = 1.0f * window.GetWidth() / background.GetWidth();
 	HeroesHandler& heroesHandler = HeroesHandler::inst();
 	MissionsHandler& missionsHandler = MissionsHandler::inst();
 	CityMap& cityMap = CityMap::inst();
 	std::string paused = "";
+
+	// CRT Monitor Shader
+	raylib::Shader crtShader{"", "resources/shaders/crt-monitor.fs"};
+	int crtTimeLoc = GetShaderLocation(crtShader, "time");
+	// Clouds Shader
+	raylib::Rectangle mapRect{65, 50, 1790, 731};
+	raylib::Rectangle scaledMapRect{65*bgScale, 50*bgScale, 1790*bgScale, 731*bgScale};
+	raylib::Shader cloudShader{"", "resources/shaders/clouds.fs"};
+	int cloudsTimeLoc = cloudShader.GetLocation("time");
+	int cloudsResLoc = cloudShader.GetLocation("resolution");
+	int cloudsSpeedLoc = cloudShader.GetLocation("speed");
+	int cloudsDensityLoc = cloudShader.GetLocation("density");
+	cloudShader.SetValue(cloudsResLoc, (float[2]){ scaledMapRect.width, scaledMapRect.height }, SHADER_UNIFORM_VEC2);
+	cloudShader.SetValue(cloudsSpeedLoc, (float[1]){ 0.03f }, SHADER_UNIFORM_FLOAT);
+	cloudShader.SetValue(cloudsDensityLoc, (float[1]){ 0.5f }, SHADER_UNIFORM_FLOAT);
 
 	while (!window.ShouldClose()) {
 		float deltaTime = GetFrameTime();
@@ -42,39 +54,53 @@ int main() {
 			missionsHandler.update(deltaTime);
 		}
 		float t = GetTime();
-		crtShader.SetValue(timeLoc, &t, SHADER_UNIFORM_FLOAT);
+		crtShader.SetValue(crtTimeLoc, &t, SHADER_UNIFORM_FLOAT);
+		cloudShader.SetValue(cloudsTimeLoc, &t, SHADER_UNIFORM_FLOAT);
 
 		if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 			raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 			std::cout << "mousePos: " << mousePos.x << "," << mousePos.y << std::endl;
 		}
 
+		// target.BeginMode();
+		// 	ClearBackground(BLACK);
+		// 	background.Draw({0, 0}, 0, bgScale);
 
-		target.BeginMode();
-			ClearBackground(BLACK);
-			background.Draw({0, 0}, 0, 1.0f * window.GetWidth() / background.GetWidth());
+		// 	if (paused == "hero") {
+		// 		missionsHandler.renderUI();
+		// 		heroesHandler.renderUI();
+		// 	} else {
+		// 		heroesHandler.renderUI();
+		// 		missionsHandler.renderUI();
+		// 	}
+		// target.EndMode();
 
-			if (paused == "hero") {
-				// cityMap.renderUI();
-				missionsHandler.renderUI();
-				heroesHandler.renderUI();
-			} else {
-				// cityMap.renderUI();
-				heroesHandler.renderUI();
-				missionsHandler.renderUI();
-			}
-		target.EndMode();
+		// BeginDrawing();
+		// 	window.ClearBackground(BLACK);
+		// 	crtShader.BeginMode();
+		// 		DrawTextureRec(
+		// 			target.texture,
+		// 			Rectangle{0, 0, (float)target.texture.width, -(float)target.texture.height},
+		// 			Vector2{0, 0},
+		// 			WHITE
+		// 		);
+		// 	crtShader.EndMode();
+		// EndDrawing();
 
 		BeginDrawing();
 			window.ClearBackground(BLACK);
-			crtShader.BeginMode();
-				DrawTextureRec(
-					target.texture,
-					Rectangle{0, 0, (float)target.texture.width, -(float)target.texture.height},
-					Vector2{0, 0},
+			background.Draw({0,0}, 0, bgScale);
+			cloudShader.BeginMode();
+				DrawTexturePro(
+					background,
+					mapRect,
+					scaledMapRect,
+					{0,0},
+					0.0f,
 					WHITE
 				);
-			crtShader.EndMode();
+				// mapRect.Draw(WHITE);
+			cloudShader.EndMode();
 		EndDrawing();
 	}
 

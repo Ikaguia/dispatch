@@ -7,15 +7,15 @@ uniform sampler2D texture0;
 uniform float time;
 
 // ---- PARAMETERS ----
-const float CURVE = 0.02;        // screen curvature strength
+const vec2 CURVE = {0.014, 0.048};        // screen curvature strength
 const float SCAN_INTENSITY = 0.08;
 const float SCAN_SPEED_DIV = 400;
 const float VIGNETTE_INTENSITY = 0.48;
 
 vec2 curveRemap(vec2 uv) {
     uv = uv * 2.0 - 1.0;         // map to [-1,1]
-    uv.x *= 1.0 + (uv.y * uv.y) * CURVE;
-    uv.y *= 1.0 + (uv.x * uv.x) * CURVE;
+    uv.x *= 1.0 + (uv.y * uv.y) * CURVE.x;
+    uv.y *= 1.0 + (uv.x * uv.x) * CURVE.y;
     uv = uv * 0.5 + 0.5;
     return uv;
 }
