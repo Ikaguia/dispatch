@@ -122,7 +122,7 @@ void Hero::renderUI(raylib::Rectangle rect) {
 		default:
 			draw = false;
 	}
-	raylib::Rectangle pictureRect = Utils::inset(rect, 2.0f); pictureRect.height -= 12.0f;
+	raylib::Rectangle pictureRect = Utils::inset(rect, 2.0f); pictureRect.height -= 13.0f;
 	if (draw) pictureRect.Draw(color);
 	if (health == Health::WOUNDED) pictureRect.Draw(ColorAlpha(RED, 0.2f));
 	if (health == Health::DOWNED) pictureRect.Draw(ColorAlpha(RED, 0.4f));
@@ -144,11 +144,11 @@ void Hero::renderUI(raylib::Rectangle rect) {
 		// TODO: Draw hero portrait
 	}
 
-	raylib::Vector2 xpPos{rect.x + rect.width - 17, rect.y + rect.height - 25};
+	raylib::Vector2 xpPos{rect.x + rect.width - 17, rect.y + rect.height - 27};
 	Utils::drawFilledCircleVertical(xpPos, 12, (float)exp / maxExp(), DARKGRAY, GOLD, WHITE);
 	Utils::drawTextCentered("★", xpPos+raylib::Vector2{0.0f,2.0f}, Dispatch::UI::symbolsFont, 32, WHITE);
 
-	raylib::Vector2 attrPos{rect.x + 17, rect.y + rect.height - 25};
+	raylib::Vector2 attrPos{rect.x + 17, rect.y + rect.height - 27};
 	Utils::drawRadarGraph(attrPos, 16, {std::tuple<AttrMap<int>, raylib::Color, bool>{attributes(), ORANGE, false}}, BLACK, ColorAlpha(BROWN, 0.4f), false);
 }
 

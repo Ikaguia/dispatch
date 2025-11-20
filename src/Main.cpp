@@ -9,7 +9,8 @@
 #include <HeroesHandler.hpp>
 #include <CityMap.hpp>
 
-raylib::Window window(960, 540, "raylib-cpp - basic window");
+// raylib::Window window(1920, 1080, "raylib-cpp - basic window"); float bgScale;
+raylib::Window window(960, 540, "raylib-cpp - basic window"); float bgScale;
 
 int main() {
 	AttachConsole();
@@ -17,7 +18,7 @@ int main() {
 	srand(time(nullptr));
 
 	raylib::RenderTexture2D target{window.GetWidth(), window.GetHeight()};
-	raylib::Texture background{"resources/images/background.png"}; float bgScale = 1.0f * window.GetWidth() / background.GetWidth();
+	raylib::Texture background{"resources/images/background.png"}; bgScale = 1.0f * window.GetWidth() / background.GetWidth();
 	HeroesHandler& heroesHandler = HeroesHandler::inst();
 	MissionsHandler& missionsHandler = MissionsHandler::inst();
 	CityMap& cityMap = CityMap::inst();

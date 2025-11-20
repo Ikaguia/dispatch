@@ -9,6 +9,8 @@
 #include <HeroesHandler.hpp>
 #include <MissionsHandler.hpp>
 
+extern float bgScale;
+
 HeroesHandler::HeroesHandler() {
 	active_heroes.emplace_back(new Hero{"Sonar", "Batboy Conman", "?", {"INTELLECTUAL", "HYBRID"}, {
 		{"combat", 1},
@@ -45,7 +47,7 @@ HeroesHandler::HeroesHandler() {
 		{"charisma", 4},
 		{"intelligence", 2}
 	}});
-	active_heroes.emplace_back(new Hero{"Malevola", "Devil form Down Under", "?", {"SORCERESS", "HALF-DEMON"}, {
+	active_heroes.emplace_back(new Hero{"Malevola", "Devil from Down Under", "?", {"SORCERESS", "HALF-DEMON"}, {
 		{"combat", 3},
 		{"vigor", 2},
 		{"mobility", 2},
@@ -90,14 +92,13 @@ bool HeroesHandler::paused() const { return selectedHeroIndex != -1; }
 bool HeroesHandler::isHeroSelected(const std::weak_ptr<Hero> hero) const { return selectedHeroIndex != -1 && active_heroes[selectedHeroIndex] == hero.lock(); }
 
 void HeroesHandler::renderUI() {
-	raylib::Rectangle heroesRect{81, 400, 800, 115};
-	raylib::Rectangle heroRect{heroesRect.x, heroesRect.y, 93, heroesRect.height};
+	raylib::Rectangle heroesRect{158*bgScale, 804*bgScale, 1603*bgScale, 236*bgScale};
+	raylib::Rectangle heroRect{heroesRect.x, heroesRect.y, 185*bgScale, heroesRect.height};
+	std::vector<int> Ws = {180, 185, 189, 192, 192, 189, 185, 180};
 	int spacing = (heroesRect.width - heroRect.width * active_heroes.size()) / (active_heroes.size() - 1);
 	for (auto [idx, hero] : Utils::enumerate(active_heroes)) {
 		int i = std::min(idx, (active_heroes.size()-1)-idx);
-		heroRect.width = 89.4f + 2.3f * i;
-		heroRect.y = heroesRect.y + i - 1;
-		heroRect.height = heroesRect.height + i;
+		heroRect.width = Ws[i] * bgScale;
 		hero->renderUI(heroRect);
 		heroRect.x += heroRect.width + spacing;
 	}
@@ -260,7 +261,7 @@ bool HeroesHandler::handleInput() {
 	auto missionStatus = mission.expired() ? Mission::DONE : mission.lock()->status;
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
-		raylib::Rectangle heroes{80, 400, 800, 115};
+		raylib::Rectangle heroes{158*bgScale, 804*bgScale, 1603*bgScale, 236*bgScale};
 		if (heroes.CheckCollision(mousePos)) {
 			for (auto [idx, hero] : Utils::enumerate(active_heroes)) {
 				if (hero->uiRect.CheckCollision(mousePos)) {
