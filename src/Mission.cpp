@@ -16,6 +16,8 @@ Mission::Mission(
 	const std::string& type,
 	const std::string& caller,
 	const std::string& description,
+	const std::string& failureMsg,
+	const std::string& successMsg,
 	const std::vector<std::string>& requirements,
 	raylib::Vector2 position,
 	const std::map<std::string, int> &attr,
@@ -29,6 +31,8 @@ Mission::Mission(
 	type{type},
 	caller{caller},
 	description{description},
+	failureMsg{failureMsg},
+	successMsg{successMsg},
 	requirements{requirements},
 	position{position},
 	requiredAttributes{},
@@ -45,13 +49,15 @@ Mission::Mission(
 };
 
 Mission::Mission(const std::string& fileName) { load(fileName); }
-Mission::Mission(std::ifstream& input) { load(input); }
+Mission::Mission(std::ifstream& input, const std::string& header) { load(input, header); }
 
 void Mission::load(const std::string& fileName) {
 	std::ifstream input{fileName};
-	load(input);
+	std::string header;
+	std::getline(input, header);
+	load(input, header);
 }
-void Mission::load(std::ifstream& input) {
+void Mission::load(std::ifstream& input, const std::string& header) {
 	int n;
 	std::getline(input, name);
 	std::getline(input, type);
@@ -67,12 +73,13 @@ void Mission::load(std::ifstream& input) {
 	input >> failureTime;
 	input >> missionDuration;
 	input >> dangerous; input.ignore();
-	// Utils::println("Loaded mission {}", name);
-	// Utils::println("  Type: {}, Caller: {}", type, caller);
-	// Utils::println("  Description: {}", description);
-	// Utils::println("  Position: ({}, {}), Slots: {}, Difficulty: {}, Dangerous: {}", position.x, position.y, slots, difficulty, dangerous);
-	// for (int i = 0; i < n; i++) Utils::println("  Requirement {}: {}", i+1, requirements[i]);
-	// for (Attribute attr : Attribute::Values) Utils::println("  Required {}: {}", attr.toString(), requiredAttributes[attr]);
+	if (header == "#MISSIONS_V1") {
+		failureMsg = "MISSION FAILED!";
+		successMsg = "MISSION COMPLETED!";
+	} else {
+		std::getline(input, failureMsg);
+		std::getline(input, successMsg);
+	}
 	validate();
 }
 void Mission::validate() const {
@@ -80,6 +87,8 @@ void Mission::validate() const {
 	if (type.empty()) throw std::invalid_argument("Mission type cannot be empty");
 	if (caller.empty()) throw std::invalid_argument("Mission caller cannot be empty");
 	if (description.empty()) throw std::invalid_argument("Mission description cannot be empty");
+	if (failureMsg.empty()) throw std::invalid_argument("Mission failure message cannot be empty");
+	if (successMsg.empty()) throw std::invalid_argument("Mission success message cannot be empty");
 	if (slots <= 0 || slots > 4) throw std::invalid_argument("Mission slots must be between 1 and 4");
 	if (difficulty < 1 || difficulty > 5) throw std::invalid_argument("Mission difficulty must be between 1 and 5");
 	if (failureTime < 1) throw std::invalid_argument("Mission failure time must be positive");
@@ -125,7 +134,7 @@ void Mission::changeStatus(Status newStatus) {
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) for (auto hero : assignedHeroes) hero->changeStatus(Hero::TRAVELLING);
 	else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {}
 	else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) for (auto hero : assignedHeroes) hero->changeStatus(Hero::RETURNING);
-	else if (oldStatus == Mission::AWAITING_REVIEW) std::cout << "Mission " << name << " completed, it was a " << (newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure") << std::endl;
+	else if (oldStatus == Mission::AWAITING_REVIEW) Utils::println("Mission {} completed, it was a {}", name, newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure");
 	else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		if (oldStatus == Mission::REVIEWING_SUCESS) {
 			float successChance = getSuccessChance();
@@ -138,7 +147,7 @@ void Mission::changeStatus(Status newStatus) {
 		} else if (oldStatus == Mission::REVIEWING_FAILURE && dangerous) {
 			auto hero = Utils::random_element(assignedHeroes);
 			hero->wound();
-			std::cout << hero->name << " was wounded" << std::endl;
+			Utils::println("{} was wounded", hero->name);
 		}
 		for (auto& hero : assignedHeroes) {
 			if (hero->status == Hero::AWAITING_REVIEW) hero->changeStatus(Hero::AVAILABLE, {}, 0.0f);
@@ -267,7 +276,7 @@ void Mission::renderUI(bool full) {
 			Utils::inset(chanceRect, 1).DrawLines(WHITE);
 			reviewRect.DrawLines(Dispatch::UI::bgDrk);
 			chanceRect.DrawLines(Dispatch::UI::bgDrk);
-			std::string reviewText = std::format("MISSION {}!", status == Mission::REVIEWING_SUCESS ? "COMPLETED" : "FAILED");
+			std::string reviewText = status == Mission::REVIEWING_SUCESS ? successMsg : failureMsg;
 			std::string chanceText = std::format("{}%", getSuccessChance());
 			std::vector<std::tuple<std::string, raylib::Font&, int, raylib::Color, int, raylib::Color, float>> chanceTexts = {
 				{std::string{"🎯"}, Dispatch::UI::emojiFont, 32, WHITE, 2, raylib::Color{0,0,0,0}, 0.0f},
@@ -388,9 +397,6 @@ int Mission::getSuccessChance() const {
 		total += std::min(heroValue, requiredValue);
 		requiredTotal += requiredValue;
 	}
-
-	Utils::println("Total: {}", total);
-	Utils::println("Required Total: {}", requiredTotal);
 
 	if (requiredTotal == 0) return 100;
 	return total * 100 / requiredTotal;

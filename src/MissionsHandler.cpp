@@ -9,6 +9,7 @@
 #include <Attribute.hpp>
 
 MissionsHandler::MissionsHandler() {
+	loadMissions("resources/data/missions/test.txt");
 	loadMissions("resources/data/missions/Missions1.txt");
 	loadMissions("resources/data/missions/Missions2.txt");
 	loadMissions("resources/data/missions/Missions3.txt");
@@ -26,8 +27,10 @@ void MissionsHandler::loadMissions(const std::string& file) {
 	loadMissions(input);
 }
 void MissionsHandler::loadMissions(std::ifstream& input) {
+	std::string header;
+	std::getline(input, header);
 	while (input.peek() != EOF) {
-		auto mission = std::make_shared<Mission>(input);
+		auto mission = std::make_shared<Mission>(input, header);
 		loaded_missions.insert(mission);
 	}
 }
@@ -69,6 +72,10 @@ Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 		std::vector<std::string>{"Agency Alpha", "Bravo Corp", "Charlie Ops", "Delta Force", "Echo Unit"}[Utils::randInt(0,4)],
 		// description
 		"A randomly generated mission.",
+		// failure message
+		"MISSION FAILED!",
+		// success message
+		"MISSION COMPLETED!",
 		// requirements
 		requirements,
 		// position

@@ -1,0 +1,18 @@
+#MISSIONS_V2
+Refinery Shutdown
+Assault
+Redrock Refinery Ops
+A rogue AI has taken over the refinery's automated defenses! We're locked out and it's starting to overload the core. Shut it down, hard!
+3
+BREACH the main control room
+DESTROY the rogue AI core
+SURVIVE the automated defense systems
+850 200
+9 7 6 1 4
+3
+4
+30
+25
+1
+EXPLOSION REFINED
+REFINERY SAVED
