@@ -25,12 +25,12 @@ int main() {
 	std::string paused = "";
 
 	// CRT Monitor Shader
-	raylib::Shader crtShader{"", "resources/shaders/crt-monitor.fs"};
+	raylib::Shader crtShader{0, "resources/shaders/crt-monitor.fs"};
 	int crtTimeLoc = GetShaderLocation(crtShader, "time");
 	// Clouds Shader
 	raylib::Rectangle mapRect{65, 50, 1790, 731};
 	raylib::Rectangle scaledMapRect{65*bgScale, 50*bgScale, 1790*bgScale, 731*bgScale};
-	raylib::Shader cloudShader{"", "resources/shaders/clouds.fs"};
+	raylib::Shader cloudShader{0, "resources/shaders/clouds.fs"};
 	int cloudsTimeLoc = cloudShader.GetLocation("time");
 	int cloudsResLoc = cloudShader.GetLocation("resolution");
 	int cloudsSpeedLoc = cloudShader.GetLocation("speed");
@@ -80,9 +80,11 @@ int main() {
 			cloudShader.EndMode();
 
 			if (paused == "hero") {
+				// cityMap.renderUI();
 				missionsHandler.renderUI();
 				heroesHandler.renderUI();
 			} else {
+				// cityMap.renderUI();
 				heroesHandler.renderUI();
 				missionsHandler.renderUI();
 			}

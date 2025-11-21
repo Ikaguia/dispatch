@@ -125,18 +125,21 @@ void Mission::changeStatus(Status newStatus) {
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) for (auto hero : assignedHeroes) hero->changeStatus(Hero::TRAVELLING);
 	else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {}
 	else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) for (auto hero : assignedHeroes) hero->changeStatus(Hero::RETURNING);
-	else if (oldStatus == Mission::AWAITING_REVIEW) {
-		std::cout << "Mission " << name << " completed, it was a " << (newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure") << std::endl;
-		if (newStatus == Mission::REVIEWING_SUCESS) {
-			int exp = 200 * difficulty / std::sqrt(getSuccessChance() || 0.001f) / assignedHeroes.size();
+	else if (oldStatus == Mission::AWAITING_REVIEW) std::cout << "Mission " << name << " completed, it was a " << (newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure") << std::endl;
+	else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
+		if (oldStatus == Mission::REVIEWING_SUCESS) {
+			float successChance = getSuccessChance();
+			float chanceMult = 10.0f / std::sqrt(successChance ? successChance : 1);
+			float difficultyMult = std::sqrt(difficulty);
+			float heroCountDiv = std::sqrt(assignedHeroes.size());
+			int exp = 500 * chanceMult * difficultyMult / heroCountDiv;
 			for (auto& hero : assignedHeroes) hero->addExp(exp);
 			Utils::println("Each hero gained {} exp", exp);
-		} else if (newStatus == Mission::REVIEWING_FAILURE && dangerous) {
+		} else if (oldStatus == Mission::REVIEWING_FAILURE && dangerous) {
 			auto hero = Utils::random_element(assignedHeroes);
 			hero->wound();
 			std::cout << hero->name << " was wounded" << std::endl;
 		}
-	} else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		for (auto& hero : assignedHeroes) {
 			if (hero->status == Hero::AWAITING_REVIEW) hero->changeStatus(Hero::AVAILABLE, {}, 0.0f);
 			else hero->mission.reset();
@@ -386,8 +389,11 @@ int Mission::getSuccessChance() const {
 		requiredTotal += requiredValue;
 	}
 
+	Utils::println("Total: {}", total);
+	Utils::println("Required Total: {}", requiredTotal);
+
 	if (requiredTotal == 0) return 100;
-	return static_cast<int>((static_cast<double>(total) / requiredTotal) * 100);
+	return total * 100 / requiredTotal;
 }
 
 bool Mission::isSuccessful() const {
