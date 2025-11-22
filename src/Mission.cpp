@@ -17,7 +17,9 @@ Mission::Mission(
 	const std::string& caller,
 	const std::string& description,
 	const std::string& failureMsg,
+	const std::string& failureMission,
 	const std::string& successMsg,
+	const std::string& successMission,
 	const std::vector<std::string>& requirements,
 	raylib::Vector2 position,
 	const std::map<std::string, int> &attr,
@@ -25,6 +27,8 @@ Mission::Mission(
 	int difficulty,
 	float failureTime,
 	float missionDuration,
+	float failureMissionTime,
+	float successMissionTime,
 	bool dangerous
 ) :
 	name{name},
@@ -32,7 +36,9 @@ Mission::Mission(
 	caller{caller},
 	description{description},
 	failureMsg{failureMsg},
+	failureMission{failureMission},
 	successMsg{successMsg},
+	successMission{successMission},
 	requirements{requirements},
 	position{position},
 	requiredAttributes{},
@@ -40,6 +46,8 @@ Mission::Mission(
 	difficulty{difficulty},
 	failureTime{failureTime},
 	missionDuration{missionDuration},
+	failureMissionTime{failureMissionTime},
+	successMissionTime{successMissionTime},
 	dangerous{dangerous}
 {
 	for (auto [attrName, value] : attr) {
@@ -73,12 +81,13 @@ void Mission::load(std::ifstream& input, const std::string& header) {
 	input >> failureTime;
 	input >> missionDuration;
 	input >> dangerous; input.ignore();
-	if (header == "#MISSIONS_V1") {
-		failureMsg = "MISSION FAILED!";
-		successMsg = "MISSION COMPLETED!";
-	} else {
+	if (header != "#MISSIONS_V1") {
 		std::getline(input, failureMsg);
+		input >> failureMissionTime; input.ignore();
+		if (failureMissionTime != 0) std::getline(input, failureMission);
 		std::getline(input, successMsg);
+		input >> successMissionTime; input.ignore();
+		if (successMissionTime != 0) std::getline(input, successMission);
 	}
 	validate();
 }
@@ -89,6 +98,10 @@ void Mission::validate() const {
 	if (description.empty()) throw std::invalid_argument("Mission description cannot be empty");
 	if (failureMsg.empty()) throw std::invalid_argument("Mission failure message cannot be empty");
 	if (successMsg.empty()) throw std::invalid_argument("Mission success message cannot be empty");
+	if (failureMission.empty() && failureMissionTime!=0.0f) throw std::invalid_argument("Mission 'failureMissionTime' must be 0 when no failure mission is set");
+	if (!failureMission.empty() && failureMissionTime<=0.0f) throw std::invalid_argument("Mission 'failureMissionTime' must be > 0 when failure mission is set");
+	if (successMission.empty() && successMissionTime!=0.0f) throw std::invalid_argument("Mission 'successMissionTime' must be 0 when no success mission is set");
+	if (!successMission.empty() && successMissionTime<=0.0f) throw std::invalid_argument("Mission 'successMissionTime' must be > 0 when success mission is set");
 	if (slots <= 0 || slots > 4) throw std::invalid_argument("Mission slots must be between 1 and 4");
 	if (difficulty < 1 || difficulty > 5) throw std::invalid_argument("Mission difficulty must be between 1 and 5");
 	if (failureTime < 1) throw std::invalid_argument("Mission failure time must be positive");
@@ -144,10 +157,12 @@ void Mission::changeStatus(Status newStatus) {
 			int exp = 500 * chanceMult * difficultyMult / heroCountDiv;
 			for (auto& hero : assignedHeroes) hero->addExp(exp);
 			Utils::println("Each hero gained {} exp", exp);
+			if (!successMission.empty()) MissionsHandler::inst().addMissionToQueue(successMission, successMissionTime);
 		} else if (oldStatus == Mission::REVIEWING_FAILURE && dangerous) {
 			auto hero = Utils::random_element(assignedHeroes);
 			hero->wound();
 			Utils::println("{} was wounded", hero->name);
+			if (!failureMission.empty()) MissionsHandler::inst().addMissionToQueue(failureMission, failureMissionTime);
 		}
 		for (auto& hero : assignedHeroes) {
 			if (hero->status == Hero::AWAITING_REVIEW) hero->changeStatus(Hero::AVAILABLE, {}, 0.0f);

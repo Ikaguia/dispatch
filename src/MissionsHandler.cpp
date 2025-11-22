@@ -10,9 +10,9 @@
 
 MissionsHandler::MissionsHandler() {
 	loadMissions("resources/data/missions/test.txt");
-	loadMissions("resources/data/missions/Missions1.txt");
-	loadMissions("resources/data/missions/Missions2.txt");
-	loadMissions("resources/data/missions/Missions3.txt");
+	// loadMissions("resources/data/missions/Missions1.txt");
+	// loadMissions("resources/data/missions/Missions2.txt");
+	// loadMissions("resources/data/missions/Missions3.txt");
 }
 
 MissionsHandler& MissionsHandler::inst() {
@@ -28,24 +28,33 @@ void MissionsHandler::loadMissions(const std::string& file) {
 }
 void MissionsHandler::loadMissions(std::ifstream& input) {
 	std::string header;
+	bool triggered;
 	std::getline(input, header);
 	while (input.peek() != EOF) {
 		auto mission = std::make_shared<Mission>(input, header);
-		loaded_missions.insert(mission);
+		input >> triggered; input.ignore();
+		if (triggered) trigger_missions[mission->name] = mission;
+		else loaded_missions[mission->name] = mission;
 	}
 }
 Mission& MissionsHandler::activateMission() {
 	if (loaded_missions.empty()) return createRandomMission();
-	auto mission = Utils::random_element(loaded_missions);
+	auto mission = Utils::random_element(loaded_missions).second;
 	return activateMission(mission->weak_from_this());
+}
+Mission& MissionsHandler::activateMission(std::string mission_name) {
+	if (trigger_missions.count(mission_name)) return activateMission(trigger_missions[mission_name]);
+	return activateMission(loaded_missions[mission_name]);
 }
 Mission& MissionsHandler::activateMission(std::weak_ptr<Mission> mission) {
 	auto sharedMission = mission.lock();
 	if (!sharedMission) throw std::invalid_argument("Cannot activate expired mission");
-	if (!loaded_missions.count(sharedMission)) throw std::invalid_argument("Cannot activate mission that is not loaded");
+	bool triggered = trigger_missions.count(sharedMission->name);
+	if (!triggered && !loaded_missions.count(sharedMission->name)) throw std::invalid_argument("Cannot activate mission that is not loaded");
 	if (active_missions.count(sharedMission)) throw std::invalid_argument("Cannot activate mission that is already active");
 	active_missions.insert(sharedMission);
-	loaded_missions.erase(sharedMission);
+	if (triggered) trigger_missions.erase(sharedMission->name);
+	else loaded_missions.erase(sharedMission->name);
 	return *sharedMission;
 }
 Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
@@ -74,8 +83,12 @@ Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 		"A randomly generated mission.",
 		// failure message
 		"MISSION FAILED!",
+		// failure mission
+		"",
 		// success message
 		"MISSION COMPLETED!",
+		// success mission
+		"",
 		// requirements
 		requirements,
 		// position
@@ -90,6 +103,10 @@ Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 		(float)Utils::randInt(10, 60),
 		// mission duration
 		20.0f,
+		// failure mission time
+		0.0f,
+		// success mission time
+		0.0f,
 		// dangerous
 		(difficulty >= 3) ? true : ((rand()%5) < difficulty)
 	});
@@ -105,6 +122,17 @@ void MissionsHandler::selectMission(std::weak_ptr<Mission> ms) {
 }
 
 void MissionsHandler::unselectMission() { selectedMission.reset(); }
+
+void MissionsHandler::addMissionToQueue(std::string mission_name, float time) {
+	if (trigger_missions.count(mission_name)) addMissionToQueue(trigger_missions[mission_name], time);
+	else addMissionToQueue(loaded_missions[mission_name], time);
+}
+void MissionsHandler::addMissionToQueue(std::weak_ptr<Mission> mission, float time) {
+	if (mission.expired()) throw std::invalid_argument("Mission must be loaded");
+	Utils::println("Mission {} scheduled in {} seconds", mission.lock()->name, time);
+	mission_queue.emplace_back(mission, time);
+}
+
 
 void MissionsHandler::renderUI() {
 	for (auto& mission : active_missions) mission->renderUI(false);
@@ -143,5 +171,13 @@ void MissionsHandler::update(float deltaTime) {
 	if (timeToNext <= 0) {
 		activateMission();
 		timeToNext = rand() % 4 + rand() % 4 + 2;
+	}
+
+	for (int i = 0; i < (int)mission_queue.size(); i++) {
+		auto& [mission, time] = mission_queue[i];
+		if (time < deltaTime) {
+			activateMission(mission);
+			mission_queue.erase(mission_queue.begin()+i--);
+		} else time -= deltaTime;
 	}
 }

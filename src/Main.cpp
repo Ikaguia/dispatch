@@ -41,7 +41,7 @@ int main() {
 	raylib::Texture dummy(raylib::Image{1,1,WHITE});
 
 	while (!window.ShouldClose()) {
-		float deltaTime = GetFrameTime();
+		float deltaTime = GetFrameTime() * 5;
 
 		if (missionsHandler.paused()) paused = "mission";
 		else if (heroesHandler.paused()) paused = "hero";

@@ -15,4 +15,27 @@ SURVIVE the automated defense systems
 25
 1
 EXPLOSION REFINED
+5
+Refinery Meltdown
 REFINERY SAVED
+0
+0
+Refinery Meltdown
+Rescue
+Redrock Refinery Ops
+The Refinery has gone into a meltdown! Workers are trapped inside... HELP!
+2
+EVACUATE the workers
+SURVIVE the hostile atmosphere
+850 200
+2 8 7 2 3
+4
+4
+30
+25
+1
+LIFE INSURANCE NEEDED
+0
+WORKERS RESCUED
+0
+1
