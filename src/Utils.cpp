@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <format>
+#include <fstream>
 
 #include <Utils.hpp>
 #include <Common.hpp>
@@ -226,4 +227,14 @@ raylib::Rectangle Utils::inset(const raylib::Rectangle& rect, int inset) {
 
 raylib::Rectangle Utils::inset(const raylib::Rectangle& rect, raylib::Vector2 inset) {
 	return {rect.x+inset.x, rect.y+inset.y, rect.width-(inset.x*2), rect.height-(inset.y*2)};
+}
+
+std::string Utils::readFile(std::string path) {
+	std::ifstream file(path, std::ios::binary | std::ios::ate);
+	std::streamsize size = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	std::string buffer(size, '\0');
+	file.read(buffer.data(), size);
+	return buffer;
 }

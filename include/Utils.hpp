@@ -92,4 +92,6 @@ namespace Utils {
 	}
 
 	inline void println(std::string_view text) { std::cout << text << '\n'; }
+
+	std::string readFile(std::string path);
 }

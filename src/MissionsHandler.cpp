@@ -7,12 +7,16 @@
 #include <MissionsHandler.hpp>
 #include <Utils.hpp>
 #include <Attribute.hpp>
+#include <JSONish.hpp>
 
 MissionsHandler::MissionsHandler() {
 	loadMissions("resources/data/missions/test.txt");
 	// loadMissions("resources/data/missions/Missions1.txt");
 	// loadMissions("resources/data/missions/Missions2.txt");
 	// loadMissions("resources/data/missions/Missions3.txt");
+
+	// JParser parser(Utils::readFile("resources/data/missions/test.jsonish"));
+	// std::cout << parser.parseArray().toString() << std::endl;
 }
 
 MissionsHandler& MissionsHandler::inst() {

@@ -1,0 +1,64 @@
+[
+	{
+		"name": "Refinery Shutdown",
+		"type": "Assault",
+		"caller": "Redrock Refinery Ops",
+		"description": "A rogue AI has taken over the refinery's automated defenses! We're locked out and it's starting to overload the core. Shut it down, hard!",
+		"requirements": [
+			"BREACH the main control room",
+			"DESTROY the rogue AI core",
+			"SURVIVE the automated defense systems",
+		],
+		"position": [ 850, 200 ],
+		"attributes": {
+			"combat": 9,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 1,
+			"intelligence": 4,
+		},
+		"slots": 3,
+		"difficulty": 4,
+		"dangerous": true,
+		"failure": {
+			"duration": 30,
+			"message": "EXPLOSION REFINED",
+			"delay": 5,
+			"mission": "Refinery Meltdown",
+		},
+		"success": {
+			"duration": 25,
+			"message": "REFINERY SAVED",
+		},
+	},
+	{
+		"name": "Refinery Meltdown",
+		"type": "Rescue",
+		"caller": "Redrock Refinery Ops",
+		"description": "The Refinery has gone into a meltdown! Workers are trapped inside... HELP!",
+		"requirements": [
+			"EVACUATE the workers",
+			"SURVIVE the hostile atmosphere",
+		],
+		"position": [850, 200],
+		"attributes": {
+			"combat": 2,
+			"vigor": 8,
+			"mobility": 7,
+			"charisma": 2,
+			"intelligence": 3,
+		},
+		"slots": 4,
+		"difficulty": 4,
+		"failure": {
+			"duration": 30,
+			"message": "LIFE INSURANCE NEEDED",
+		},
+		"success": {
+			"duration": 25,
+			"message": "WORKERS RESCUED",
+		},
+		"dangerous": true,
+		"triggered": true,
+	},
+]
