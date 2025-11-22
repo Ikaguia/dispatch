@@ -22,7 +22,6 @@ public:
 	static MissionsHandler& inst();
 
 	void loadMissions(const std::string& file);
-	void loadMissions(std::ifstream& input);
 	Mission& activateMission();
 	Mission& activateMission(std::string mission_name);
 	Mission& activateMission(std::weak_ptr<Mission> mission);

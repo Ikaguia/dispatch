@@ -10,13 +10,10 @@
 #include <JSONish.hpp>
 
 MissionsHandler::MissionsHandler() {
-	loadMissions("resources/data/missions/test.txt");
-	// loadMissions("resources/data/missions/Missions1.txt");
-	// loadMissions("resources/data/missions/Missions2.txt");
-	// loadMissions("resources/data/missions/Missions3.txt");
-
-	// JSONish::Parser parser(Utils::readFile("resources/data/missions/test.jsonish"));
-	// std::cout << parser.parseArray().toString() << std::endl;
+	loadMissions("resources/data/missions/test.jsonish");
+	loadMissions("resources/data/missions/Missions1.jsonish");
+	loadMissions("resources/data/missions/Missions2.jsonish");
+	loadMissions("resources/data/missions/Missions3.jsonish");
 }
 
 MissionsHandler& MissionsHandler::inst() {
@@ -27,18 +24,15 @@ MissionsHandler& MissionsHandler::inst() {
 
 void MissionsHandler::loadMissions(const std::string& file) {
 	Utils::println("Loading missions from {}", file);
-	std::ifstream input(file);
-	loadMissions(input);
-}
-void MissionsHandler::loadMissions(std::ifstream& input) {
-	std::string header;
-	bool triggered;
-	std::getline(input, header);
-	while (input.peek() != EOF) {
-		auto mission = std::make_shared<Mission>(input, header);
-		input >> triggered; input.ignore();
-		if (triggered) trigger_missions[mission->name] = mission;
-		else loaded_missions[mission->name] = mission;
+	auto str = Utils::readFile(file);
+	JSONish::Parser parser(str);
+	auto missions = parser.parseArray();
+	Utils::println("Read {} missions", missions.arr.size());
+	for (auto& data : missions.arr) {
+		auto ms = std::make_shared<Mission>(data);
+		// Utils::println("Loaded {}mission '{}'", ms->triggered ? "triggered " : "", ms->name);
+		if (ms->triggered) trigger_missions[ms->name] = ms;
+		else loaded_missions[ms->name] = ms;
 	}
 }
 Mission& MissionsHandler::activateMission() {

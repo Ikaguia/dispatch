@@ -11,6 +11,7 @@ class Mission;
 #include <raylib-cpp.hpp>
 #include <Attribute.hpp>
 #include <Hero.hpp>
+#include <JSONish.hpp>
 
 class Mission : public std::enable_shared_from_this<Mission> {
 private:
@@ -39,19 +40,18 @@ public:
 	float failureMissionTime = 0.0f;
 	float successMissionTime = 0.0f;
 	bool dangerous = false;
+	bool triggered = false;
 
 	std::set<std::shared_ptr<Hero>> assignedHeroes{};
 	Status status = Mission::PENDING;
 	float timeElapsed = 0.0f;
 
 	Mission(const std::string& name, const std::string& type, const std::string& caller, const std::string& description, const std::string& failureMsg, const std::string& failureMission, const std::string& successMsg, const std::string& successMission, const std::vector<std::string>& requirements, raylib::Vector2 pos, const std::map<std::string,int> &attr, int slots, int difficulty, float failureTime, float missionDuration, float failureMissionTimeool, float successMissionTime, bool dangerous);
-	Mission(const std::string& fileName);
-	Mission(std::ifstream& input, const std::string& header);
+	Mission(const JSONish::Node& data);
 	Mission(const Mission&) = delete;
 	Mission& operator=(const Mission&) = delete;
 
-	void load(const std::string& fileName);
-	void load(std::ifstream& input, const std::string& header);
+	void load(const JSONish::Node& data);
 	void validate() const;
 
 	void toggleHero(std::shared_ptr<Hero> hero);

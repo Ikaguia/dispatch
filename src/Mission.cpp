@@ -56,41 +56,48 @@ Mission::Mission(
 	}
 };
 
-Mission::Mission(const std::string& fileName) { load(fileName); }
-Mission::Mission(std::ifstream& input, const std::string& header) { load(input, header); }
+Mission::Mission(const JSONish::Node& data) { load(data); }
 
-void Mission::load(const std::string& fileName) {
-	std::ifstream input{fileName};
-	std::string header;
-	std::getline(input, header);
-	load(input, header);
+
+void Mission::load(const JSONish::Node& data) {
+	name = data.get<std::string>("name");
+	type = data.get<std::string>("type");
+	caller = data.get<std::string>("caller", "UNKNOWN CALLER");
+	description = data.get<std::string>("description");
+
+	if (data.has("requirements")) for (auto& req : data["requirements"].arr) requirements.push_back(req.sval);
+	else throw std::invalid_argument("Mission 'requirements' cannot be empty");
+	if (data.has("attributes")) for (auto& [name, val] : data["attributes"].obj) requiredAttributes[Attribute::fromString(name)] = val.nval;
+	else throw std::invalid_argument("Mission 'attributes' cannot be empty");
+	if (data.has("position")) {
+		auto pos = data["position"];
+		position.x = pos.get<float>(0);
+		position.y = pos.get<float>(1);
+	} else throw std::invalid_argument("Mission 'position' cannot be empty");
+
+	slots = data.get<int>("slots");
+	difficulty = data.get<int>("difficulty");
+
+	if (data.has("failure")) {
+		auto failure = data["failure"];
+		failureTime = failure.get<float>("duration");
+		failureMsg = failure.get<std::string>("message", "MISSION FAILED!");
+		failureMission = failure.get<std::string>("mission", "");
+		failureMissionTime = failure.get<float>("delay", 0);
+	} else throw std::invalid_argument("Mission 'failure' cannot be empty");
+
+	if (data.has("success")) {
+		auto success = data["success"];
+		missionDuration = success.get<float>("duration");
+		successMsg = success.get<std::string>("message", "MISSION COMPLETED!");
+		successMission = success.get<std::string>("mission", "");
+		successMissionTime = success.get<float>("delay", 0);
+	} else throw std::invalid_argument("Mission 'success' cannot be empty");
+
+	dangerous = data.get<bool>("dangerous", false);
+	triggered = data.get<bool>("triggered", false);
 }
-void Mission::load(std::ifstream& input, const std::string& header) {
-	int n;
-	std::getline(input, name);
-	std::getline(input, type);
-	std::getline(input, caller);
-	std::getline(input, description);
-	input >> n; input.ignore();
-	requirements.resize(n);
-	for (int i = 0; i < n; i++) std::getline(input, requirements[i]);
-	input >> position.x >> position.y;
-	for (Attribute attr : Attribute::Values) input >> requiredAttributes[attr];
-	input >> slots;
-	input >> difficulty;
-	input >> failureTime;
-	input >> missionDuration;
-	input >> dangerous; input.ignore();
-	if (header != "#MISSIONS_V1") {
-		std::getline(input, failureMsg);
-		input >> failureMissionTime; input.ignore();
-		if (failureMissionTime != 0) std::getline(input, failureMission);
-		std::getline(input, successMsg);
-		input >> successMissionTime; input.ignore();
-		if (successMissionTime != 0) std::getline(input, successMission);
-	}
-	validate();
-}
+
 void Mission::validate() const {
 	if (name.empty()) throw std::invalid_argument("Mission name cannot be empty");
 	if (type.empty()) throw std::invalid_argument("Mission type cannot be empty");

@@ -32,7 +32,84 @@ namespace JSONish {
 		std::map<std::string, Node> obj;
 
 		std::string toString(int indent = 0) const;
+
+		template <typename T>
+		T as() const;
+
+		template <typename T>
+		T get(const std::string& key, T def) const {
+			if (type != OBJECT) throw std::invalid_argument("Node is not an object, tried reading optional key '" + key + "'");
+			auto it = obj.find(key);
+			if (it == obj.end()) return def;
+			return it->second.as<T>();
+		}
+		template <typename T>
+		T get(int idx, T def) const {
+			if (type != ARRAY) throw std::invalid_argument("Node is not an array, tried reading optional index " + std::to_string(idx));
+			if (idx < 0 || idx >= (int)arr.size()) return def;
+			return arr[idx].as<T>();
+		}
+
+		template<typename T>
+		T get(const std::string& key) const {
+			if (type != OBJECT) throw std::runtime_error("Node is not an object, tried reading required key '" + key + "'");
+
+			auto it = obj.find(key);
+			if (it == obj.end()) throw std::runtime_error("Missing required key: '" + key + "'");
+
+			return it->second.as<T>();
+		}
+		template<typename T>
+		T get(int idx) const {
+			if (type != ARRAY) throw std::runtime_error("Node is not an array, tried reading required index " + std::to_string(idx));
+
+			if (idx < 0 || idx >= (int)arr.size()) throw std::runtime_error("Missing required array element at index " + std::to_string(idx));
+
+			return arr[idx].as<T>();
+		}
+
+		bool has(const std::string key) const {
+			if (type != OBJECT) throw std::runtime_error("Node is not an object, tried checking key '" + key + "'");
+			return obj.count(key);
+		}
+
+		const Node& operator[](const char* key) const { return obj.at(key); }
+		const Node& operator[](const std::string& key) const { return obj.at(key); }
+		const Node& operator[](int idx) const { return arr[idx]; }
+		operator bool() const { return type != NIL; }
 	};
+
+	template <>
+	inline int Node::as<int>() const {
+		if (type != Node::NUMBER) throw std::invalid_argument("Node is not a number");
+		return static_cast<int>(nval);
+	}
+
+	template <>
+	inline float Node::as<float>() const {
+		if (type != Node::NUMBER) throw std::invalid_argument("Node is not a number");
+		return static_cast<float>(nval);
+	}
+
+	template <>
+	inline double Node::as<double>() const {
+		if (type != Node::NUMBER) throw std::invalid_argument("Node is not a number");
+		return nval;
+	}
+
+	template <>
+	inline bool Node::as<bool>() const {
+		if (type != Node::BOOL) throw std::invalid_argument("Node is not a boolean");
+		return bval;
+	}
+
+	template <>
+	inline std::string Node::as<std::string>() const {
+		if (type != Node::STRING) throw std::invalid_argument("Node is not a string");
+		return sval;
+	}
+
+
 
 	std::vector<Token> tokenize(const std::string& src);
 
