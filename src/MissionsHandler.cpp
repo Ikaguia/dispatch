@@ -15,7 +15,7 @@ MissionsHandler::MissionsHandler() {
 	// loadMissions("resources/data/missions/Missions2.txt");
 	// loadMissions("resources/data/missions/Missions3.txt");
 
-	// JParser parser(Utils::readFile("resources/data/missions/test.jsonish"));
+	// JSONish::Parser parser(Utils::readFile("resources/data/missions/test.jsonish"));
 	// std::cout << parser.parseArray().toString() << std::endl;
 }
 

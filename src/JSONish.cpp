@@ -6,18 +6,18 @@
 #include <Utils.hpp>
 
 //  ERROR UTILITY
-void JParser::error(const std::string& msg) const {
+void JSONish::Parser::error(const std::string& msg) const {
 	const auto& tk = t[i < t.size() ? i : t.size() - 1];
 	throw std::runtime_error(std::format("JSON-ish parse error at line {}, col {}: {} (token: '{}')", tk.line, tk.col, msg, tk.text));
 }
 
 //  TOKENIZER
-std::vector<JToken> jsonishTokenize(const std::string& src) {
-	std::vector<JToken> out;
+std::vector<JSONish::Token> JSONish::tokenize(const std::string& src) {
+	std::vector<JSONish::Token> out;
 	size_t i = 0;
 	int line = 1, col = 1;
 
-	auto push = [&](JToken::Type t, std::string s) { out.emplace_back(t, s, line, col); };
+	auto push = [&](JSONish::Token::Type t, std::string s) { out.emplace_back(t, s, line, col); };
 
 	while (i < src.size()) {
 		char c = src[i];
@@ -49,7 +49,7 @@ std::vector<JToken> jsonishTokenize(const std::string& src) {
 		// symbols
 		if (c == '{' || c == '}' || c == '[' || c == ']' ||
 			c == ':' || c == ',') {
-			push(JToken::SYMBOL, std::string(1,c));
+			push(JSONish::Token::SYMBOL, std::string(1,c));
 			i++; col++;
 			continue;
 		}
@@ -69,7 +69,7 @@ std::vector<JToken> jsonishTokenize(const std::string& src) {
 			}
 			if (j >= src.size()) throw std::runtime_error("Unterminated string literal");
 
-			push(JToken::STRING, s);
+			push(JSONish::Token::STRING, s);
 			col += (j - i + 1);
 			i = j + 1;
 			continue;
@@ -79,7 +79,7 @@ std::vector<JToken> jsonishTokenize(const std::string& src) {
 		if (isdigit(c) || c == '-' || c == '+') {
 			size_t j = i;
 			while (j < src.size() && (isdigit(src[j]) || src[j] == '.' || src[j] == '-' || src[j] == '+')) j++;
-			push(JToken::NUMBER, src.substr(i, j - i));
+			push(JSONish::Token::NUMBER, src.substr(i, j - i));
 			col += (j - i);
 			i = j;
 			continue;
@@ -89,7 +89,7 @@ std::vector<JToken> jsonishTokenize(const std::string& src) {
 		if (isalpha(c)) {
 			size_t j = i;
 			while (j < src.size() && (isalnum(src[j]) || src[j]=='_' || src[j]=='-')) j++;
-			push(JToken::IDENT, src.substr(i, j - i));
+			push(JSONish::Token::IDENT, src.substr(i, j - i));
 			col += (j - i);
 			i = j;
 			continue;
@@ -101,46 +101,46 @@ std::vector<JToken> jsonishTokenize(const std::string& src) {
 		throw std::runtime_error(ss.str());
 	}
 
-	push(JToken::END, "");
+	push(JSONish::Token::END, "");
 
 	return out;
 }
 
 //  PARSER CORE
 
-JParser::JParser(const std::vector<JToken>& tokens) : t(tokens) {}
-JParser::JParser(const std::string& src) : t(jsonishTokenize(src)) {}
+JSONish::Parser::Parser(const std::vector<JSONish::Token>& tokens) : t(tokens) {}
+JSONish::Parser::Parser(const std::string& src) : t(JSONish::tokenize(src)) {}
 
-const JToken& JParser::peek() const {
+const JSONish::Token& JSONish::Parser::peek() const {
 	if (i >= t.size()) return t.back();
 	return t[i];
 }
 
-const JToken& JParser::next() {
+const JSONish::Token& JSONish::Parser::next() {
 	if (i >= t.size()) return t.back();
 	return t[i++];
 }
 
-bool JParser::match(const std::string& s) {
+bool JSONish::Parser::match(const std::string& s) {
 	if (peek().text == s) { i++; return true; }
 	return false;
 }
 
 //  VALUE
-JNode JParser::parseValue() {
+JSONish::Node JSONish::Parser::parseValue() {
 	const auto& tk = peek();
 
-	if (tk.type == JToken::STRING) {
+	if (tk.type == JSONish::Token::STRING) {
 		next();
 		return {tk.text};
 	}
 
-	if (tk.type == JToken::NUMBER) {
+	if (tk.type == JSONish::Token::NUMBER) {
 		next();
 		return {atof(tk.text.c_str())};
 	}
 
-	if (tk.type == JToken::IDENT) {
+	if (tk.type == JSONish::Token::IDENT) {
 		if (tk.text == "true" || tk.text == "false") {
 			next();
 			return {tk.text == "true"};
@@ -156,13 +156,13 @@ JNode JParser::parseValue() {
 
 //  OBJECT
 
-JNode JParser::parseObject() {
-	JNode n{JNode::OBJECT};
+JSONish::Node JSONish::Parser::parseObject() {
+	JSONish::Node n{JSONish::Node::OBJECT};
 	next(); // {
 
 	while (!match("}")) {
 		const auto& key = peek();
-		if (key.type != JToken::IDENT && key.type != JToken::STRING) error("Expected object key");
+		if (key.type != JSONish::Token::IDENT && key.type != JSONish::Token::STRING) error("Expected object key");
 
 		std::string k = next().text;
 
@@ -178,8 +178,8 @@ JNode JParser::parseObject() {
 }
 
 //  ARRAY
-JNode JParser::parseArray() {
-	JNode n{JNode::ARRAY};
+JSONish::Node JSONish::Parser::parseArray() {
+	JSONish::Node n{JSONish::Node::ARRAY};
 	next(); // [
 
 	while (!match("]")) {
@@ -193,7 +193,7 @@ JNode JParser::parseArray() {
 //  PRETTY PRINTER
 static std::string indentStr(int n) { return std::string(n, ' '); }
 
-std::string JNode::toString(int indent) const {
+std::string JSONish::Node::toString(int indent) const {
 	std::ostringstream out;
 
 	switch (type) {
