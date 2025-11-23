@@ -13,6 +13,7 @@ private:
 public:
 	std::vector<std::shared_ptr<Hero>> active_heroes;
 	std::vector<std::shared_ptr<Hero>> previous_heroes;
+	raylib::Rectangle detailsTabButton{895, 166, 30, 32};
 	int selectedHeroIndex = -1;
 	enum Tabs {
 		UPGRADE,

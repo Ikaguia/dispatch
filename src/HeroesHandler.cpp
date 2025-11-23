@@ -103,6 +103,14 @@ void HeroesHandler::renderUI() {
 		heroRect.x += heroRect.width + spacing;
 	}
 
+	int points_available = std::accumulate(active_heroes.begin(), active_heroes.end(), 0, [](int tot, const std::shared_ptr<Hero>& hero){ return tot + hero->skillPoints; });
+	if (points_available) {
+		auto rect = Utils::anchorRect(detailsTabButton, {15.0f, 15.0f}, Utils::Anchor::topLeft, {}, Utils::AnchorType::center);
+		rect.Draw(Dispatch::UI::bgMed);
+		rect.DrawLines(BLACK);
+		Utils::drawTextAnchored(std::to_string(points_available), rect, Utils::Anchor::center, Dispatch::UI::fontTitle, Dispatch::UI::textColor, 16.0f, 1.0f);
+	}
+
 	if (selectedHeroIndex != -1) {
 		auto& hero = active_heroes[selectedHeroIndex];
 
@@ -274,6 +282,12 @@ bool HeroesHandler::handleInput() {
 						return true;
 					}
 				}
+			}
+		} else if (detailsTabButton.CheckCollision(mousePos)) {
+			if (mission.expired() || !mission.lock()->isMenuOpen()) {
+				auto it = std::find_if(active_heroes.begin(), active_heroes.end(), [](const std::shared_ptr<Hero>& hero){ return hero->skillPoints > 0; });
+				if (it != active_heroes.end()) selectedHeroIndex = it - active_heroes.begin();
+				else selectedHeroIndex = 0;
 			}
 		} else if (selectedHeroIndex != -1) {
 			auto& hero = active_heroes[selectedHeroIndex];

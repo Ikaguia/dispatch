@@ -72,10 +72,13 @@ namespace Utils {
 	void drawTextSequence(const std::vector<std::tuple<std::string, raylib::Font&, int, raylib::Color, int, raylib::Color, float>>& text, raylib::Vector2 position, bool centerX=false, bool centerY=false, int text_spacing=0, bool horizontal=true);
 
 	enum struct Anchor { topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
+	enum struct AnchorType { automatic, topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
 	raylib::Vector2 anchorPos(raylib::Rectangle rect, Anchor anchor, raylib::Vector2 offset = {0.0f, 0.0f});
-	raylib::Rectangle anchorRect(raylib::Rectangle rect, raylib::Vector2 sz, Anchor anchor, raylib::Vector2 offset = {0.0f, 0.0f});
-	raylib::Rectangle drawTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, raylib::Color color=WHITE, float size=12, float spacing=2, raylib::Vector2 offset={0.0f, 0.0f}, float maxW=-1);
-	raylib::Rectangle positionTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, raylib::Color color=WHITE, float size=12, float spacing=2, raylib::Vector2 offset={0.0f, 0.0f}, float maxW=-1);
+	raylib::Rectangle anchorRect(raylib::Rectangle rect, raylib::Vector2 sz, Anchor anchor, raylib::Vector2 offset = {0.0f, 0.0f}, AnchorType anchorType = AnchorType::automatic);
+	raylib::Rectangle drawTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, raylib::Color color=WHITE, float size=12, float spacing=2, raylib::Vector2 offset={0.0f, 0.0f}, float maxW=-1, AnchorType anchorType = AnchorType::automatic);
+	raylib::Rectangle positionTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, float size=12, float spacing=2, raylib::Vector2 offset={0.0f, 0.0f}, float maxW=-1, AnchorType anchorType = AnchorType::automatic);
+
+	std::vector<raylib::Rectangle> splitRect(raylib::Rectangle rect, int rows, int cols, raylib::Vector2 divider);
 
 	void drawLineGradient(const raylib::Vector2& src, const raylib::Vector2& dest, raylib::Color srcColor, raylib::Color destColor, int steps=50);
 

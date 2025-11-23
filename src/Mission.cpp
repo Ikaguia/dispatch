@@ -181,7 +181,7 @@ void Mission::unassignHero(std::shared_ptr<Hero> hero) {
 void Mission::changeStatus(Status newStatus) {
 	Status oldStatus = status;
 	status = newStatus;
-	if (newStatus != Mission::PENDING && newStatus != Mission::SELECTED) timeElapsed = 0.0f;
+	if (newStatus != Mission::PENDING && newStatus != Mission::SELECTED && newStatus != Mission::DISRUPTION && oldStatus != Mission::DISRUPTION) timeElapsed = 0.0f;
 
 	if (oldStatus == Mission::PENDING && newStatus == Mission::SELECTED) {}
 	else if (oldStatus == Mission::SELECTED && newStatus == Mission::PENDING) {
@@ -279,27 +279,25 @@ void Mission::renderUI(bool full) {
 		raylib::Rectangle{leftRect.GetPosition() + raylib::Vector2{5,5}, leftRect.GetSize()}.Draw(Dispatch::UI::shadow);
 		leftRect.DrawGradient(Dispatch::UI::bgMed, Dispatch::UI::bgMed, Dispatch::UI::bgDrk, Dispatch::UI::bgMed);
 		// Type
-		raylib::Vector2 typePos = leftRect.GetPosition() + raylib::Vector2{10, 10};
-		Dispatch::UI::fontText.DrawText(type, typePos, 18, 1, Dispatch::UI::textColor);
-		raylib::Vector2 linePos = {typePos.x + Dispatch::UI::fontText.MeasureText(type, 18, 1).x + 4, leftRect.y + 10};
+		auto typeRect = Utils::drawTextAnchored(type, leftRect, Utils::Anchor::topLeft, Dispatch::UI::fontText, Dispatch::UI::textColor, 18, 1, {10.0f, 10.0f});
+		auto linePos = Utils::anchorPos(typeRect, Utils::Anchor::topRight, {4.0f, 0.0f});
 		for (int i = 1; i <= 5; i++) {
 			linePos.DrawLine({leftRect.x + leftRect.width - 4, linePos.y}, (i*i)%3 + 1, Dispatch::UI::bgDrk);
 			linePos.y += 5;
 		}
 		// Image
-		raylib::Rectangle imgRect{leftRect.x + 5, typePos.y + 30, leftRect.width - 10, 100};
+		raylib::Rectangle imgRect{leftRect.x + 5, typeRect.y + 30, leftRect.width - 10, 100};
 		imgRect.Draw(Dispatch::UI::bgDrk);
 		imgRect.DrawLines(BLACK);
 		// Caller
 		raylib::Rectangle callerBox{leftRect.x + 5, imgRect.y + imgRect.height, leftRect.width - 10, 40};
 		callerBox.DrawLines(BLACK);
-		Utils::drawTextCenteredY(std::format("Caller: {}", caller), raylib::Vector2{callerBox.x + 5, callerBox.y + callerBox.height/2}, Dispatch::UI::fontText, 18, Dispatch::UI::textColor);
+		Utils::drawTextAnchored("Caller: " + caller, callerBox, Utils::Anchor::left, Dispatch::UI::fontText, Dispatch::UI::textColor, 18.0f, 2.0f, {5.0f, 0.0f}, callerBox.width-10.0f);
 		// Description
 		raylib::Rectangle descriptionBox{leftRect.x + 5, callerBox.y + callerBox.height, leftRect.width - 10, leftRect.y + leftRect.height - (callerBox.y + callerBox.height) - 5};
 		descriptionBox.DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt, Dispatch::UI::bgMed);
 		descriptionBox.DrawLines(BLACK);
-		std::string desc = Utils::addLineBreaks(description, descriptionBox.width, Dispatch::UI::fontText, 14, 2);
-		Utils::drawTextCentered(desc, Utils::center(descriptionBox), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
+		Utils::drawTextAnchored(description, descriptionBox, Utils::Anchor::center, Dispatch::UI::fontText, Dispatch::UI::textColor, 14.0f, 2.0f, {}, descriptionBox.width);
 
 		// CENTER PANEL (title + radar + heroes + buttons)
 		raylib::Rectangle centerRect{leftRect.x + leftRect.width + 10, leftRect.y-44, 340, 380};
@@ -312,12 +310,13 @@ void Mission::renderUI(bool full) {
 		titleRect.DrawLines(BLACK);
 		Utils::drawTextCentered(name, Utils::center(titleRect), Dispatch::UI::fontTitle, 24);
 		// BUTTONS
-		raylib::Rectangle btnsRect{centerRect.x, centerRect.y + centerRect.height - 30, centerRect.width, 28};
+		auto btnsRect = Utils::anchorRect(centerRect, {centerRect.width, 28}, Utils::Anchor::bottom, {0.0f, -2.0f});
 		std::vector<std::pair<std::string, raylib::Rectangle&>> btns{{"CLOSE", btnCancel}};
 		if (status == Mission::SELECTED) btns.emplace_back("DISPATCH", btnStart);
-		for (auto [idx, btn] : Utils::enumerate(btns)) {
-			auto [name, rect] = btn; auto sz = btns.size(); auto width = btnsRect.width/sz;
-			rect = raylib::Rectangle{btnsRect.x + idx*(width+2), btnsRect.y, width - 2, btnsRect.height};
+		auto rects = Utils::splitRect(btnsRect, 1, btns.size(), {2.0f, 0.0f});
+		for (int i = 0; i < (int)btns.size(); i++) {
+			auto [name, rect] = btns[i];
+			rect = rects[i];
 			rect.Draw(Dispatch::UI::bgLgt);
 			rect.DrawLines(BLACK);
 			Utils::drawTextCentered(name, Utils::center(rect), Dispatch::UI::fontText, 18, BLACK);
@@ -352,7 +351,7 @@ void Mission::renderUI(bool full) {
 					auto& button = disruption.optionButtons[i];
 					std::string text = std::format("{} ({})", option.name, option.type == Disruption::Option::HERO ? option.disabled ? "???" : option.hero : option.attribute);
 
-					raylib::Rectangle optionButtonText = Utils::positionTextAnchored(text, mainRect, Utils::Anchor::center, Dispatch::UI::fontText, Dispatch::UI::textColor, 16, 2, offset, mainRect.width-8.0f);
+					raylib::Rectangle optionButtonText = Utils::positionTextAnchored(text, mainRect, Utils::Anchor::center, Dispatch::UI::fontText, 16, 2, offset, mainRect.width-8.0f);
 					button = Utils::inset(optionButtonText, {-8.0f, -4.0f});
 					button.x -= (totalSize.x - optionButtonText.width) / 2; button.width = totalSize.x+16;
 					button.Draw(Dispatch::UI::bgMed);
@@ -367,7 +366,7 @@ void Mission::renderUI(bool full) {
 				bool success = isDisruptionSuccessful();
 				if (opt.type == Disruption::Option::HERO) {
 					auto hero = *std::find_if(assignedHeroes.begin(), assignedHeroes.end(), [&](auto& h){ return h->name == opt.hero; });
-					raylib::Rectangle heroText = Utils::positionTextAnchored(hero->name, mainRect, Utils::Anchor::center, Dispatch::UI::fontText, Dispatch::UI::textColor, 36, 2, {0.0f,0.0f}, mainRect.width-8.0f);
+					raylib::Rectangle heroText = Utils::positionTextAnchored(hero->name, mainRect, Utils::Anchor::center, Dispatch::UI::fontText, 36, 2, {0.0f,0.0f}, mainRect.width-8.0f);
 					raylib::Rectangle heroRect = Utils::inset(heroText, {-8.0f, -4.0f});
 					heroRect.Draw(Dispatch::UI::bgLgt);
 					heroRect.DrawLines(BLACK);
@@ -421,7 +420,7 @@ void Mission::renderUI(bool full) {
 					req[3].DrawLine(req[4], LIGHTGRAY);
 				}
 				const std::string& text = success ? opt.successMessage : opt.failureMessage;
-				raylib::Rectangle resultText = Utils::positionTextAnchored(text, mainRect, Utils::Anchor::bottom, Dispatch::UI::fontText, Dispatch::UI::textColor, 16, 2, {0.0f, -14.0f}, mainRect.width-8.0f);
+				raylib::Rectangle resultText = Utils::positionTextAnchored(text, mainRect, Utils::Anchor::bottom, Dispatch::UI::fontText, 16, 2, {0.0f, -14.0f}, mainRect.width-8.0f);
 				raylib::Rectangle resultRect = Utils::inset(resultText, {-8.0f, -4.0f});
 				resultRect.Draw(Dispatch::UI::bgMed);
 				resultRect.DrawLines(BLACK);
@@ -429,15 +428,25 @@ void Mission::renderUI(bool full) {
 			}
 		} else {
 			// Radar graph
-			raylib::Vector2 radarCenter{mainPanel.x + mainPanel.width/2, mainPanel.y + ((status==Mission::SELECTED)?(5*mainPanel.height/14):(mainPanel.height/2))};
+			auto radarCenter = Utils::anchorPos(mainPanel, Utils::Anchor::center); if (status==Mission::SELECTED) radarCenter.y -= mainPanel.height/7;
 			auto totalAttributes = getTotalAttributes();
-			std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attrs{{totalAttributes, ORANGE, true}};
+			float radarRadius = status==Mission::SELECTED ? 60.0f : 90.0f;
+			std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attrs{};
+			if (!disrupted) attrs.emplace_back(totalAttributes, ORANGE, true);
 			if (status != Mission::SELECTED) {
 				attrs.emplace_back(requiredAttributes, LIGHTGRAY, true);
 				AttrMap<int> intersect; for (auto& [k, v] : requiredAttributes) intersect[k] = std::min(v, totalAttributes[k]);
-				attrs.emplace_back(intersect, status == Mission::REVIEWING_SUCESS ? GREEN : RED, false);
+				if (!disrupted) attrs.emplace_back(intersect, status == Mission::REVIEWING_SUCESS ? GREEN : RED, false);
 			}
-			Utils::drawRadarGraph(radarCenter, (status==Mission::SELECTED?60.0f:90.0f), attrs, Dispatch::UI::textColor, BROWN);
+			Utils::drawRadarGraph(radarCenter, radarRadius, attrs, Dispatch::UI::textColor, BROWN);
+			if (disrupted) {
+				std::string disruptedText = "Failed to help heroes";
+				auto disruptedBox = Utils::positionTextAnchored(disruptedText, mainPanel, Utils::Anchor::center, Dispatch::UI::fontText, 24.0f, 2.0f, {0.0f, 2*radarRadius/3});
+				auto _disruptedBox_ = Utils::inset(disruptedBox, {-8.0f, -4.0f});
+				_disruptedBox_.Draw(Dispatch::UI::bgMed);
+				_disruptedBox_.DrawLines(BLACK);
+				Dispatch::UI::fontText.DrawText(disruptedText, disruptedBox.GetPosition(), 24.0f, 2.0f, Dispatch::UI::textColor);
+			}
 			if (status == Mission::SELECTED) {
 				// Hero portraits
 				float start = mainPanel.x + (mainPanel.width - (slots*74 - 10)) / 2;
@@ -521,7 +530,7 @@ void Mission::renderUI(bool full) {
 					auto& button = disruption.optionButtons[i];
 					std::string text = std::format("{} ({})", option.name, option.type == Disruption::Option::HERO ? option.hero : option.attribute);
 
-					raylib::Rectangle optionButtonText = Utils::positionTextAnchored(text, rightContentRec, Utils::Anchor::center, Dispatch::UI::fontText, Dispatch::UI::textColor, 16, 2, offset, mainRect.width-8.0f);
+					raylib::Rectangle optionButtonText = Utils::positionTextAnchored(text, rightContentRec, Utils::Anchor::center, Dispatch::UI::fontText, 16, 2, offset, mainRect.width-8.0f);
 					button = Utils::inset(optionButtonText, {-8.0f, -4.0f});
 					button.x -= (totalSize.x - optionButtonText.width) / 2; button.width = totalSize.x+16;
 					button.Draw(i == disruption.selected_option ? GOLD : Dispatch::UI::bgMed);
@@ -543,7 +552,8 @@ void Mission::renderUI(bool full) {
 				if (totalH) totalH += 10;
 				totalH += h;
 			}
-			raylib::Vector2 reqPos = {rightContentRec.x + 4 + indentSize, rightContentRec.y + (rightContentRec.height - totalH) / 2 + 4 };
+			// raylib::Vector2 reqPos = {rightContentRec.x + 4 + indentSize, rightContentRec.y + (rightContentRec.height - totalH) / 2 + 4 };
+			auto reqPos = Utils::anchorPos(rightContentRec, Utils::Anchor::left, {indentSize+4.0f, -totalH/2.0f + 4.0f});
 			for (auto& [txt, h] : reqs) {
 				Dispatch::UI::fontText.DrawText("> ", {reqPos.x - indentSize, reqPos.y}, 16, 1, Dispatch::UI::textColor);
 				Dispatch::UI::fontText.DrawText(txt, reqPos, 16, 1, Dispatch::UI::textColor);
@@ -601,8 +611,7 @@ void Mission::renderUI(bool full) {
 		DrawCircleSector(position, 27, 0.0f, 360.0f * progress, 180, timeElapsedColor);
 		position.DrawCircle(24, BLACK);
 		position.DrawCircle(23, backgroundColor);
-		raylib::Vector2 textSize = font->MeasureText(text, 36, 2);
-		font->DrawText(text, position-textSize/2, 36, 2);
+		Utils::drawTextCentered(text, position, *font, 36, WHITE);
 	}
 }
 

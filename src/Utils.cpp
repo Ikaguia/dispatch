@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <format>
 #include <fstream>
+#include <map>
 
 #include <Utils.hpp>
 #include <Common.hpp>
@@ -143,37 +144,66 @@ void Utils::drawTextSequence(const std::vector<std::tuple<std::string, raylib::F
 raylib::Vector2 Utils::anchorPos(raylib::Rectangle rect, Anchor anchor, raylib::Vector2 offset) {
 	auto pos = rect.GetPosition();
 	// Anchor X
-	if (anchor == Anchor::top      || anchor == Anchor::center || anchor == Anchor::bottom     ) pos.x += (rect.width / 2);
-	if (anchor == Anchor::topRight || anchor == Anchor::right  || anchor == Anchor::bottomRight) pos.x +=  rect.width     ;
+	if (anchor == Anchor::top			|| anchor == Anchor::center	|| anchor == Anchor::bottom)		pos.x += rect.width / 2;
+	if (anchor == Anchor::topRight		|| anchor == Anchor::right	|| anchor == Anchor::bottomRight)	pos.x += rect.width;
 	// Anchor Y
-	if (anchor == Anchor::left       || anchor == Anchor::center || anchor == Anchor::right      ) pos.y += (rect.height / 2);
-	if (anchor == Anchor::bottomLeft || anchor == Anchor::bottom || anchor == Anchor::bottomRight) pos.y +=  rect.height     ;
+	if (anchor == Anchor::left			|| anchor == Anchor::center	|| anchor == Anchor::right)			pos.y += rect.height / 2;
+	if (anchor == Anchor::bottomLeft	|| anchor == Anchor::bottom	|| anchor == Anchor::bottomRight)	pos.y += rect.height;
 	return pos+offset;
 }
-raylib::Rectangle Utils::anchorRect(raylib::Rectangle rect, raylib::Vector2 sz, Anchor anchor, raylib::Vector2 offset) {
-	auto pos = rect.GetPosition();
+raylib::Rectangle Utils::anchorRect(raylib::Rectangle rect, raylib::Vector2 sz, Anchor anchor, raylib::Vector2 offset, AnchorType anchorType) {
+	static std::map<Anchor, AnchorType> automatic = {
+		{Anchor::topLeft,		AnchorType::bottomRight},
+		{Anchor::top,			AnchorType::bottom},
+		{Anchor::topRight,		AnchorType::bottomLeft},
+		{Anchor::left,			AnchorType::right},
+		{Anchor::center,		AnchorType::center},
+		{Anchor::right,			AnchorType::left},
+		{Anchor::bottomLeft,	AnchorType::topRight},
+		{Anchor::bottom,		AnchorType::top},
+		{Anchor::bottomRight,	AnchorType::topLeft},
+	};
+	if (anchorType == AnchorType::automatic) anchorType = automatic[anchor];
+	auto pos = anchorPos(rect, anchor, offset);
 	// Anchor X
-	if (anchor == Anchor::top      || anchor == Anchor::center || anchor == Anchor::bottom     ) pos.x += (rect.width / 2) - (sz.x / 2);
-	if (anchor == Anchor::topRight || anchor == Anchor::right  || anchor == Anchor::bottomRight) pos.x +=  rect.width      -  sz.x     ;
+	if (anchorType == AnchorType::top		|| anchorType == AnchorType::center	|| anchorType == AnchorType::bottom)	pos.x -= sz.x / 2;
+	if (anchorType == AnchorType::topLeft	|| anchorType == AnchorType::left	|| anchorType == AnchorType::bottomLeft)pos.x -= sz.x;
 	// Anchor Y
-	if (anchor == Anchor::left       || anchor == Anchor::center || anchor == Anchor::right      ) pos.y += (rect.height / 2) - (sz.y / 2);
-	if (anchor == Anchor::bottomLeft || anchor == Anchor::bottom || anchor == Anchor::bottomRight) pos.y +=  rect.height      -  sz.y     ;
-	return {pos+offset, sz};
+	if (anchorType == AnchorType::left		|| anchorType == AnchorType::center || anchorType == AnchorType::right)		pos.y -= sz.y / 2;
+	if (anchorType == AnchorType::topLeft	|| anchorType == AnchorType::top	|| anchorType == AnchorType::topRight)	pos.y -= sz.y;
+	return {pos, sz};
 }
-raylib::Rectangle Utils::drawTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, raylib::Color color, float size, float spacing, raylib::Vector2 offset, float maxW) {
-	auto drawRect = positionTextAnchored(text, rect, anchor, font, color, size, spacing, offset, maxW);
-	font.DrawText(text, drawRect.GetPosition(), size, spacing, color);
-	return drawRect;
-}
-raylib::Rectangle Utils::positionTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, raylib::Color color, float size, float spacing, raylib::Vector2 offset, float maxW) {
+raylib::Rectangle Utils::drawTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, raylib::Color color, float size, float spacing, raylib::Vector2 offset, float maxW, AnchorType anchorType) {
 	auto sz = font.MeasureText(text, size, spacing);
 	if (maxW != -1 && sz.x > maxW) {
 		text = addLineBreaks(text, maxW, font, size, spacing);
 		sz = font.MeasureText(text, size, spacing);
 	}
-	return anchorRect(rect, sz, anchor, offset);
+	auto drawRect = anchorRect(rect, sz, anchor, offset, anchorType);
+	font.DrawText(text, drawRect.GetPosition(), size, spacing, color);
+	return drawRect;
+}
+raylib::Rectangle Utils::positionTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, float size, float spacing, raylib::Vector2 offset, float maxW, AnchorType anchorType) {
+	auto sz = font.MeasureText(text, size, spacing);
+	if (maxW != -1 && sz.x > maxW) {
+		text = addLineBreaks(text, maxW, font, size, spacing);
+		sz = font.MeasureText(text, size, spacing);
+	}
+	return anchorRect(rect, sz, anchor, offset, anchorType);
 }
 
+std::vector<raylib::Rectangle> Utils::splitRect(raylib::Rectangle rect, int rows, int cols, raylib::Vector2 divider) {
+	std::vector<raylib::Rectangle> out;
+	raylib::Vector2 size = {(rect.width - divider.x*(cols-1)) / cols, (rect.height - divider.y*(rows-1)) / rows};
+	for (int row = 0; row < rows; row++) {
+		auto pos = rect.GetPosition() + raylib::Vector2{0.0f, (size.y+divider.y)*row};
+		for (int col = 0; col < cols; col++) {
+			out.emplace_back(pos, size);
+			pos.x += size.x + divider.x;
+		}
+	}
+	return out;
+}
 
 void Utils::drawLineGradient(const raylib::Vector2& src, const raylib::Vector2& dest, raylib::Color srcColor, raylib::Color destColor, int steps) {
 	if (steps < 2) throw std::invalid_argument("Steps needs to be >= 2");
