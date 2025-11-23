@@ -11,15 +11,16 @@
 		],
 		"position": [ 850, 200 ],
 		"attributes": {
-			"combat": 9,
-			"vigor": 7,
-			"mobility": 6,
-			"charisma": 1,
-			"intelligence": 4,
+			"combat": 10,
+			"vigor": 10,
+			"mobility": 10,
+			"charisma": 10,
+			"intelligence": 10,
 		},
 		"slots": 3,
 		"difficulty": 4,
 		"dangerous": true,
+		"triggered": true,
 		"failure": {
 			"duration": 30,
 			"message": "EXPLOSION REFINED",
@@ -59,6 +60,29 @@
 			"message": "WORKERS RESCUED",
 		},
 		"dangerous": true,
-		"triggered": true,
+		"triggered": false,
+		"disruptions": [
+			{
+				"description": "It's gonna blow!",
+				"timeout": 20.0,
+				"options": [
+					{
+						"name": "Run!",
+						"type": "ATTRIBUTE",
+						"attribute": "MOBILITY",
+						"value": 7,
+					}, {
+						"name": "Contain it!",
+						"type": "ATTRIBUTE",
+						"attribute": "VIGOR",
+						"value": 10,
+					}, {
+						"name": "Absorb it!",
+						"type": "HERO",
+						"hero": "Flambae",
+					}
+				]
+			}
+		]
 	},
 ]

@@ -13,6 +13,21 @@ class Mission;
 #include <Hero.hpp>
 #include <JSONish.hpp>
 
+class Disruption {
+public:
+	struct Option {
+		std::string name, hero, attribute, successMessage, failureMessage;
+		int value;
+		enum Type { HERO, ATTRIBUTE } type;
+		bool disabled = false;
+	};
+	std::vector<Option> options;
+	std::string description;
+	float timeout, elapsedTime;
+	int selected_option = -1;
+	std::vector<raylib::Rectangle> optionButtons;
+};
+
 class Mission : public std::enable_shared_from_this<Mission> {
 private:
 	raylib::Rectangle btnCancel, btnStart;
@@ -26,11 +41,14 @@ public:
 		REVIEWING_SUCESS,
 		REVIEWING_FAILURE,
 		DONE,
-		MISSED
+		MISSED,
+		DISRUPTION,
+		DISRUPTION_MENU
 	};
 
 	std::string name, type, caller, description, failureMsg="MISSION FAILED", failureMission, successMsg="MISSION COMPLETED", successMission;
 	std::vector<std::string> requirements;
+	std::vector<Disruption> disruptions;
 	raylib::Vector2 position{0.0f, 0.0f};
 	AttrMap<int> requiredAttributes{};
 	int slots;
@@ -41,6 +59,8 @@ public:
 	float successMissionTime = 0.0f;
 	bool dangerous = false;
 	bool triggered = false;
+	bool disrupted = false;
+	int curDisruption = -1;
 
 	std::set<std::shared_ptr<Hero>> assignedHeroes{};
 	Status status = Mission::PENDING;
@@ -67,4 +87,7 @@ public:
 	AttrMap<int> getTotalAttributes() const;
 	int getSuccessChance() const;
 	bool isSuccessful() const;
+	bool isMenuOpen() const;
+
+	static std::string statusToString(Status st);
 };

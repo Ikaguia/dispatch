@@ -55,7 +55,10 @@ namespace JSONish {
 			if (type != OBJECT) throw std::runtime_error("Node is not an object, tried reading required key '" + key + "'");
 
 			auto it = obj.find(key);
-			if (it == obj.end()) throw std::runtime_error("Missing required key: '" + key + "'");
+			if (it == obj.end()) {
+				Utils::println("Missing required key: '{}'", key);
+				throw std::runtime_error("Missing required key: '" + key + "'");
+			}
 
 			return it->second.as<T>();
 		}

@@ -11,9 +11,9 @@
 
 MissionsHandler::MissionsHandler() {
 	loadMissions("resources/data/missions/test.jsonish");
-	loadMissions("resources/data/missions/Missions1.jsonish");
-	loadMissions("resources/data/missions/Missions2.jsonish");
-	loadMissions("resources/data/missions/Missions3.jsonish");
+	// loadMissions("resources/data/missions/Missions1.jsonish");
+	// loadMissions("resources/data/missions/Missions2.jsonish");
+	// loadMissions("resources/data/missions/Missions3.jsonish");
 }
 
 MissionsHandler& MissionsHandler::inst() {
@@ -141,11 +141,11 @@ void MissionsHandler::handleInput() {
 	if (!selectedMission.expired())	{
 		Mission& mission = *selectedMission.lock();
 		mission.handleInput();
-		if (mission.status != Mission::SELECTED && mission.status != Mission::REVIEWING_SUCESS && mission.status != Mission::REVIEWING_FAILURE) selectedMission.reset();
+		if (!mission.isMenuOpen()) unselectMission();
 	} else for (auto& mission : active_missions) {
 		mission->handleInput();
-		if (mission->status == Mission::SELECTED || mission->status == Mission::REVIEWING_SUCESS || mission->status == Mission::REVIEWING_FAILURE) {
-			selectedMission = mission->weak_from_this();
+		if (mission->isMenuOpen()) {
+			selectMission(mission);
 			break;
 		}
 	}

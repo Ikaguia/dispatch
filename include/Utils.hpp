@@ -71,6 +71,10 @@ namespace Utils {
 
 	void drawTextSequence(const std::vector<std::tuple<std::string, raylib::Font&, int, raylib::Color, int, raylib::Color, float>>& text, raylib::Vector2 position, bool centerX=false, bool centerY=false, int text_spacing=0, bool horizontal=true);
 
+	enum struct TextAnchor { topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
+	raylib::Rectangle drawTextAnchored(std::string text, raylib::Rectangle rect, TextAnchor anchor, const raylib::Font& font, raylib::Color color=WHITE, float size=12, float spacing=2, raylib::Vector2 offset={0.0f, 0.0f}, float maxW=-1);
+	raylib::Rectangle positionTextAnchored(std::string text, raylib::Rectangle rect, TextAnchor anchor, const raylib::Font& font, raylib::Color color=WHITE, float size=12, float spacing=2, raylib::Vector2 offset={0.0f, 0.0f}, float maxW=-1);
+
 	void drawLineGradient(const raylib::Vector2& src, const raylib::Vector2& dest, raylib::Color srcColor, raylib::Color destColor, int steps=50);
 
 	void drawFilledCircleVertical(const raylib::Vector2& center, float radius, float filled, raylib::Color topColor, raylib::Color bottomColor, raylib::Color borderColor=BLACK, float borderThickness=1.0f);
