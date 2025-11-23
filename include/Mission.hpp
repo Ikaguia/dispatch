@@ -16,7 +16,7 @@ class Mission;
 class Disruption {
 public:
 	struct Option {
-		std::string name, hero, attribute, successMessage, failureMessage;
+		std::string name, hero, attribute, successMessage="SUCCESS!", failureMessage="FAILURE!";
 		int value;
 		enum Type { HERO, ATTRIBUTE } type;
 		bool disabled = false;
@@ -85,8 +85,10 @@ public:
 	void handleInput();
 
 	AttrMap<int> getTotalAttributes() const;
+	int getTotalAttribute(Attribute attr) const;
 	int getSuccessChance() const;
 	bool isSuccessful() const;
+	bool isDisruptionSuccessful() const;
 	bool isMenuOpen() const;
 
 	static std::string statusToString(Status st);

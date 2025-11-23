@@ -71,15 +71,30 @@
 						"type": "ATTRIBUTE",
 						"attribute": "MOBILITY",
 						"value": 7,
+						"success": {
+							"message": "Yay!",
+						},
+						"failure": {
+							"message": "Oh no!",
+						}
 					}, {
 						"name": "Contain it!",
 						"type": "ATTRIBUTE",
 						"attribute": "VIGOR",
 						"value": 10,
+						"success": {
+							"message": "Burp!",
+						},
+						"failure": {
+							"message": "Uh oh!",
+						}
 					}, {
 						"name": "Absorb it!",
 						"type": "HERO",
 						"hero": "Flambae",
+						"success": {
+							"message": "Hot as ever!",
+						},
 					}
 				]
 			}
