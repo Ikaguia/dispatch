@@ -1,0 +1,306 @@
+[
+	{
+		"name": "Feedback",
+		"nickname": "The Human Subwoofer",
+		"bio": {
+			"realName": "Corey",
+			"age": "28",
+			"height": "5'9",
+			"birthplace": "Miami, FL",
+			"description": "A failed EDM DJ who discovered he could manipulate sound waves after a freak accident involving a faulty amp and a lightning strike. He speaks exclusively at high volumes because he is partially deaf from his own powers, and he constantly tries to promote his SoundCloud link during hostage situations.",
+			"crimes": "Disturbing the peace, noise pollution, copyright infringement, assault with a deadly instrument (an electric guitar)"
+		},
+		"flies": false,
+		"tags": [
+			"LOUD",
+			"DJ"
+		],
+		"attributes": {
+			"combat": 3,
+			"vigor": 2,
+			"mobility": 3,
+			"charisma": 2,
+			"intelligence": 1
+		},
+		"powers": [
+			{
+				"name": "Bass Drop",
+				"description": "If placed in the first slot, Feedback provides a rhythm track that grants +1 Combat to all other heroes in the dispatch."
+			},
+			{
+				"name": "Remix",
+				"description": "If Feedback fails a mission, he claims it was a 'sound check' and instantly reattempts it with swapped Combat and Charisma stats."
+			},
+			{
+				"name": "Encore",
+				"description": "After a successful dispatch, Feedback has a 50% chance to skip his rest period entirely, fueled by the adrenaline of the 'performance'."
+			}
+		]
+	},
+	{
+		"name": "Ricochet",
+		"nickname": "The Human Pinball",
+		"bio": {
+			"realName": "Marco",
+			"age": "34",
+			"height": "5'7",
+			"birthplace": "Queens, NY",
+			"description": "A former pool hustler who realized he could physically bounce off surfaces without taking impact damage. He treats every crime scene like a geometry problem and refuses to fight in open fields because there are 'no angles.' He runs an illegal betting pool on which hero will get fired next.",
+			"crimes": "Bank robbery, illegal gambling, reckless endangerment, destruction of public property"
+		},
+		"flies": false,
+		"tags": [
+			"GAMBLER",
+			"STRIKER"
+		],
+		"attributes": {
+			"combat": 3,
+			"vigor": 2,
+			"mobility": 4,
+			"charisma": 1,
+			"intelligence": 3
+		},
+		"powers": [
+			{
+				"name": "Double or Nothing",
+				"description": "If the call has a success chance below 50%, Ricochet grants a +3 Combat boost. If above 50%, he grants -1 Combat out of boredom."
+			},
+			{
+				"name": "Bank Shot",
+				"description": "Ricochet ignores the 'Obstacle' penalty on missions involving urban environments or tight spaces."
+			},
+			{
+				"name": "Momentum",
+				"description": "For every slot filled before Ricochet in a dispatch, he gains +1 Mobility."
+			}
+		]
+	},
+	{
+		"name": "Miasma",
+		"nickname": "The Hun",
+		"bio": {
+			"realName": "Brenda",
+			"age": "41",
+			"height": "5'5",
+			"birthplace": "Scottsdale, AZ",
+			"description": "A former Multi-Level Marketing 'Girl Boss' whose essential oil mixtures became so potent they were classified as chemical weapons. She believes she is a healer and constantly tries to recruit other heroes into her 'downline.' Her cloud of toxic perfume causes nausea in everyone, including herself.",
+			"crimes": "Operating a pyramid scheme, chemical warfare, practicing medicine without a license, mail fraud"
+		},
+		"flies": false,
+		"tags": [
+			"TOXIC",
+			"SCAMMER"
+		],
+		"attributes": {
+			"combat": 1,
+			"vigor": 1,
+			"mobility": 2,
+			"charisma": 5,
+			"intelligence": 2
+		},
+		"powers": [
+			{
+				"name": "The Downline",
+				"description": "Miasma gains +1 Charisma for every hero placed in a slot after her."
+			},
+			{
+				"name": "Detoxify",
+				"description": "Reduces the 'Combat' requirement of a call by 2, but increases the 'Intellect' requirement by 1 as she lectures the villains on gut health."
+			},
+			{
+				"name": "Essential Oils",
+				"description": "If a teammate is injured during a call with Miasma, she heals them instantly, but they suffer a -1 Intellect penalty for the next shift due to the fumes."
+			}
+		]
+	},
+	{
+		"name": "Zero",
+		"nickname": "Script Kiddie",
+		"bio": {
+			"realName": "Kevin",
+			"age": "19",
+			"height": "5'6",
+			"birthplace": "Seattle, WA",
+			"description": "A techno-path who can mentally interface with any machine, but uses his powers almost exclusively to pirate anime and cheat in video games. He wears a hoodie at all times and claims to have an allergy to UV light. He accidentally hacked the Pentagon while trying to order pizza.",
+			"crimes": "Cyberterrorism, identity theft, grand larceny (digital), piracy"
+		},
+		"flies": false,
+		"tags": [
+			"HACKER",
+			"GEN-Z"
+		],
+		"attributes": {
+			"combat": 1,
+			"vigor": 1,
+			"mobility": 2,
+			"charisma": 1,
+			"intelligence": 5
+		},
+		"powers": [
+			{
+				"name": "DDoS Attack",
+				"description": "Delays the expiration timer of a call by 30 seconds."
+			},
+			{
+				"name": "VPN",
+				"description": "If sent alone, Zero is undetectable, bypassing any 'Stealth' requirements automatically."
+			},
+			{
+				"name": "Overclock",
+				"description": "Zero can double his Intelligence stat for one call, but he requires triple the rest time afterward to recharge his mental battery."
+			}
+		]
+	},
+	{
+		"name": "Crumple",
+		"nickname": " The Wrecking Ball",
+		"bio": {
+			"realName": "Gary",
+			"age": "45",
+			"height": "6'8",
+			"birthplace": "Detroit, MI",
+			"description": "A former demolition expert who was fused with the scrap metal of a condemned building during an explosion. He is incredibly dense, heavy, and loves the taste of drywall. He is a simple man who just wants to smash things, but he's very sensitive about his weight.",
+			"crimes": "Vandalism, destruction of public property, gross negligence, theft of construction equipment"
+		},
+		"flies": false,
+		"tags": [
+			"TANK",
+			"HEAVY"
+		],
+		"attributes": {
+			"combat": 4,
+			"vigor": 5,
+			"mobility": 1,
+			"charisma": 1,
+			"intelligence": 1
+		},
+		"powers": [
+			{
+				"name": "Immovable Object",
+				"description": "Crumple cannot be injured. If a mission result would cause injury, he simply gets hungry instead."
+			},
+			{
+				"name": "Collateral Damage",
+				"description": "When Crumple completes a Combat mission successfully, he accidentally destroys a nearby 'Evidence' or 'Stealth' call, failing it instantly."
+			},
+			{
+				"name": "Heavy Load",
+				"description": "Crumple increases travel time to the call location by 50%, but guarantees success on any 'Strength' based checks."
+			}
+		]
+	},
+	{
+		"name": "Vogue",
+		"nickname": "Blue Steel",
+		"bio": {
+			"realName": "Alessandro",
+			"age": "25",
+			"height": "6'2",
+			"birthplace": "Milan, Italy",
+			"description": "A male model with low-level psychic empathy. He can make anyone fall in love with him for exactly 60 seconds by making eye contact. He was arrested for stopping traffic on a highway because the lighting was 'perfect for a selfie,' causing a 12-car pileup.",
+			"crimes": "Public nuisance, inciting a riot, jaywalking (major), fraud"
+		},
+		"flies": false,
+		"tags": [
+			"NARCISSIST",
+			"MODEL"
+		],
+		"attributes": {
+			"combat": 1,
+			"vigor": 2,
+			"mobility": 2,
+			"charisma": 5,
+			"intelligence": 2
+		},
+		"powers": [
+			{
+				"name": "Stop and Stare",
+				"description": "Stuns enemies at the start of a call. If placed in a slot with a Charisma requirement, he automatically succeeds it."
+			},
+			{
+				"name": "Entourage",
+				"description": "Vogue gains +1 Combat for every other hero in the squad, as he refuses to look weak in front of an audience."
+			},
+			{
+				"name": "Fashionably Late",
+				"description": "Vogue always arrives at the call location last, regardless of travel speed."
+			}
+		]
+	},
+	{
+		"name": "Joyride",
+		"nickname": "Gearhead",
+		"bio": {
+			"realName": "Tiff",
+			"age": "22",
+			"height": "5'4",
+			"birthplace": "Daytona, FL",
+			"description": "A getaway driver who is physically uncomfortable when moving slower than 80mph. She has cyborg implants in her legs that allow her to run as fast as a car, but she has a terrible turning radius. She treats traffic laws as 'suggestions' and collects parking tickets like trading cards.",
+			"crimes": "Grand theft auto, reckless driving, fleeing and eluding, speeding (200+ counts)"
+		},
+		"flies": false,
+		"tags": [
+			"SPEEDSTER",
+			"DRIVER"
+		],
+		"attributes": {
+			"combat": 2,
+			"vigor": 2,
+			"mobility": 5,
+			"charisma": 2,
+			"intelligence": 2
+		},
+		"powers": [
+			{
+				"name": "Getaway Driver",
+				"description": "Reduces travel time for the entire squad by 50%."
+			},
+			{
+				"name": "Hit and Run",
+				"description": "If the call is completed in under 10 seconds, Joyride gains +2 Combat for her next dispatch."
+			},
+			{
+				"name": "Drift King",
+				"description": "Joyride gains +1 Mobility if placed in the last slot of a squad."
+			}
+		]
+	},
+	{
+		"name": "Spore",
+		"nickname": "The Fun Guy",
+		"bio": {
+			"realName": "Toad",
+			"age": "Unknown",
+			"height": "5'10",
+			"birthplace": "A frat house shower in Ohio",
+			"description": "A colony of sentient mold that gained consciousness in a filthy bathroom. He assumed a humanoid shape to find more pizza crusts. He is surprisingly polite but leaves a trail of slime everywhere he goes. He considers himself a 'roommate' to the entire SDN building.",
+			"crimes": "Squatting, biohazard violation, theft of food, gross indecency"
+		},
+		"flies": false,
+		"tags": [
+			"GROSS",
+			"AOE"
+		],
+		"attributes": {
+			"combat": 2,
+			"vigor": 4,
+			"mobility": 1,
+			"charisma": 1,
+			"intelligence": 3
+		},
+		"powers": [
+			{
+				"name": "Mycelium Network",
+				"description": "If Spore is resting, he passively heals any other resting heroes by 10% per second."
+			},
+			{
+				"name": "Sticky Trap",
+				"description": "Spore locks a call slot. Enemies in that slot cannot deal damage to the hero placed there."
+			},
+			{
+				"name": "Growth Spurt",
+				"description": "Spore can fill two slots in a single dispatch if needed, splitting his stats evenly between them."
+			}
+		]
+	}
+]

@@ -12,6 +12,7 @@
 
 namespace Utils {
 	std::string toUpper(std::string str);
+	std::string toLower(std::string str);
 
 	int randInt(int low, int high);
 	std::vector<int> range(int start, int end, int step=1);

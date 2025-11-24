@@ -12,67 +12,26 @@
 extern float bgScale;
 
 HeroesHandler::HeroesHandler() {
-	active_heroes.emplace_back(new Hero{"Sonar", "Batboy Conman", "?", {"INTELLECTUAL", "HYBRID"}, {
-		{"combat", 1},
-		{"vigor", 2},
-		{"mobility", 4},
-		{"charisma", 3},
-		{"intelligence", 5}
-	}, true});
-	active_heroes.emplace_back(new Hero{"Flambae", "Controls Fire and Flame", "He controls the fire and flames and his skin doesn't burn", {"FIRE", "FIGHTER"}, {
-		{"combat", 4},
-		{"vigor", 1},
-		{"mobility", 3},
-		{"charisma", 2},
-		{"intelligence", 1}
-	}, true});
-	active_heroes.emplace_back(new Hero{"Invisigal", "AKA Invisibitch", "?", {"THIEF", "LONER"}, {
-		{"combat", 2},
-		{"vigor", 1},
-		{"mobility", 3},
-		{"charisma", 1},
-		{"intelligence", 2}
-	}});
-	active_heroes.emplace_back(new Hero{"Punch Up", "Smallest Strongman", "?", {"FLYWEIGHT", "BRAWLER"}, {
-		{"combat", 3},
-		{"vigor", 4},
-		{"mobility", 1},
-		{"charisma", 3},
-		{"intelligence", 1}
-	}});
-	active_heroes.emplace_back(new Hero{"Prism", "Trick of the Light", "?", {"POP STAR", "ILLUSIONIST"}, {
-		{"combat", 3},
-		{"vigor", 1},
-		{"mobility", 3},
-		{"charisma", 4},
-		{"intelligence", 2}
-	}});
-	active_heroes.emplace_back(new Hero{"Malevola", "Devil from Down Under", "?", {"SORCERESS", "HALF-DEMON"}, {
-		{"combat", 3},
-		{"vigor", 2},
-		{"mobility", 2},
-		{"charisma", 3},
-		{"intelligence", 2}
-	}});
-	active_heroes.emplace_back(new Hero{"Golem", "The Sentient Construct", "?", {"DEFENDER", "VERSATILE"}, {
-		{"combat", 2},
-		{"vigor", 4},
-		{"mobility", 1},
-		{"charisma", 2},
-		{"intelligence", 1}
-	}});
-	active_heroes.emplace_back(new Hero{"Coupé", "Merciless Mercenary", "?", {"SHADOW", "ASSASSIN"}, {
-		{"combat", 4},
-		{"vigor", 2},
-		{"mobility", 3},
-		{"charisma", 1},
-		{"intelligence", 2}
-	}, true});
+	loadHeroes("resources/data/heroes/Heroes.jsonish", true);
 }
 
 HeroesHandler& HeroesHandler::inst() {
 	static HeroesHandler singleton;
 	return singleton;
+}
+
+void HeroesHandler::loadHeroes(const std::string& filePath, bool activate) {
+	Utils::println("Loading heroes from {}", filePath);
+	auto str = Utils::readFile(filePath);
+	JSONish::Parser parser(str);
+	auto heroes = parser.parseArray();
+	Utils::println("Read {} heroes", heroes.arr.size());
+	for (auto& data : heroes.arr) {
+		auto hero = std::make_shared<Hero>(data);
+		// Utils::println("Loaded hero '{}'", hero->name);
+		if (activate) active_heroes.push_back(hero);
+		else loaded_heroes.push_back(hero);
+	}
 }
 
 

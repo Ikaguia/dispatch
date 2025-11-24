@@ -9,23 +9,26 @@
 #include <CityMap.hpp>
 #include <HeroesHandler.hpp>
 
-Hero::Hero(const std::string& name, const std::string& nickname, const std::string& bio, const std::vector<std::string>& tags, const std::map<std::string,int> &attr, bool flies, int lvl) :
-	name{name},
-	nickname{nickname},
-	bio{bio},
-	tags{tags},
-	real_attributes{},
-	flies{flies}
-{
-	int total = 0;
-	for (auto [attrName, value] : attr) {
-		Attribute attribute = Attribute::fromString(attrName);
-		real_attributes[attribute] = value;
-		total += value;
-	}
-	total += skillPoints;
-	level = (lvl == -1) ? std::max(total - 11, 1) : lvl;
-};
+Hero::Hero(const JSONish::Node& data) {
+	name = data.get<std::string>("name");
+	nickname = data.get<std::string>("nickname", "?");
+	bio = data.get<std::string>("bio", "?");
+
+	flies = data.get<bool>("flies", false);
+
+	travelSpeedMult = data.get<float>("travelSpeedMult", 1.0f);
+	restingTime = data.get<float>("restingTime", 10.0f);
+
+	level = data.get<int>("level", 1);
+	exp = data.get<int>("exp", 0);
+	skillPoints = data.get<int>("skillPoints", 0);
+
+	if (data.has("tags")) for (auto& tag : data["tags"].arr) tags.push_back(tag.sval);
+	if (data.has("attributes")) {
+		auto& attributes = data["attributes"];
+		for (Attribute attr : Attribute::Values) real_attributes[attr] = attributes.get<int>(Utils::toLower((std::string)attr.toString()));
+	} else throw std::invalid_argument("Hero 'attributes' cannot be empty");
+}
 
 
 AttrMap<int> Hero::attributes() const {

@@ -9,6 +9,7 @@ class Hero;
 
 #include <Attribute.hpp>
 #include <Mission.hpp>
+#include <JSONish.hpp>
 
 class Hero : public std::enable_shared_from_this<Hero> {
 public:
@@ -48,7 +49,7 @@ public:
 	raylib::Vector2 pos{500, 200}, path;
 	raylib::Rectangle uiRect{};
 
-	Hero(const std::string& name, const std::string& nickname, const std::string& bio, const std::vector<std::string>& tags, const std::map<std::string,int> &attr = {}, bool flies=false, int lvl=-1);
+	Hero(const JSONish::Node& data);
 
 	AttrMap<int> attributes() const;
 	float travelSpeed() const;
