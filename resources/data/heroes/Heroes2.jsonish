@@ -10,6 +10,7 @@
 			"description": "A failed EDM DJ who discovered he could manipulate sound waves after a freak accident involving a faulty amp and a lightning strike. He speaks exclusively at high volumes because he is partially deaf from his own powers, and he constantly tries to promote his SoundCloud link during hostage situations.",
 			"crimes": "Disturbing the peace, noise pollution, copyright infringement, assault with a deadly instrument (an electric guitar)"
 		},
+		"appearance": "He wears a faded neon tracksuit (lime green and hot pink) that looks like it's from 2012. He sports enormous, custom-modded over-ear headphones with glowing LED equalizers on the sides that pulse when he speaks. He has a thick chin-strap beard and constantly wears reflective aviator sunglasses, indoors or outdoors. A cumbersome speaker unit is strapped to his chest like a baby carrier, wired directly into his suit.",
 		"flies": false,
 		"tags": [
 			"LOUD",
@@ -48,6 +49,7 @@
 			"description": "A former pool hustler who can bounce his body off surfaces without injury. He treats crime fighting like geometry and refuses to fight in open fields because there are 'no angles'.",
 			"crimes": "Bank robbery, illegal gambling, reckless endangerment"
 		},
+		"appearance": "Dressed in a sleek, padded aerodynamic jumpsuit colored like an eight-ball (black with a white circle and '8' on the back). He wears a round helmet that looks like a cross between a crash dummy and a cue ball. His joints (knees, elbows, shoulders) have reinforced, rounded rubber bumpers. He always has a piece of blue cue chalk behind his ear and nervously flips a lucky silver dollar coin.",
 		"flies": true,
 		"tags": [
 			"GAMBLER",
@@ -90,6 +92,7 @@
 			"description": "A former MLM 'Girl Boss' whose essential oils are legally classified as chemical weapons. She believes she is a healer and constantly tries to recruit other heroes into her 'downline.' Her cloud of toxic perfume causes nausea in everyone, including herself.",
 			"crimes": "Operating a pyramid scheme, chemical warfare, practicing medicine without a license, mail fraud"
 		},
+		"appearance": "She sports an aggressive, asymmetrical blonde bob haircut with chunky lowlights. Her 'costume' is expensive designer activewear (loud floral print leggings) paired with a blazer. She wears a utility belt holding dozens of tiny amber glass vial bottles. A faint, oily green haze perpetually surrounds her head, and she wears excessive amounts of turquoise jewelry.",
 		"flies": false,
 		"tags": [
 			"TOXIC",
@@ -128,6 +131,7 @@
 			"description": "A techno-path who can mentally interface with any machine, but uses his powers almost exclusively to pirate anime and cheat in video games. He wears a hoodie at all times and claims to have an allergy to UV light. He accidentally hacked the Pentagon while trying to order pizza.",
 			"crimes": "Cyberterrorism, identity theft, grand larceny (digital), piracy"
 		},
+		"appearance": "Extremely pale skin with severe dark circles under his eyes. He wears an oversized, charcoal grey hoodie with the hood constantly up, obscuring most of his face. He has fingerless gloves covered in subtle wiring that connects to a gauntlet on his left arm housing a small screen. His expensive, limited-edition gaming sneakers are impeccably clean because he never goes outside.",
 		"flies": true,
 		"tags": [
 			"HACKER",
@@ -170,6 +174,7 @@
 			"description": "A former demolition expert who was fused with the scrap metal of a condemned building during an explosion. He is incredibly dense, heavy, and loves the taste of drywall. He is a simple man who just wants to smash things, but he's very sensitive about his weight.",
 			"crimes": "Vandalism, destruction of public property, gross negligence, theft of construction equipment"
 		},
+		"appearance": "A massive, towering figure that looks like a walking car compactor accident. His body is a dense, jagged amalgamation of rusted girders, rebar, crushed car doors, and concrete chunks. His head is a dented wrecking ball fused into the torso, with two glowing yellow lights serving as eyes peeking out from bent metal. He wears a tattered XXXL reflective safety vest stretched over his chest.",
 		"flies": false,
 		"tags": [
 			"TANK",
@@ -208,6 +213,7 @@
 			"description": "A male model with low-level psychic empathy. He can make anyone fall in love with him for exactly 60 seconds by making eye contact. He was arrested for stopping traffic on a highway because the lighting was 'perfect for a selfie,' causing a 12-car pileup.",
 			"crimes": "Public nuisance, inciting a riot, jaywalking (major), fraud"
 		},
+		"appearance": "Ridiculously handsome with a chiseled jawline and flawless skin. His hair is perfectly coiffed in a high-volume pompadour that never moves. He wears a tailored, shimmering Italian silk suit in electric blue, with no shirt underneath to show off his abs. He is constantly checking his reflection in a handheld mirror. When using his powers, a faint blue aura outlines his silhouette as he strikes a pose.",
 		"flies": true,
 		"tags": [
 			"NARCISSIST",
@@ -250,6 +256,7 @@
 			"description": "A getaway driver with cyborg legs. She gets physically nauseous if moving slower than 80mph. She treats traffic laws as 'suggestions' and collects parking tickets like trading cards.",
 			"crimes": "Grand theft auto, reckless driving, fleeing and eluding, speeding (200+ counts)"
 		},
+		"appearance": "Short and scrappy with grease smudges permanently on her face and hands. She wears a torn, oil-stained racing leather jacket covered in patches from defunct auto shops. Her legs, from the mid-thigh down, are obvious mechanical prosthetics made of chrome and exposed hydraulics, ending in feet that look suspiciously like racing tires. She wears goggles pushed up on her forehead.",
 		"flies": true,
 		"tags": [
 			"SPEEDSTER",
@@ -292,6 +299,7 @@
 			"description": "A colony of sentient mold that gained consciousness in a filthy bathroom. He is polite but leaves slime everywhere. He considers himself a 'roommate' to the entire SDN building.",
 			"crimes": "Squatting, biohazard violation, gross indecency"
 		},
+		"appearance": "A vaguely humanoid shape made entirely of pulsating, fuzzy green, black, and white mold cultures. He smells vaguely of bleach and damp basement. He wears a tattered, mold-stained bathrobe over his fungal body and a pair of fuzzy slippers that leave a damp slime trail wherever he walks. He has two black button-like growths that serve as eyes.",
 		"flies": true,
 		"tags": [
 			"GROSS",
