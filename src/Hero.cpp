@@ -12,7 +12,10 @@
 Hero::Hero(const JSONish::Node& data) {
 	name = data.get<std::string>("name");
 	nickname = data.get<std::string>("nickname", "?");
-	bio = data.get<std::string>("bio", "?");
+	if (data.has("bio")) {
+		auto& dataBio = data["bio"];
+		for (const auto& [key, val] : dataBio.obj) bio[key] = dataBio.get<std::string>(key);
+	} // else throw std::invalid_argument("Hero 'bio' cannot be empty");
 
 	flies = data.get<bool>("flies", false);
 
@@ -28,6 +31,10 @@ Hero::Hero(const JSONish::Node& data) {
 		auto& attributes = data["attributes"];
 		for (Attribute attr : Attribute::Values) real_attributes[attr] = attributes.get<int>(Utils::toLower((std::string)attr.toString()));
 	} else throw std::invalid_argument("Hero 'attributes' cannot be empty");
+	if (data.has("powers")) {
+		auto& pwrs = data["powers"];
+		for (const auto& pwrData : pwrs.arr) powers.emplace_back(pwrData, (int)powers.size() == 0);
+	} // else throw std::invalid_argument("Hero 'powers' cannot be empty");
 }
 
 

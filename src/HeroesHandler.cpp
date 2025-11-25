@@ -12,7 +12,8 @@
 extern float bgScale;
 
 HeroesHandler::HeroesHandler() {
-	loadHeroes("resources/data/heroes/Heroes.jsonish", true);
+	// loadHeroes("resources/data/heroes/Heroes.jsonish", true);
+	loadHeroes("resources/data/heroes/Heroes2.jsonish", true);
 }
 
 HeroesHandler& HeroesHandler::inst() {
@@ -189,9 +190,36 @@ void HeroesHandler::renderUI() {
 					Utils::drawTextCentered("RESET", Utils::center(btnReset), Dispatch::UI::fontText, 20, Dispatch::UI::textColor);
 					Utils::drawTextCentered("CONFIRM", Utils::center(btnConfirm), Dispatch::UI::fontText, 20, Dispatch::UI::textColor);
 				} else if (tab == POWERS) {
+					int sz = hero->powers.size();
+					auto rects = Utils::splitRect(centerRect, sz, 1, {0.0f, 4.0f});
+					for (int i = 0; i < sz; i++) {
+						const Power& power = hero->powers[i];
+						auto& rect = rects[i];
+						rect.DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt);
+						rect.DrawLines(BLACK);
+						auto nameRect = Utils::drawTextAnchored(power.name, rect, Utils::Anchor::top, Dispatch::UI::fontTitle, Dispatch::UI::textColor, 14.0f, 2.0f, { 0.0f, 2.0f });
+						rect.y += nameRect.height + 2.0f;
+						rect.height -= nameRect.height + 2.0f;
+						if (power.unlocked) Utils::drawTextAnchored(power.description, rect, Utils::Anchor::topLeft, Dispatch::UI::fontText, Dispatch::UI::textColor, 12.0f, 2.0f, { 0.0f, 0.0f }, rect.width-4.0f);
+						else Utils::drawTextAnchored("?", rect, Utils::Anchor::center, Dispatch::UI::fontText, Dispatch::UI::textColor, 24.0f, 2.0f, { 0.0f, 0.0f }, rect.width-4.0f);
+					}
 				} else if (tab == INFO) {
-					std::string bio = Utils::addLineBreaks(hero->bio, centerRect.width - 20, Dispatch::UI::fontText, 18, 2);
-					Dispatch::UI::fontText.DrawText(bio, {centerRect.x + 10, centerRect.y + 10}, 18, 2, Dispatch::UI::textColor);
+					raylib::Rectangle rect = Utils::inset(centerRect, 4.0f);
+					for (auto [prop, val] : hero->bio) {
+						rect.y += 2.0f;
+						raylib::Vector2 szProp = Utils::positionTextAnchored(prop+":", rect, Utils::Anchor::left, Dispatch::UI::fontTitle, 14.0f, 2.0f, {}, rect.width).GetSize();
+						raylib::Vector2 szVal = Utils::positionTextAnchored(val, rect, Utils::Anchor::left, Dispatch::UI::fontText, 12.0f, 2.0f, {}, rect.width-szProp.x-6.0f).GetSize();
+						rect.height = std::max(szProp.y, szVal.y);
+
+						auto _rect_ = Utils::inset(rect, -2.0f);
+						_rect_.DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt);
+						_rect_.DrawLines(BLACK);
+
+						Utils::drawTextAnchored(prop+":", rect, Utils::Anchor::left, Dispatch::UI::fontTitle, Dispatch::UI::textColor, 14.0f, 2.0f, {}, rect.width);
+						Utils::drawTextAnchored(val, rect, Utils::Anchor::left, Dispatch::UI::fontText, Dispatch::UI::textColor, 12.0f, 2.0f, {szProp.x+6.0f, 0.0f}, rect.width-szProp.x-6.0f);
+
+						rect.y += _rect_.height + 2.0f;
+					}
 				}
 			}
 		}
@@ -216,6 +244,8 @@ void HeroesHandler::renderUI() {
 			raylib::Rectangle radarRect{ rightRect };
 			radarRect.Draw(Dispatch::UI::bgLgt);
 			radarRect.DrawLines(BLACK);
+			Utils::println("Drawing radar graph for hero {}", hero->name);
+			for (Attribute a : Attribute::Values) Utils::println("{}: {}+{}", a.toString(), hero->attributes()[a], hero->unconfirmed_attributes[a]);
 			auto heroAttrs = hero->attributes() + hero->unconfirmed_attributes;
 			std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attrs{{ heroAttrs, ORANGE, true }};
 			Utils::drawRadarGraph(Utils::center(radarRect), 60, attrs, Dispatch::UI::textColor, BROWN);

@@ -48,7 +48,7 @@ int main() {
 		else paused = "";
 
 		bool handled = heroesHandler.handleInput();
-		if (!handled) missionsHandler.handleInput();
+		if (paused != "hero" && !handled) missionsHandler.handleInput();
 
 		if (paused == "") {
 			cityMap.update(deltaTime);

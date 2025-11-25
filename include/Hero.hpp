@@ -10,15 +10,17 @@ class Hero;
 #include <Attribute.hpp>
 #include <Mission.hpp>
 #include <JSONish.hpp>
+#include <Power.hpp>
 
 class Hero : public std::enable_shared_from_this<Hero> {
-public:
-	std::string name, nickname, bio;
-	std::vector<std::string> tags;
 private:
 	AttrMap<int> real_attributes;
 public:
+	std::string name, nickname;
+	std::vector<std::string> tags;
+	std::map<std::string, std::string> bio;
 	AttrMap<int> unconfirmed_attributes;
+	std::vector<Power> powers;
 	enum Status {
 		ASSIGNED,
 		TRAVELLING,

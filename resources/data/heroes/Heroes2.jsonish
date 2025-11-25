@@ -25,15 +25,15 @@
 		"powers": [
 			{
 				"name": "Bass Drop",
-				"description": "If placed in the first slot, Feedback provides a rhythm track that grants +1 Combat to all other heroes in the dispatch."
+				"description": "If placed in the first slot of a multi-hero call, Feedback grants +1 Combat to all other heroes in the squad."
 			},
 			{
 				"name": "Remix",
-				"description": "If Feedback fails a mission, he claims it was a 'sound check' and instantly reattempts it with swapped Combat and Charisma stats."
+				"description": "If Feedback fails a call, he instantly reattempts it, temporarily swapping his Combat and Charisma stats."
 			},
 			{
 				"name": "Encore",
-				"description": "After a successful dispatch, Feedback has a 50% chance to skip his rest period entirely, fueled by the adrenaline of the 'performance'."
+				"description": "After a successful call, Feedback has a 50% chance to skip his 'Resting' phase entirely."
 			}
 		]
 	},
@@ -45,13 +45,13 @@
 			"age": "34",
 			"height": "5'7",
 			"birthplace": "Queens, NY",
-			"description": "A former pool hustler who realized he could physically bounce off surfaces without taking impact damage. He treats every crime scene like a geometry problem and refuses to fight in open fields because there are 'no angles.' He runs an illegal betting pool on which hero will get fired next.",
-			"crimes": "Bank robbery, illegal gambling, reckless endangerment, destruction of public property"
+			"description": "A former pool hustler who can bounce his body off surfaces without injury. He treats crime fighting like geometry and refuses to fight in open fields because there are 'no angles'.",
+			"crimes": "Bank robbery, illegal gambling, reckless endangerment"
 		},
-		"flies": false,
+		"flies": true,
 		"tags": [
 			"GAMBLER",
-			"STRIKER"
+			"PHYSICS"
 		],
 		"attributes": {
 			"combat": 3,
@@ -62,16 +62,20 @@
 		},
 		"powers": [
 			{
-				"name": "Double or Nothing",
-				"description": "If the call has a success chance below 50%, Ricochet grants a +3 Combat boost. If above 50%, he grants -1 Combat out of boredom."
+				"name": "Calculated Angle",
+				"description": "Ricochet grants a buff based on his position: +1 Intellect if placed in the first slot, or +1 Mobility if placed in the last slot."
+			},
+			{
+				"name": "Running the Table",
+				"description": "Boosts 'Calculated Angle' by +1 for every hero assigned to his right (if Slot 1) or left (if Last Slot). On success, these buffs persist for the shift."
 			},
 			{
 				"name": "Bank Shot",
-				"description": "Ricochet ignores the 'Obstacle' penalty on missions involving urban environments or tight spaces."
+				"description": "If a call fails, Ricochet reattempts it, adding +2 Intellect to his own score for the calculation."
 			},
 			{
-				"name": "Momentum",
-				"description": "For every slot filled before Ricochet in a dispatch, he gains +1 Mobility."
+				"name": "Human Pinball",
+				"description": "Ricochet bounces off buildings to travel, effectively flying to the location and bypassing ground obstacles."
 			}
 		]
 	},
@@ -83,7 +87,7 @@
 			"age": "41",
 			"height": "5'5",
 			"birthplace": "Scottsdale, AZ",
-			"description": "A former Multi-Level Marketing 'Girl Boss' whose essential oil mixtures became so potent they were classified as chemical weapons. She believes she is a healer and constantly tries to recruit other heroes into her 'downline.' Her cloud of toxic perfume causes nausea in everyone, including herself.",
+			"description": "A former MLM 'Girl Boss' whose essential oils are legally classified as chemical weapons. She believes she is a healer and constantly tries to recruit other heroes into her 'downline.' Her cloud of toxic perfume causes nausea in everyone, including herself.",
 			"crimes": "Operating a pyramid scheme, chemical warfare, practicing medicine without a license, mail fraud"
 		},
 		"flies": false,
@@ -101,15 +105,15 @@
 		"powers": [
 			{
 				"name": "The Downline",
-				"description": "Miasma gains +1 Charisma for every hero placed in a slot after her."
+				"description": "Miasma gains +1 Charisma for every unique hero she has been dispatched with this shift."
 			},
 			{
 				"name": "Detoxify",
-				"description": "Reduces the 'Combat' requirement of a call by 2, but increases the 'Intellect' requirement by 1 as she lectures the villains on gut health."
+				"description": "If sent with an Injured hero, Miasma removes their Injury status upon completion, but the healed hero loses 1 Intellect for the next call."
 			},
 			{
-				"name": "Essential Oils",
-				"description": "If a teammate is injured during a call with Miasma, she heals them instantly, but they suffer a -1 Intellect penalty for the next shift due to the fumes."
+				"name": "Aromatherapy",
+				"description": "If Miasma is sent on a call where all available slots (1-4) are filled, the 'Resting' time for the entire squad is reduced by 50% upon return."
 			}
 		]
 	},
@@ -124,7 +128,7 @@
 			"description": "A techno-path who can mentally interface with any machine, but uses his powers almost exclusively to pirate anime and cheat in video games. He wears a hoodie at all times and claims to have an allergy to UV light. He accidentally hacked the Pentagon while trying to order pizza.",
 			"crimes": "Cyberterrorism, identity theft, grand larceny (digital), piracy"
 		},
-		"flies": false,
+		"flies": true,
 		"tags": [
 			"HACKER",
 			"GEN-Z"
@@ -138,22 +142,26 @@
 		},
 		"powers": [
 			{
-				"name": "DDoS Attack",
-				"description": "Delays the expiration timer of a call by 30 seconds."
+				"name": "Algorithm",
+				"description": "Zero gains +1 Intellect after every successful dispatch. This effect stacks up to +3 but resets if he fails a call or gets injured."
 			},
 			{
-				"name": "VPN",
-				"description": "If sent alone, Zero is undetectable, bypassing any 'Stealth' requirements automatically."
+				"name": "DDoS",
+				"description": "Once per shift, Zero automatically pauses the expiration timer of a critical call for 30 seconds."
 			},
 			{
 				"name": "Overclock",
-				"description": "Zero can double his Intelligence stat for one call, but he requires triple the rest time afterward to recharge his mental battery."
+				"description": "Zero doubles his Intelligence stat for one call, but he requires triple the rest time afterward to recharge his mental battery."
+			},
+			{
+				"name": "Remote Access",
+				"description": "Zero projects a hologram to the scene, effectively flying to the location and bypassing physical obstacles."
 			}
 		]
 	},
 	{
 		"name": "Crumple",
-		"nickname": " The Wrecking Ball",
+		"nickname": "The Wrecking Ball",
 		"bio": {
 			"realName": "Gary",
 			"age": "45",
@@ -176,16 +184,16 @@
 		},
 		"powers": [
 			{
-				"name": "Immovable Object",
-				"description": "Crumple cannot be injured. If a mission result would cause injury, he simply gets hungry instead."
-			},
-			{
-				"name": "Collateral Damage",
-				"description": "When Crumple completes a Combat mission successfully, he accidentally destroys a nearby 'Evidence' or 'Stealth' call, failing it instantly."
+				"name": "Scrap Shield",
+				"description": "Crumple is unaffected by 'Injuries'. If he successfully completes a call while Injured, he gains a stacking +1 to that call's highest required stat."
 			},
 			{
 				"name": "Heavy Load",
-				"description": "Crumple increases travel time to the call location by 50%, but guarantees success on any 'Strength' based checks."
+				"description": "If placed in Slot 1, Crumple gains +2 Vigor for this call, but Travel Time is doubled."
+			},
+			{
+				"name": "Demolition",
+				"description": "Crumple gains +3 Combat, but he automatically fails any Intervention option that relies on Intellect or Stealth."
 			}
 		]
 	},
@@ -200,7 +208,7 @@
 			"description": "A male model with low-level psychic empathy. He can make anyone fall in love with him for exactly 60 seconds by making eye contact. He was arrested for stopping traffic on a highway because the lighting was 'perfect for a selfie,' causing a 12-car pileup.",
 			"crimes": "Public nuisance, inciting a riot, jaywalking (major), fraud"
 		},
-		"flies": false,
+		"flies": true,
 		"tags": [
 			"NARCISSIST",
 			"MODEL"
@@ -214,16 +222,20 @@
 		},
 		"powers": [
 			{
-				"name": "Stop and Stare",
-				"description": "Stuns enemies at the start of a call. If placed in a slot with a Charisma requirement, he automatically succeeds it."
+				"name": "Blue Steel",
+				"description": "Vogue gains +1 Charisma. If placed in the middle slot of a 3-slot call, he gains +2 Charisma instead."
 			},
 			{
-				"name": "Entourage",
-				"description": "Vogue gains +1 Combat for every other hero in the squad, as he refuses to look weak in front of an audience."
+				"name": "Pose",
+				"description": "Vogue distracts enemies with a pose, excess charisma is instead added as combat."
 			},
 			{
 				"name": "Fashionably Late",
-				"description": "Vogue always arrives at the call location last, regardless of travel speed."
+				"description": "Vogue arrives at the scene last (increasing Travel Time), but his 'Resting' time is reduced by 50%."
+			},
+			{
+				"name": "Charter Jet",
+				"description": "Vogue flies to call locations in his private helicopter, greatly reducing Travel Time."
 			}
 		]
 	},
@@ -235,10 +247,10 @@
 			"age": "22",
 			"height": "5'4",
 			"birthplace": "Daytona, FL",
-			"description": "A getaway driver who is physically uncomfortable when moving slower than 80mph. She has cyborg implants in her legs that allow her to run as fast as a car, but she has a terrible turning radius. She treats traffic laws as 'suggestions' and collects parking tickets like trading cards.",
+			"description": "A getaway driver with cyborg legs. She gets physically nauseous if moving slower than 80mph. She treats traffic laws as 'suggestions' and collects parking tickets like trading cards.",
 			"crimes": "Grand theft auto, reckless driving, fleeing and eluding, speeding (200+ counts)"
 		},
-		"flies": false,
+		"flies": true,
 		"tags": [
 			"SPEEDSTER",
 			"DRIVER"
@@ -252,16 +264,20 @@
 		},
 		"powers": [
 			{
-				"name": "Getaway Driver",
-				"description": "Reduces travel time for the entire squad by 50%."
+				"name": "Nitro",
+				"description": "Joyride gains +1 Mobility. If placed in Slot 1, she also reduces Travel Time by 25%."
 			},
 			{
-				"name": "Hit and Run",
-				"description": "If the call is completed in under 10 seconds, Joyride gains +2 Combat for her next dispatch."
+				"name": "Getaway",
+				"description": "When travelling to or returning from a mission, the entire squad uses Joyride's travel speed."
 			},
 			{
-				"name": "Drift King",
-				"description": "Joyride gains +1 Mobility if placed in the last slot of a squad."
+				"name": "Adrenaline Junkie",
+				"description": "Joyride cannot be assigned to 'Low Danger' calls, but gains +2 to all stats on 'High Danger' calls."
+			},
+			{
+				"name": "Highway Star",
+				"description": "Joyride runs at vehicle speeds, effectively counting as 'Flying' for travel calculation."
 			}
 		]
 	},
@@ -273,13 +289,13 @@
 			"age": "Unknown",
 			"height": "5'10",
 			"birthplace": "A frat house shower in Ohio",
-			"description": "A colony of sentient mold that gained consciousness in a filthy bathroom. He assumed a humanoid shape to find more pizza crusts. He is surprisingly polite but leaves a trail of slime everywhere he goes. He considers himself a 'roommate' to the entire SDN building.",
-			"crimes": "Squatting, biohazard violation, theft of food, gross indecency"
+			"description": "A colony of sentient mold that gained consciousness in a filthy bathroom. He is polite but leaves slime everywhere. He considers himself a 'roommate' to the entire SDN building.",
+			"crimes": "Squatting, biohazard violation, gross indecency"
 		},
-		"flies": false,
+		"flies": true,
 		"tags": [
 			"GROSS",
-			"AOE"
+			"SUPPORT"
 		],
 		"attributes": {
 			"combat": 2,
@@ -291,15 +307,19 @@
 		"powers": [
 			{
 				"name": "Mycelium Network",
-				"description": "If Spore is resting, he passively heals any other resting heroes by 10% per second."
+				"description": "While Spore is 'Resting', all other Resting heroes recover 25% faster."
 			},
 			{
-				"name": "Sticky Trap",
-				"description": "Spore locks a call slot. Enemies in that slot cannot deal damage to the hero placed there."
+				"name": "Mitosis",
+				"description": "Spore fills 2 slots in a single dispatch. His stats are applied twice to the total sum, but his Rest Time is doubled."
 			},
 			{
-				"name": "Growth Spurt",
-				"description": "Spore can fill two slots in a single dispatch if needed, splitting his stats evenly between them."
+				"name": "Symbiosis",
+				"description": "If a call fails, Spore prevents the 'Injury' status for the entire squad by absorbing the damage."
+			},
+			{
+				"name": "Tunneling",
+				"description": "Spore travels underground to the call location, bypassing obstacles and effectively counting as flying."
 			}
 		]
 	}
