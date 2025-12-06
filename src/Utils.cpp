@@ -81,6 +81,106 @@ void Utils::drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector
 	}
 }
 
+void Utils::drawCircularTexture(const raylib::Texture& tex, const raylib::Vector2& pos, float radius, float attenuation, raylib::Vector2 offset) {
+	static raylib::Shader circleMaskShader{0, "resources/shaders/circle-mask.fs"};
+	static int resolutionUniform = circleMaskShader.GetLocation("resolution");
+	static int centerUniform = circleMaskShader.GetLocation("center");
+	static int radiusUniform = circleMaskShader.GetLocation("radius");
+	static int attenuationUniform = circleMaskShader.GetLocation("attenuation");
+	static int texOffsetUniform = circleMaskShader.GetLocation("texOffset");
+	float diameter = radius * 2.0f;
+
+	raylib::Rectangle src = {0, 0, (float)tex.width, (float)tex.height};
+	raylib::Rectangle dst = {
+		pos.x - radius,
+		pos.y - radius,
+		diameter,
+		diameter
+	};
+	raylib::Vector2 localResolution{diameter, diameter};
+	raylib::Vector2 center{radius, radius};
+
+	// Set shader uniforms
+	circleMaskShader.SetValue(resolutionUniform, &localResolution, SHADER_UNIFORM_VEC2);
+	circleMaskShader.SetValue(centerUniform, &center, SHADER_UNIFORM_VEC2);
+	circleMaskShader.SetValue(radiusUniform, &radius, SHADER_UNIFORM_FLOAT);
+	circleMaskShader.SetValue(attenuationUniform, &attenuation, SHADER_UNIFORM_FLOAT);
+	circleMaskShader.SetValue(texOffsetUniform, &offset, SHADER_UNIFORM_VEC2);
+
+	circleMaskShader.BeginMode();
+		DrawTexturePro(tex, src, dst, {0, 0}, 0.0f, WHITE);
+	circleMaskShader.EndMode();
+}
+
+void Utils::drawTextureAnchored(const raylib::Texture& tex, raylib::Rectangle dest, FillType fillType, Anchor anchor, AnchorType anchorType) {
+	drawTextureAnchored(tex, raylib::Rectangle{0.0f, 0.0f, tex.width, tex.height}, dest, 0.0f, WHITE, fillType, anchor, anchorType);
+}
+void Utils::drawTextureAnchored(const raylib::Texture& tex, raylib::Rectangle dest, raylib::Color color, FillType fillType, Anchor anchor, AnchorType anchorType) {
+	drawTextureAnchored(tex, raylib::Rectangle{0.0f, 0.0f, tex.width, tex.height}, dest, 0.0f, color, fillType, anchor, anchorType);
+}
+void Utils::drawTextureAnchored(const raylib::Texture& tex, raylib::Rectangle src, raylib::Rectangle dest, float rotation, raylib::Color color, FillType fillType, Anchor anchor, AnchorType anchorType) {
+	raylib::Vector2 srcSize = src.GetSize();
+	raylib::Vector2 destSize = dest.GetSize();
+
+	float srcAspect  = srcSize.x / srcSize.y;
+	float destAspect = destSize.x / destSize.y;
+
+	switch (fillType) {
+		// STRETCH (stretch src to cover dest)
+		case FillType::stretch:
+			break;
+		// FILL (stretch and crop src to cover dest without distortion)
+		case FillType::fill: {
+			raylib::Vector2 newSrcSize;
+
+			if (srcAspect > destAspect) {
+				// too wide → crop width
+				newSrcSize.y = srcSize.y;
+				newSrcSize.x = destSize.x * (srcSize.y / destSize.y); // srcHeight * destAspect
+			} else {
+				// too tall → crop height
+				newSrcSize.x = srcSize.x;
+				newSrcSize.y = destSize.y * (srcSize.x / destSize.x); // srcWidth / destAspect
+			}
+
+			// anchorRect returns the new SRC rectangle positioned inside original SRC
+			raylib::Rectangle newSrc = Utils::anchorRect(src, newSrcSize, anchor, {0,0}, anchorType);
+
+			src = newSrc;
+			break;
+		}
+		// FIT (stretch src to cover at least one dimension of dest without distortion)
+		case FillType::fit: {
+			raylib::Vector2 newDestSize;
+
+			if (srcAspect > destAspect) {
+				// too wide → reduce height
+				newDestSize.x = destSize.x;
+				newDestSize.y = destSize.x / srcAspect;
+			} else {
+				// too tall → reduce width
+				newDestSize.y = destSize.y;
+				newDestSize.x = destSize.y * srcAspect;
+			}
+
+			// anchorRect returns a new DEST rect placed inside original DEST
+			raylib::Rectangle newDest = Utils::anchorRect(dest, newDestSize, anchor, {0,0}, anchorType);
+
+			dest = newDest;
+			break;
+		}
+		case FillType::tile:
+		case FillType::tileX:
+		case FillType::tileY:
+			throw std::logic_error("Texture tiling not implemented");
+		default:
+			throw std::logic_error("Unknown texture FillType");
+	}
+
+	DrawTexturePro(tex, src, dest, {0,0}, rotation, color);
+}
+
+
 void Utils::drawTextCentered(const std::string& text, raylib::Vector2 center, int size, raylib::Color color, int spacing, bool shadow, raylib::Color shadowColor, float shadowSpacing) {
 	Utils::drawTextCentered(text, center, {}, size, color, spacing, shadow, shadowColor, shadowSpacing);
 }

@@ -41,7 +41,7 @@ int main() {
 	raylib::Texture dummy(raylib::Image{1,1,WHITE});
 
 	while (!window.ShouldClose()) {
-		float deltaTime = GetFrameTime() * 5;
+		float deltaTime = GetFrameTime();
 
 		if (missionsHandler.paused()) paused = "mission";
 		else if (heroesHandler.paused()) paused = "hero";
@@ -102,6 +102,13 @@ int main() {
 			// crtShader.EndMode();
 		EndDrawing();
 	}
+
+	missionsHandler.loaded_missions.clear();
+	missionsHandler.active_missions.clear();
+	missionsHandler.previous_missions.clear();
+	heroesHandler.loaded_heroes.clear();
+	heroesHandler.active_heroes.clear();
+	heroesHandler.previous_heroes.clear();
 
 	return 0;
 }

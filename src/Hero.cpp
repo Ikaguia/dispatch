@@ -11,6 +11,7 @@
 
 Hero::Hero(const JSONish::Node& data) {
 	name = data.get<std::string>("name");
+	Utils::println("Initializing hero", name);
 	nickname = data.get<std::string>("nickname", "?");
 	if (data.has("bio")) {
 		auto& dataBio = data["bio"];
@@ -35,8 +36,23 @@ Hero::Hero(const JSONish::Node& data) {
 		auto& pwrs = data["powers"];
 		for (const auto& pwrData : pwrs.arr) powers.emplace_back(pwrData, (int)powers.size() == 0);
 	} // else throw std::invalid_argument("Hero 'powers' cannot be empty");
-}
 
+	std::string path_full = std::format("resources/images/heroes/{}/full-image.png", name);
+	std::string path_portrait = std::format("resources/images/heroes/{}/base-portrait.png", name);
+	std::string path_wounded = std::format("resources/images/heroes/{}/wounded-portrait.png", name);
+	std::string path_mugshot = std::format("resources/images/heroes/{}/mugshot.jpg", name);
+	if (data.has("images")) {
+		auto& imagesData = data["images"];
+		path_full = imagesData.get<std::string>("full", path_full);
+		path_portrait = imagesData.get<std::string>("portrait", path_portrait);
+		path_wounded = imagesData.get<std::string>("wounded", path_wounded);
+		path_mugshot = imagesData.get<std::string>("mugshot", path_mugshot);
+	}
+	imgs["full"] = raylib::Texture(path_full);
+	imgs["portrait"] = raylib::Texture(path_portrait);
+	imgs["wounded"] = raylib::Texture(path_wounded);
+	imgs["mugshot"] = raylib::Texture(path_mugshot);
+}
 
 AttrMap<int> Hero::attributes() const {
 	if (health == Health::NORMAL) return real_attributes;
@@ -54,9 +70,7 @@ bool Hero::canFly() const {
 	if (flies) return true;
 	if (!mission.expired()) {
 		auto heroes = mission.lock()->assignedHeroes;
-		for (auto& hero : heroes) {
-			if (hero->name == "Sonar") return true;
-		}
+		for (auto& hero : heroes) if (hero->name == "Sonar") return true;
 	}
 	return false;
 }
@@ -92,16 +106,15 @@ void Hero::update(float deltaTime) {
 }
 
 void Hero::renderUI(raylib::Rectangle rect) {
-	bool draw = true;
 	uiRect = rect;
-	raylib::Color color{ColorAlpha(GRAY, 0.4f)}, txtColor{};
+	raylib::Color color{GRAY}, txtColor{};
 	std::string txt;
 	float progress = 1.0f;
-	if (HeroesHandler::inst().isHeroSelected(shared_from_this())) {
-		color = ColorAlpha(SKYBLUE, 0.4f);
-	} else switch(status) {
+	if (HeroesHandler::inst().isHeroSelected(shared_from_this())) color = SKYBLUE;
+	else switch(status) {
 		case Hero::ASSIGNED:
-			color = ColorAlpha(ORANGE, 0.15f); break;
+			color = ORANGE;
+			break;
 		case Hero::TRAVELLING:
 		case Hero::WORKING:
 			txt = "BUSY";
@@ -128,12 +141,21 @@ void Hero::renderUI(raylib::Rectangle rect) {
 		case Hero::UNAVAILABLE:
 			txt = "UNAVAILABLE";
 			txtColor = GRAY;
-			color = ColorAlpha(LIGHTGRAY, 0.3f); break;
+			color = LIGHTGRAY;
+			break;
 		default:
-			draw = false;
+			color = Dispatch::UI::bgDrk;
+			break;
 	}
+
 	raylib::Rectangle pictureRect = Utils::inset(rect, 2.0f); pictureRect.height -= 13.0f;
-	if (draw) pictureRect.Draw(color);
+	std::string portrait = health == Health::NORMAL ? "portrait" : "wounded";
+	if (imgs.count(portrait)) {
+		pictureRect.Draw(color);
+		pictureRect.DrawLines(BLACK);
+		DrawTexturePro(imgs[portrait], {0.0f, 0.0f, (float)imgs[portrait].width, (float)imgs[portrait].height}, pictureRect, {0.0f, 0.0f}, 0.0f, WHITE);
+	}
+
 	if (health == Health::WOUNDED) pictureRect.Draw(ColorAlpha(RED, 0.2f));
 	if (health == Health::DOWNED) pictureRect.Draw(ColorAlpha(RED, 0.4f));
 
@@ -147,11 +169,15 @@ void Hero::renderUI(raylib::Rectangle rect) {
 		Utils::drawTextCentered(txt, Utils::center(txtRect), Dispatch::UI::defaultFont, 12, WHITE, 2, true);
 	}
 
+	raylib::Rectangle nameRect = Utils::positionTextAnchored(name, rect, Utils::Anchor::bottomLeft, Dispatch::UI::fontTitle, 14.0f, 2.0f, {2.0f, -2.0f});
+	nameRect.width = rect.width - 4.0f; nameRect.Draw(Dispatch::UI::bgMed);
+	Utils::drawTextAnchored(name, rect, Utils::Anchor::bottom, Dispatch::UI::fontTitle, Dispatch::UI::textColor, 14.0f, 2.0f, {0.0f, -2.0f});
+
 	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
-		this->pos.DrawCircle(12, BLACK);
-		this->pos.DrawCircle(11, WHITE);
-		this->pos.DrawCircle(10, status == Hero::TRAVELLING ? BLUE : YELLOW);
-		// TODO: Draw hero portrait
+		pos.DrawCircle(22, BLACK);
+		pos.DrawCircle(21, WHITE);
+		pos.DrawCircle(20, status == Hero::TRAVELLING ? BLUE : YELLOW);
+		Utils::drawCircularTexture(imgs[portrait], pos, 20.0f, 2.0f);
 	}
 
 	raylib::Vector2 xpPos{rect.x + rect.width - 17, rect.y + rect.height - 27};

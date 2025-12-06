@@ -120,7 +120,14 @@ void HeroesHandler::renderUI() {
 			// LEFT PANEL — HERO PORTRAIT + NAME + RANK + TAGS
 			// ================================================
 			{
-				// (TODO: draw hero->portrait texture here)
+				if (hero->imgs.count("full")) {
+					raylib::Rectangle imgRect = ilmRect; imgRect.width-=10.0f;
+					auto& img = hero->imgs["full"];
+					Utils::drawTextureAnchored(img, imgRect, ColorAlpha(WHITE, 0.9f), Utils::FillType::fit, Utils::Anchor::left);
+
+					static raylib::Texture mask{"resources/images/hero-details-mask.png"};
+					Utils::drawTextureAnchored(mask, imgRect, Dispatch::UI::bgLgt, Utils::FillType::stretch);
+				}
 
 				// TAGS (class, traits)
 				raylib::Rectangle tagRect{ilmRect.x + 20, ilmRect.y + ilmRect.height - 40, 100, 30};
@@ -128,7 +135,7 @@ void HeroesHandler::renderUI() {
 					tagRect.width = Dispatch::UI::fontText.MeasureText(tag, 16, 2).x + 20;
 					tagRect.Draw(Dispatch::UI::bgLgt);
 					tagRect.DrawLines(BLACK);
-					Utils::drawTextCentered(tag, Utils::center(tagRect), Dispatch::UI::fontText, 16, Dispatch::UI::textColor);
+					Utils::drawTextCentered(tag, Utils::center(tagRect), Dispatch::UI::fontText, 16, Dispatch::UI::textColor, 2, true, WHITE, 1.0f);
 					tagRect.x += tagRect.width + 10;
 				}
 
@@ -137,11 +144,13 @@ void HeroesHandler::renderUI() {
 				std::string info = std::format("RANK {}", hero->level);
 				if (hero->nickname != "") info = std::format("{} | {}", hero->nickname, info);
 				infoPos.y -= Dispatch::UI::fontText.MeasureText(info, 18, 1).y;
+				Dispatch::UI::fontText.DrawText(info, infoPos + raylib::Vector2{1.0f, 1.0f}, 18, 1, WHITE);
 				Dispatch::UI::fontText.DrawText(info, infoPos, 18, 1, Dispatch::UI::textColor);
 
 				// HERO NAME
 				raylib::Vector2 namePos{ilmRect.x + 20, infoPos.y - 10};
 				namePos.y -= Dispatch::UI::fontTitle.MeasureText(hero->name, 26, 1).y;
+				Dispatch::UI::fontTitle.DrawText(hero->name, namePos + raylib::Vector2{1.0f, 1.0f}, 26, 1, WHITE);
 				Dispatch::UI::fontTitle.DrawText(hero->name, namePos, 26, 1, Dispatch::UI::textColor);
 			}
 
@@ -205,6 +214,15 @@ void HeroesHandler::renderUI() {
 					}
 				} else if (tab == INFO) {
 					raylib::Rectangle rect = Utils::inset(centerRect, 4.0f);
+					if (hero->imgs.count("mugshot")) {
+						rect.y += 2.0f;
+						auto& tex = hero->imgs["mugshot"];
+						rect.height = 160.0f;
+						raylib::Rectangle{rect.GetPosition() + raylib::Vector2{2.0f, 2.0f}, rect.GetSize()}.Draw(BLACK);
+						Utils::drawTextureAnchored(tex, rect, Utils::FillType::fill, Utils::Anchor::top);
+						rect.DrawLines(BLACK);
+						rect.y += 4.0f + rect.height;
+					}
 					for (auto [prop, val] : hero->bio) {
 						rect.y += 2.0f;
 						raylib::Vector2 szProp = Utils::positionTextAnchored(prop+":", rect, Utils::Anchor::left, Dispatch::UI::fontTitle, 14.0f, 2.0f, {}, rect.width).GetSize();

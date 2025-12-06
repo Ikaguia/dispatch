@@ -11,6 +11,10 @@
 #include <Attribute.hpp>
 
 namespace Utils {
+	enum struct Anchor { topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
+	enum struct AnchorType { automatic, topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
+	enum struct FillType { stretch, tile, tileX, tileY, fit, fill };
+
 	std::string toUpper(std::string str);
 	std::string toLower(std::string str);
 
@@ -61,6 +65,12 @@ namespace Utils {
 		return *std::next(s.begin(), dist(rng));
 	}
 
+	void drawCircularTexture(const raylib::Texture& tex, const raylib::Vector2& pos, float radius, float attenuation=0.0f, raylib::Vector2 offset={0.0f, 0.0f});
+
+	void drawTextureAnchored(const raylib::Texture& tex, raylib::Rectangle dest, FillType fillType=FillType::fill, Anchor anchor = Anchor::center, AnchorType anchorType = AnchorType::automatic);
+	void drawTextureAnchored(const raylib::Texture& tex, raylib::Rectangle dest, raylib::Color color, FillType fillType=FillType::fill, Anchor anchor = Anchor::center, AnchorType anchorType = AnchorType::automatic);
+	void drawTextureAnchored(const raylib::Texture& tex, raylib::Rectangle src, raylib::Rectangle dest, float rotation=0.0f, raylib::Color color = WHITE, FillType fillType=FillType::fill, Anchor anchor = Anchor::center, AnchorType anchorType = AnchorType::automatic);
+
 	void drawRadarGraph(raylib::Vector2 center, float sideLength, std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attributes, raylib::Color bg = BLACK, raylib::Color bgLines = BROWN, bool icons=true);
 
 	void drawTextCentered(const std::string& text, raylib::Vector2 center, int size=12, raylib::Color color=WHITE, int spacing=2, bool shadow=false, raylib::Color shadowColor=BLACK, float shadowSpacing=1.5f);
@@ -72,8 +82,6 @@ namespace Utils {
 
 	void drawTextSequence(const std::vector<std::tuple<std::string, raylib::Font&, int, raylib::Color, int, raylib::Color, float>>& text, raylib::Vector2 position, bool centerX=false, bool centerY=false, int text_spacing=0, bool horizontal=true);
 
-	enum struct Anchor { topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
-	enum struct AnchorType { automatic, topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
 	raylib::Vector2 anchorPos(raylib::Rectangle rect, Anchor anchor, raylib::Vector2 offset = {0.0f, 0.0f});
 	raylib::Rectangle anchorRect(raylib::Rectangle rect, raylib::Vector2 sz, Anchor anchor, raylib::Vector2 offset = {0.0f, 0.0f}, AnchorType anchorType = AnchorType::automatic);
 	raylib::Rectangle drawTextAnchored(std::string text, raylib::Rectangle rect, Anchor anchor, const raylib::Font& font, raylib::Color color=WHITE, float size=12, float spacing=2, raylib::Vector2 offset={0.0f, 0.0f}, float maxW=-1, AnchorType anchorType = AnchorType::automatic);

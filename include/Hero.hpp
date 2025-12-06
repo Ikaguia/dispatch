@@ -19,6 +19,7 @@ public:
 	std::string name, nickname;
 	std::vector<std::string> tags;
 	std::map<std::string, std::string> bio;
+	std::map<std::string, raylib::Texture> imgs;
 	AttrMap<int> unconfirmed_attributes;
 	std::vector<Power> powers;
 	enum Status {
@@ -52,6 +53,11 @@ public:
 	raylib::Rectangle uiRect{};
 
 	Hero(const JSONish::Node& data);
+
+	Hero(const Hero&) = delete;
+	Hero& operator=(const Hero&) = delete;
+	Hero(Hero&&) noexcept = default;
+	Hero& operator=(Hero&&) noexcept = default;
 
 	AttrMap<int> attributes() const;
 	float travelSpeed() const;
