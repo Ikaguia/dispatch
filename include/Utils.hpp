@@ -8,6 +8,7 @@
 #include <format>
 
 #include <raylib-cpp.hpp>
+#include <nlohmann/json.hpp>
 #include <Attribute.hpp>
 
 namespace Utils {
@@ -112,4 +113,147 @@ namespace Utils {
 	inline void println(std::string_view text) { std::cout << text << '\n'; }
 
 	std::string readFile(std::string path);
+
+	nlohmann::json readJsonFile(std::string path);
 }
+
+namespace nlohmann {
+	template <>
+	struct adl_serializer<raylib::Vector2> {
+		static void to_json(json& j, const raylib::Vector2& v2) { j = json{
+			{"x", v2.x},
+			{"y", v2.y}
+		}; }
+		static void from_json(const json& j, raylib::Vector2& v2) {
+			if (j.is_object()) {
+				v2.x = j.at("x").get<float>();
+				v2.y = j.at("y").get<float>();
+			} else if (j.is_array()) {
+				const auto& jA = j.get<std::vector<float>>();
+				if (jA.size() != 2) throw std::runtime_error("Invalid number of elements for Vector2");
+				v2.x = jA[0];
+				v2.y = jA[1];
+			} else if (j.is_number()) {
+				v2.x = v2.y = j.get<float>();
+			} else throw std::runtime_error("Invalid format for Vector2");
+		}
+	};
+	template <>
+	struct adl_serializer<raylib::Vector3> {
+		static void to_json(json& j, const raylib::Vector3& v3) { j = json{
+			{"x", v3.x},
+			{"y", v3.y},
+			{"z", v3.z}
+		}; }
+		static void from_json(const json& j, raylib::Vector3& v3) {
+			if (j.is_object()) {
+				v3.x = j.at("x").get<float>();
+				v3.y = j.at("y").get<float>();
+				v3.z = j.at("z").get<float>();
+			} else if (j.is_array()) {
+				const auto& jA = j.get<std::vector<float>>();
+				if (jA.size() != 3) throw std::runtime_error("Invalid number of elements for Vector3");
+				v3.x = jA[0];
+				v3.y = jA[1];
+				v3.z = jA[2];
+			} else if (j.is_number()) {
+				v3.x = v3.y = v3.z = j.get<float>();
+			} else throw std::runtime_error("Invalid format for Vector3");
+		}
+	};
+	template <>
+	struct adl_serializer<raylib::Vector4> {
+		static void to_json(json& j, const raylib::Vector4& v4) { j = json{
+			{"x", v4.x},
+			{"y", v4.y},
+			{"z", v4.z},
+			{"w", v4.w}
+		}; }
+		static void from_json(const json& j, raylib::Vector4& v4) {
+			if (j.is_object()) {
+				v4.x = j.at("x").get<float>();
+				v4.y = j.at("y").get<float>();
+				v4.z = j.at("z").get<float>();
+				v4.w = j.at("w").get<float>();
+			} else if (j.is_array()) {
+				const auto& jA = j.get<std::vector<float>>();
+				if (jA.size() != 4) throw std::runtime_error("Invalid number of elements for Vector4");
+				v4.x = jA[0];
+				v4.y = jA[1];
+				v4.z = jA[2];
+				v4.w = jA[3];
+			} else if (j.is_number()) {
+				v4.x = v4.y = v4.z = v4.w = j.get<float>();
+			} else throw std::runtime_error("Invalid format for Vector4");
+		}
+	};
+	template <>
+	struct adl_serializer<raylib::Rectangle> {
+		static void to_json(json& j, const raylib::Rectangle& rec) { j = json{
+			{"x", rec.x},
+			{"y", rec.y},
+			{"width", rec.width},
+			{"height", rec.height}
+		}; }
+		static void from_json(const json& j, raylib::Rectangle& rec) {
+			rec.x = j.at("x").get<float>();
+			rec.y = j.at("y").get<float>();
+			rec.width = j.at("width").get<float>();
+			rec.height = j.at("height").get<float>();
+		}
+	};
+	template <>
+	struct adl_serializer<raylib::Color> {
+		static void to_json(json& j, const raylib::Color& color) { j = json{
+			{"r", color.r},
+			{"g", color.g},
+			{"b", color.b},
+			{"a", color.a}
+		}; }
+		static void from_json(const json& j, raylib::Color& color) {
+			if (j.is_object()) {
+				color.r = j.at("r").get<unsigned char>();
+				color.g = j.at("g").get<unsigned char>();
+				color.b = j.at("b").get<unsigned char>();
+				if (j.contains("a")) color.a = j.at("a").get<unsigned char>();
+				else color.a = 255;
+			} else if (j.is_array()) {
+				const auto& jA = j.get<std::vector<unsigned char>>();
+				if (jA.size() != 4) throw std::runtime_error("Invalid number of elements for Color");
+				color.r = jA[0];
+				color.g = jA[1];
+				color.b = jA[2];
+				color.a = jA[3];
+			} else if (j.is_string()) {
+				std::string colorS = j.get<std::string>();
+				if (colorS == "LIGHTGRAY") color = LIGHTGRAY;
+				else if (colorS == "GRAY") color = GRAY;
+				else if (colorS == "DARKGRAY") color = DARKGRAY;
+				else if (colorS == "YELLOW") color = YELLOW;
+				else if (colorS == "GOLD") color = GOLD;
+				else if (colorS == "ORANGE") color = ORANGE;
+				else if (colorS == "PINK") color = PINK;
+				else if (colorS == "RED") color = RED;
+				else if (colorS == "MAROON") color = MAROON;
+				else if (colorS == "GREEN") color = GREEN;
+				else if (colorS == "LIME") color = LIME;
+				else if (colorS == "DARKGREEN") color = DARKGREEN;
+				else if (colorS == "SKYBLUE") color = SKYBLUE;
+				else if (colorS == "BLUE") color = BLUE;
+				else if (colorS == "DARKBLUE") color = DARKBLUE;
+				else if (colorS == "PURPLE") color = PURPLE;
+				else if (colorS == "VIOLET") color = VIOLET;
+				else if (colorS == "DARKPURPLE") color = DARKPURPLE;
+				else if (colorS == "BEIGE") color = BEIGE;
+				else if (colorS == "BROWN") color = BROWN;
+				else if (colorS == "DARKBROWN") color = DARKBROWN;
+				else if (colorS == "WHITE") color = WHITE;
+				else if (colorS == "BLACK") color = BLACK;
+				else if (colorS == "BLANK") color = BLANK;
+				else if (colorS == "MAGENTA") color = MAGENTA;
+				else if (colorS == "RAYWHITE") color = RAYWHITE;
+				else throw std::runtime_error("Invalid color name: " + colorS);
+			} else throw std::runtime_error("Invalid color format");
+		}
+	};
+};

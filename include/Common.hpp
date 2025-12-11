@@ -1,10 +1,11 @@
 #pragma once
 
-#include <raylib-cpp.hpp>
+namespace raylib {
+	class Font;
+	class Color;
+};
 
-namespace Dispatch {
-	namespace UI {
-		extern raylib::Font defaultFont, emojiFont, symbolsFont, fontTitle, fontText;
-		extern raylib::Color bgLgt, bgMed, bgDrk, textColor, shadow;
-	}
-}
+namespace Dispatch::UI {
+	extern raylib::Font defaultFont, emojiFont, symbolsFont, fontTitle, fontText;
+	extern raylib::Color bgLgt, bgMed, bgDrk, textColor, shadow;
+};

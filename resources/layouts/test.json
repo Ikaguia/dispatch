@@ -1,0 +1,1055 @@
+[
+	{
+		"type": "ELEMENT",
+		"id": "mapRect",
+		"size": {
+			"x": 0.94,
+			"y": 0.69
+		},
+		"innerMargin": {
+			"x": 44,
+			"y": 17,
+			"z": 44,
+			"w": 26
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "screen",
+				"side": "top"
+			},
+			"offset": 22
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "screen",
+				"side": "start"
+			},
+			"end": {
+				"type": "screen",
+				"side": "end"
+			}
+		},
+		"subElement_ids": [ "heroDetails-left/middle", "heroDetails-right", "tab-upgrades", "tab-powers", "tab-info" ]
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-left/middle",
+		"father_id": "mapRect",
+		"subElement_ids": [
+			"heroDetails-left/middle-top",
+			"heroDetails-left/middle-bottom"
+		],
+		"size": {
+			"x": 0.662,
+			"y": 0.893
+		},
+		"verticalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-right",
+		"father_id": "mapRect",
+		"size": {
+			"x": 0.32,
+			"y": 0.893
+		},
+		"verticalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "tab-upgrades",
+		"father_id": "mapRect",
+		"size": {
+			"x": 0.195,
+			"y": 0.09
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			}
+		},
+		"horizontalConstraint": {
+			"end": {
+				"type": "element",
+				"side": "start",
+				"element_id": "tab-powers"
+			},
+			"offset": 19
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "tab-powers",
+		"father_id": "mapRect",
+		"size": {
+			"x": 0.195,
+			"y": 0.09
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "tab-info",
+		"father_id": "mapRect",
+		"size": {
+			"x": 0.195,
+			"y": 0.09
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "element",
+				"side": "end",
+				"element_id": "tab-powers"
+			},
+			"offset": 19
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-left/middle-top",
+		"father_id": "heroDetails-left/middle",
+		"subElement_ids": [ "heroDetails-stats" ],
+		"size": {
+			"x": 1.0,
+			"y": 0.88
+		},
+		"innerMargin": {
+			"x": 4,
+			"y": 4,
+			"z": 4,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-left/middle-bottom",
+		"father_id": "heroDetails-left/middle",
+		"subElement_ids": ["heroDetails-backButton"],
+		"size": {
+			"x": 1.0,
+			"y": 0.12
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 2,
+			"z": 0,
+			"w": 2
+		},
+		"verticalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-backButton",
+		"father_id": "heroDetails-left/middle-bottom",
+		"size": {
+			"x": 0.15,
+			"y": 0.9
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats",
+		"father_id": "heroDetails-left/middle-top",
+		"subElement_ids": [
+			"heroDetails-stats-points",
+			"heroDetails-stats-combat",
+			"heroDetails-stats-vigor",
+			"heroDetails-stats-mobility",
+			"heroDetails-stats-charisma",
+			"heroDetails-stats-intelligence",
+			"heroDetails-stats-reset",
+			"heroDetails-stats-confirm"
+		],
+		"size": {
+			"x": 0.38,
+			"y": 0.88
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"offset": 32
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-points",
+		"father_id": "heroDetails-stats",
+		"size": {
+			"x": 1.0,
+			"y": 0.15
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 4,
+			"z": 0,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			},
+			"ratio": 0.0
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-combat",
+		"father_id": "heroDetails-stats",
+		"subElement_ids": [ "heroDetails-stats-combat-minus", "heroDetails-stats-combat-value", "heroDetails-stats-combat-plus" ],
+		"size": {
+			"x": 1.0,
+			"y": 0.15
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 4,
+			"z": 0,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			},
+			"ratio": 0.167
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-combat-minus",
+		"father_id": "heroDetails-stats-combat",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.72
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-combat-value",
+		"father_id": "heroDetails-stats-combat",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.86
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-combat-plus",
+		"father_id": "heroDetails-stats-combat",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 1.0
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-vigor",
+		"father_id": "heroDetails-stats",
+		"subElement_ids": [ "heroDetails-stats-vigor-minus", "heroDetails-stats-vigor-value", "heroDetails-stats-vigor-plus" ],
+		"size": {
+			"x": 1.0,
+			"y": 0.15
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 4,
+			"z": 0,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			},
+			"ratio": 0.334
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-vigor-minus",
+		"father_id": "heroDetails-stats-vigor",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.72
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-vigor-value",
+		"father_id": "heroDetails-stats-vigor",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.86
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-vigor-plus",
+		"father_id": "heroDetails-stats-vigor",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 1.0
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-mobility",
+		"father_id": "heroDetails-stats",
+		"subElement_ids": [ "heroDetails-stats-mobility-minus", "heroDetails-stats-mobility-value", "heroDetails-stats-mobility-plus" ],
+		"size": {
+			"x": 1.0,
+			"y": 0.15
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 4,
+			"z": 0,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			},
+			"ratio": 0.5
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-mobility-minus",
+		"father_id": "heroDetails-stats-mobility",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.72
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-mobility-value",
+		"father_id": "heroDetails-stats-mobility",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.86
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-mobility-plus",
+		"father_id": "heroDetails-stats-mobility",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 1.0
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-charisma",
+		"father_id": "heroDetails-stats",
+		"subElement_ids": [ "heroDetails-stats-charisma-minus", "heroDetails-stats-charisma-value", "heroDetails-stats-charisma-plus" ],
+		"size": {
+			"x": 1.0,
+			"y": 0.15
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 4,
+			"z": 0,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			},
+			"ratio": 0.667
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-charisma-minus",
+		"father_id": "heroDetails-stats-charisma",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.72
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-charisma-value",
+		"father_id": "heroDetails-stats-charisma",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.86
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-charisma-plus",
+		"father_id": "heroDetails-stats-charisma",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 1.0
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-intelligence",
+		"father_id": "heroDetails-stats",
+		"subElement_ids": [ "heroDetails-stats-intelligence-minus", "heroDetails-stats-intelligence-value", "heroDetails-stats-intelligence-plus" ],
+		"size": {
+			"x": 1.0,
+			"y": 0.15
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 4,
+			"z": 0,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			},
+			"ratio": 0.833
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-intelligence-minus",
+		"father_id": "heroDetails-stats-intelligence",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.72
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-intelligence-value",
+		"father_id": "heroDetails-stats-intelligence",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.86
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-intelligence-plus",
+		"father_id": "heroDetails-stats-intelligence",
+		"size": {
+			"x": 0.14,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 3,
+			"y": 3,
+			"z": 3,
+			"w": 3
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 1.0
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-reset",
+		"father_id": "heroDetails-stats",
+		"size": {
+			"x": 0.5,
+			"y": 0.15
+		},
+		"outterMargin": {
+			"x": 4,
+			"y": 4,
+			"z": 2,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		}
+	}, {
+		"type": "ELEMENT",
+		"id": "heroDetails-stats-confirm",
+		"father_id": "heroDetails-stats",
+		"size": {
+			"x": 0.5,
+			"y": 0.15
+		},
+		"outterMargin": {
+			"x": 2,
+			"y": 4,
+			"z": 4,
+			"w": 4
+		},
+		"verticalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}
+]

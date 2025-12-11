@@ -8,6 +8,7 @@
 #include <MissionsHandler.hpp>
 #include <HeroesHandler.hpp>
 #include <CityMap.hpp>
+#include <UI.hpp>
 
 // raylib::Window window(1920, 1080, "raylib-cpp - basic window"); float bgScale;
 raylib::Window window(960, 540, "raylib-cpp - basic window"); float bgScale;
@@ -39,6 +40,9 @@ int main() {
 	cloudShader.SetValue(cloudsSpeedLoc, (float[1]){ 0.03f }, SHADER_UNIFORM_FLOAT);
 	cloudShader.SetValue(cloudsDensityLoc, (float[1]){ 0.5f }, SHADER_UNIFORM_FLOAT);
 	raylib::Texture dummy(raylib::Image{1,1,WHITE});
+
+	Dispatch::UI::loadLayout(std::string{"resources/layouts/test.json"});
+	auto& element = Dispatch::UI::elements.at("test").at("mapRect");
 
 	while (!window.ShouldClose()) {
 		float deltaTime = GetFrameTime();
@@ -88,6 +92,7 @@ int main() {
 				heroesHandler.renderUI();
 				missionsHandler.renderUI();
 			}
+			element->render();
 		target.EndMode();
 
 		BeginDrawing();
