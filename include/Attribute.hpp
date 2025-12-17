@@ -5,6 +5,8 @@
 #include <string_view>
 #include <unordered_map>
 
+#include <nlohmann/json.hpp>
+
 namespace AttributeUtils {
 	inline constexpr char toLower(char c) { return (c >= 'A' && c <= 'Z') ? static_cast<char>(c + ('a' - 'A')) : c; }
 	inline constexpr bool equals(std::string_view a, std::string_view b) {
@@ -110,3 +112,29 @@ public:
 		return *this;
 	}
 };
+
+namespace Utils { std::string toLower(std::string); }
+
+namespace nlohmann {
+	template <typename ValueType>
+	struct adl_serializer<AttrMap<ValueType>> {
+		static void to_json(json& j, const AttrMap<ValueType>& attrs) {
+			j = json{};
+			for (Attribute attr : Attribute::Values) {
+				std::string key = Utils::toLower((std::string)attr.toString());
+				j[key] = attrs[attr];
+			}
+		}
+		static void from_json(const json& j, AttrMap<ValueType>& attrs) {
+			if (j.is_object()) {
+				for (Attribute attr : Attribute::Values) {
+					std::string key = Utils::toLower((std::string)attr.toString());
+					attrs[attr] = j.at(key).get<ValueType>();
+				}
+			} else if (j.is_array()) {
+				if (j.size() != Attribute::COUNT) throw std::runtime_error("Invalid number of elements for AttrMap");
+				for (int i = 0; i < Attribute::COUNT; i++) attrs[Attribute::Values[i]] = j[i].get<ValueType>();
+			} else throw std::runtime_error("Invalid format for AttrMap");
+		}
+	};
+}

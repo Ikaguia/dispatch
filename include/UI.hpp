@@ -35,8 +35,9 @@ namespace Dispatch::UI {
 		int z_order = -1;
 		std::string id, father_id, layout_name;
 		std::vector<std::string> subElement_ids;
-		raylib::Vector2 size, origSize;
+		raylib::Vector2 size, origSize, shadowOffset;
 		raylib::Vector4 outterMargin, innerMargin;
+		raylib::Color shadowColor = ColorAlpha(BLACK, 0.3f);
 		struct Constraint {
 			float offset = 0.0f, ratio = 0.5f;
 			struct ConstraintPart {
@@ -58,7 +59,7 @@ namespace Dispatch::UI {
 		virtual const bool colidesWith(const raylib::Vector2& other) const;
 		virtual const bool colidesWith(const raylib::Rectangle& other) const;
 
-		virtual void render(const raylib::Vector2& offset = raylib::Vector2{0.0f, 0.0f});
+		virtual void render();
 		virtual void handleInput();
 		virtual void solveLayout();
 		virtual void sortSubElements(bool z_order);

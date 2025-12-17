@@ -4,16 +4,18 @@
 #include <format>
 #include <fstream>
 
+#include <nlohmann/json.hpp>
+using nlohmann::json;
+
 #include <MissionsHandler.hpp>
 #include <Utils.hpp>
 #include <Attribute.hpp>
-#include <JSONish.hpp>
 
 MissionsHandler::MissionsHandler() {
-	loadMissions("resources/data/missions/test.jsonish");
-	// loadMissions("resources/data/missions/Missions1.jsonish");
-	// loadMissions("resources/data/missions/Missions2.jsonish");
-	// loadMissions("resources/data/missions/Missions3.jsonish");
+	loadMissions("resources/data/missions/test.json");
+	// loadMissions("resources/data/missions/Missions1.json");
+	// loadMissions("resources/data/missions/Missions2.json");
+	// loadMissions("resources/data/missions/Missions3.json");
 }
 
 MissionsHandler& MissionsHandler::inst() {
@@ -24,11 +26,10 @@ MissionsHandler& MissionsHandler::inst() {
 
 void MissionsHandler::loadMissions(const std::string& file) {
 	Utils::println("Loading missions from {}", file);
-	auto str = Utils::readFile(file);
-	JSONish::Parser parser(str);
-	auto missions = parser.parseArray();
-	Utils::println("Read {} missions", missions.arr.size());
-	for (auto& data : missions.arr) {
+	json missions = Utils::readJsonFile(file);
+	if (!missions.is_array()) throw std::runtime_error("Heroes error: Top-level JSON must be an array of heroes.");
+	Utils::println("Read {} missions", missions.size());
+	for (auto& data : missions) {
 		auto ms = std::make_shared<Mission>(data);
 		// Utils::println("Loaded {}mission '{}'", ms->triggered ? "triggered " : "", ms->name);
 		if (ms->triggered) trigger_missions[ms->name] = ms;

@@ -7,15 +7,18 @@
 		"requirements": [
 			"BREACH the main control room",
 			"DESTROY the rogue AI core",
-			"SURVIVE the automated defense systems",
+			"SURVIVE the automated defense systems"
 		],
-		"position": [ 850, 200 ],
+		"position": [
+			850,
+			200
+		],
 		"attributes": {
 			"combat": 10,
 			"vigor": 10,
 			"mobility": 10,
 			"charisma": 10,
-			"intelligence": 10,
+			"intelligence": 10
 		},
 		"slots": 3,
 		"difficulty": 4,
@@ -25,12 +28,12 @@
 			"duration": 30,
 			"message": "EXPLOSION REFINED",
 			"delay": 5,
-			"mission": "Refinery Meltdown",
+			"mission": "Refinery Meltdown"
 		},
 		"success": {
 			"duration": 25,
-			"message": "REFINERY SAVED",
-		},
+			"message": "REFINERY SAVED"
+		}
 	},
 	{
 		"name": "Refinery Meltdown",
@@ -39,25 +42,28 @@
 		"description": "The Refinery has gone into a meltdown! Workers are trapped inside... HELP!",
 		"requirements": [
 			"EVACUATE the workers",
-			"SURVIVE the hostile atmosphere",
+			"SURVIVE the hostile atmosphere"
 		],
-		"position": [850, 200],
+		"position": [
+			850,
+			200
+		],
 		"attributes": {
 			"combat": 2,
 			"vigor": 8,
 			"mobility": 7,
 			"charisma": 2,
-			"intelligence": 3,
+			"intelligence": 3
 		},
 		"slots": 4,
 		"difficulty": 4,
 		"failure": {
 			"duration": 30,
-			"message": "LIFE INSURANCE NEEDED",
+			"message": "LIFE INSURANCE NEEDED"
 		},
 		"success": {
 			"duration": 25,
-			"message": "WORKERS RESCUED",
+			"message": "WORKERS RESCUED"
 		},
 		"dangerous": true,
 		"triggered": false,
@@ -72,32 +78,34 @@
 						"attribute": "MOBILITY",
 						"value": 7,
 						"success": {
-							"message": "Yay!",
+							"message": "Yay!"
 						},
 						"failure": {
-							"message": "Oh no!",
+							"message": "Oh no!"
 						}
-					}, {
+					},
+					{
 						"name": "Contain it!",
 						"type": "ATTRIBUTE",
 						"attribute": "VIGOR",
 						"value": 10,
 						"success": {
-							"message": "Burp!",
+							"message": "Burp!"
 						},
 						"failure": {
-							"message": "Uh oh!",
+							"message": "Uh oh!"
 						}
-					}, {
+					},
+					{
 						"name": "Absorb it!",
 						"type": "HERO",
 						"hero": "Flambae",
 						"success": {
-							"message": "Hot as ever!",
-						},
+							"message": "Hot as ever!"
+						}
 					}
 				]
 			}
 		]
-	},
+	}
 ]

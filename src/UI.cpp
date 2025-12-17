@@ -42,12 +42,16 @@ namespace Dispatch::UI {
 	const bool Element::colidesWith(const raylib::Vector2& other) const { return boundingRect().CheckCollision(other); }
 	const bool Element::colidesWith(const raylib::Rectangle& other) const { return boundingRect().CheckCollision(other); }
 
-	void Element::render(const raylib::Vector2& offset) {
-		boundingRect().Draw(ColorAlpha(GRAY, 1));
+	void Element::render() {
+		raylib::Rectangle renderRect = boundingRect();
+		if ((shadowOffset.x != 0 || shadowOffset.y != 0) && shadowColor.a != 0) {
+			raylib::Rectangle{renderRect.GetPosition() + shadowOffset, renderRect.GetSize()}.Draw(ColorAlpha(shadowColor, 1));
+		}
+		renderRect.Draw(ColorAlpha(GRAY, 1));
 		subElementsRect().Draw(ColorAlpha(LIGHTGRAY, 1));
-		boundingRect().DrawLines(BLACK);
+		renderRect.DrawLines(BLACK);
 		auto& lElements = elements.at(layout_name);
-		for (const std::string& el_id : subElement_ids) lElements.at(el_id)->render(offset);
+		for (const std::string& el_id : subElement_ids) lElements.at(el_id)->render();
 	}
 	void Element::handleInput() {
 		auto& lElements = elements.at(layout_name);
@@ -236,55 +240,75 @@ namespace Dispatch::UI {
 		for (const std::string& id : top_level_ids) lElements.at(id)->solveLayout();
 	}
 
+	#define READ(j, var)		inst.var = j.value(#var, inst.var)
+	#define READREQ(j, var) { \
+								if (j.contains(#var)) inst.var = j.at(#var).get<decltype(inst.var)>(); \
+								else throw std::invalid_argument("Hero '" + std::string(#var) + "' cannot be empty"); \
+							}
+	#define READ2(j, var, key)	inst.var = j.value(#key, inst.var)
+	#define READREQ2(j, var, key) { \
+								if (j.contains(#key)) inst.var = j.at(#key).get<decltype(inst.var)>(); \
+								else throw std::invalid_argument("Hero '" + std::string(#key) + "' cannot be empty"); \
+							}
+	#define WRITE(var)			{#var, inst.var}
+	#define WRITE2(var, key)	{#key, inst.var}
+
 	// JSON Serialization
-	void to_json(json& j, const Element& element) {
+	void to_json(json& j, const Element& inst) {
 		j = json{
-			{"z_order", element.z_order},
-			{"id", element.id},
-			{"father_id", element.father_id},
-			{"subElement_ids", element.subElement_ids},
-			{"size", element.size},
-			{"outterMargin", element.outterMargin},
-			{"innerMargin", element.innerMargin},
-			{"verticalConstraint", element.verticalConstraint},
-			{"horizontalConstraint", element.horizontalConstraint}
+			WRITE(z_order),
+			WRITE(id),
+			WRITE(father_id),
+			// WRITE(layout_name),
+			WRITE(subElement_ids),
+			WRITE(size),
+			WRITE(shadowOffset),
+			WRITE(outterMargin),
+			WRITE(innerMargin),
+			WRITE(shadowColor),
+			WRITE(verticalConstraint),
+			WRITE(horizontalConstraint),
 		};
 	}
-	void from_json(const json& j, Element& element) {
-		if (j.contains("z_order")) element.z_order = j.at("z_order").get<int>();
-		element.id = j.at("id").get<std::string>();
-		if (j.contains("father_id")) element.father_id = j.at("father_id").get<std::string>();
-		if (j.contains("subElement_ids")) element.subElement_ids = j.at("subElement_ids").get<std::vector<std::string>>();
-		element.size = element.origSize = j.at("size").get<raylib::Vector2>();
-		if (j.contains("outterMargin")) element.outterMargin = j.at("outterMargin").get<raylib::Vector4>();
-		if (j.contains("innerMargin")) element.innerMargin = j.at("innerMargin").get<raylib::Vector4>();
-		element.verticalConstraint = j.at("verticalConstraint").get<Element::Constraint>();
-		element.horizontalConstraint = j.at("horizontalConstraint").get<Element::Constraint>();
+	void from_json(const json& j, Element& inst) {
+		READ(j, z_order);
+		READREQ(j, id);
+		READ(j, father_id);
+		// READ(j, layout_name);
+		READ(j, subElement_ids);
+		READREQ(j, size);
+		READ(j, shadowOffset);
+		READ(j, outterMargin);
+		READ(j, innerMargin);
+		READ(j, shadowColor);
+		READREQ(j, verticalConstraint);
+		READREQ(j, horizontalConstraint);
+		inst.origSize = inst.size;
 	}
-	void to_json(json& j, const Element::Constraint& constraint) {
+	void to_json(json& j, const Element::Constraint& inst) {
 		j = json{
-			{"offset", constraint.offset},
-			{"ratio", constraint.ratio},
-			{"start", constraint.start},
-			{"end", constraint.end},
+			WRITE(offset),
+			WRITE(ratio),
+			WRITE(start),
+			WRITE(end),
 		};
 	};
-	void from_json(const nlohmann::json& j, Element::Constraint& constraint) {
-		if (j.contains("offset")) constraint.offset = j.at("offset").get<float>();
-		if (j.contains("ratio")) constraint.ratio = j.at("ratio").get<float>();
-		if (j.contains("start")) constraint.start = j.at("start").get<Element::Constraint::ConstraintPart>();
-		if (j.contains("end")) constraint.end = j.at("end").get<Element::Constraint::ConstraintPart>();
+	void from_json(const nlohmann::json& j, Element::Constraint& inst) {
+		READ(j, offset);
+		READ(j, ratio);
+		READ(j, start);
+		READ(j, end);
 	}
-	void to_json(nlohmann::json& j, const Element::Constraint::ConstraintPart& constraintPart) {
+	void to_json(nlohmann::json& j, const Element::Constraint::ConstraintPart& inst) {
 		j = json{
-			{"type", constraintPart.type},
-			{"element_id", constraintPart.element_id},
-			{"side", constraintPart.side}
+			WRITE(type),
+			WRITE(element_id),
+			WRITE(side),
 		};
 	}
-	void from_json(const nlohmann::json& j, Element::Constraint::ConstraintPart& constraintPart) {
-		constraintPart.type = j.at("type").get<Element::Constraint::ConstraintPart::ConstraintType>();
-		if (j.contains("element_id")) constraintPart.element_id = j.at("element_id").get<std::string>();
-		constraintPart.side = j.at("side").get<Side>();
+	void from_json(const nlohmann::json& j, Element::Constraint::ConstraintPart& inst) {
+		READREQ(j, type);
+		READ(j, element_id);
+		READREQ(j, side);
 	}
 };

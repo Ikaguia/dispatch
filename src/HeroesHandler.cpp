@@ -9,11 +9,14 @@
 #include <HeroesHandler.hpp>
 #include <MissionsHandler.hpp>
 
+#include <nlohmann/json.hpp>
+using nlohmann::json;
+
 extern float bgScale;
 
 HeroesHandler::HeroesHandler() {
-	// loadHeroes("resources/data/heroes/Heroes.jsonish", true);
-	loadHeroes("resources/data/heroes/Heroes2.jsonish", true);
+	// loadHeroes("resources/data/heroes/Heroes.json", true);
+	loadHeroes("resources/data/heroes/Heroes2.json", true);
 }
 
 HeroesHandler& HeroesHandler::inst() {
@@ -23,12 +26,11 @@ HeroesHandler& HeroesHandler::inst() {
 
 void HeroesHandler::loadHeroes(const std::string& filePath, bool activate) {
 	Utils::println("Loading heroes from {}", filePath);
-	auto str = Utils::readFile(filePath);
-	JSONish::Parser parser(str);
-	auto heroes = parser.parseArray();
-	Utils::println("Read {} heroes", heroes.arr.size());
-	for (auto& data : heroes.arr) {
-		auto hero = std::make_shared<Hero>(data);
+	json data = Utils::readJsonFile(filePath);
+	if (!data.is_array()) throw std::runtime_error("Heroes error: Top-level JSON must be an array of heroes.");
+	Utils::println("Read {} heroes", data.size());
+	for (auto& hero_data : data) {
+		auto hero = std::make_shared<Hero>(hero_data);
 		// Utils::println("Loaded hero '{}'", hero->name);
 		if (activate) active_heroes.push_back(hero);
 		else loaded_heroes.push_back(hero);

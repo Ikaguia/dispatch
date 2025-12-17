@@ -5,6 +5,9 @@
 #include <memory>
 #include <fstream>
 
+#include <nlohmann/json.hpp>
+using nlohmann::json;
+
 #include <Utils.hpp>
 #include <Common.hpp>
 #include <Mission.hpp>
@@ -56,83 +59,7 @@ Mission::Mission(
 	}
 };
 
-Mission::Mission(const JSONish::Node& data) { load(data); }
-
-
-void Mission::load(const JSONish::Node& data) {
-	name = data.get<std::string>("name");
-	type = data.get<std::string>("type");
-	caller = data.get<std::string>("caller", "UNKNOWN CALLER");
-	description = data.get<std::string>("description");
-
-	if (data.has("requirements")) for (auto& req : data["requirements"].arr) requirements.push_back(req.sval);
-	else throw std::invalid_argument("Mission 'requirements' cannot be empty");
-	if (data.has("attributes")) for (auto& [name, val] : data["attributes"].obj) requiredAttributes[Attribute::fromString(name)] = val.nval;
-	else throw std::invalid_argument("Mission 'attributes' cannot be empty");
-	if (data.has("position")) {
-		auto pos = data["position"];
-		position.x = pos.get<float>(0);
-		position.y = pos.get<float>(1);
-	} else throw std::invalid_argument("Mission 'position' cannot be empty");
-
-	slots = data.get<int>("slots");
-	difficulty = data.get<int>("difficulty");
-
-	if (data.has("failure")) {
-		auto failure = data["failure"];
-		failureTime = failure.get<float>("duration");
-		failureMsg = failure.get<std::string>("message", "MISSION FAILED!");
-		failureMission = failure.get<std::string>("mission", "");
-		failureMissionTime = failure.get<float>("delay", 0);
-	} else throw std::invalid_argument("Mission 'failure' cannot be empty");
-
-	if (data.has("success")) {
-		auto success = data["success"];
-		missionDuration = success.get<float>("duration");
-		successMsg = success.get<std::string>("message", "MISSION COMPLETED!");
-		successMission = success.get<std::string>("mission", "");
-		successMissionTime = success.get<float>("delay", 0);
-	} else throw std::invalid_argument("Mission 'success' cannot be empty");
-
-	dangerous = data.get<bool>("dangerous", false);
-	triggered = data.get<bool>("triggered", false);
-
-	if (data.has("disruptions")) {
-		auto& disrs = data["disruptions"];
-		for (auto& disr : disrs.arr) {
-			Disruption disruption;
-			disruption.description = disr.get<std::string>("description");
-			disruption.timeout = disr.get<float>("timeout");
-			if (disr.has("options")) {
-				auto& opts = disr["options"];
-				for (auto& opt : opts.arr) {
-					Disruption::Option option;
-					option.name = opt.get<std::string>("name");
-					auto type = opt.get<std::string>("type");
-					if (type == "HERO") {
-						option.type = Disruption::Option::HERO;
-						option.hero = opt.get<std::string>("hero");
-					} else if (type == "ATTRIBUTE") {
-						option.type = Disruption::Option::ATTRIBUTE;
-						option.attribute = opt.get<std::string>("attribute");
-						option.value = opt.get<int>("value", requiredAttributes[Attribute::fromString(option.attribute)]);
-					} else throw std::invalid_argument("Disruption option type must be 'HERO' or 'ATTRIBUTE'");
-					if (opt.has("success")) {
-						auto& suc = opt["success"];
-						option.successMessage = suc.get<std::string>("message", "SUCCESS!");
-					}
-					if (opt.has("failure")) {
-						auto& suc = opt["failure"];
-						option.failureMessage = suc.get<std::string>("message", "FAILURE!");
-					}
-					disruption.options.push_back(option);
-					disruption.optionButtons.emplace_back();
-				}
-			} else throw std::invalid_argument("Disruption 'options' cannot be empty");
-			disruptions.push_back(disruption);
-		}
-	}
-}
+Mission::Mission(const json& data) { from_json(data, *this); validate(); }
 
 void Mission::validate() const {
 	if (name.empty()) throw std::invalid_argument("Mission name cannot be empty");
@@ -706,4 +633,145 @@ std::string Mission::statusToString(Status st) {
 	if (st == DISRUPTION) return "DISRUPTION";
 	if (st == DISRUPTION_MENU) return "DISRUPTION_MENU";
 	return "?";
+}
+
+
+#define READ(j, var)		inst.var = j.value(#var, inst.var)
+#define READREQ(j, var) { \
+							if (j.contains(#var)) inst.var = j.at(#var).get<decltype(inst.var)>(); \
+							else throw std::invalid_argument("Hero '" + std::string(#var) + "' cannot be empty"); \
+						}
+#define READ2(j, var, key)	inst.var = j.value(#key, inst.var)
+#define READREQ2(j, var, key) { \
+							if (j.contains(#key)) inst.var = j.at(#key).get<decltype(inst.var)>(); \
+							else throw std::invalid_argument("Hero '" + std::string(#key) + "' cannot be empty"); \
+						}
+
+#define WRITE(var)			{#var, inst.var}
+#define WRITE2(var, key)	{#key, inst.var}
+
+void Mission::to_json(nlohmann::json& j, const Mission& inst) {
+	j = json{
+		// WRITE(btnCancel),
+		// WRITE(btnStart),
+		WRITE(status),
+		WRITE(name),
+		WRITE(type),
+		WRITE(caller),
+		WRITE(description),
+		WRITE(requirements),
+		WRITE(disruptions),
+		WRITE(position),
+		WRITE(requiredAttributes),
+		WRITE(slots),
+		WRITE(difficulty),
+		// WRITE(curDisruption),
+		// WRITE(timeElapsed),
+		WRITE(dangerous),
+		WRITE(triggered),
+		// WRITE(disrupted),
+		// WRITE(assignedHeroes),
+
+		{ "success", {
+			WRITE2(missionDuration, duration),
+			WRITE2(successMsg, message),
+			WRITE2(successMissionTime, delay),
+			WRITE2(successMission, mission),
+		}},
+		{ "failure", {
+			WRITE2(failureTime, duration),
+			WRITE2(failureMsg, message),
+			WRITE2(failureMissionTime, delay),
+			WRITE2(failureMission, mission),
+		}},
+	};
+}
+void Mission::from_json(const nlohmann::json& j, Mission& inst) {
+	// READ(j, btnCancel);
+	// READ(j, btnStart);
+	READ(j, status);
+	READREQ(j, name);
+	READREQ(j, type);
+	READREQ(j, caller);
+	READREQ(j, description);
+	READREQ(j, requirements);
+	READ(j, disruptions);
+	READREQ(j, position);
+	READREQ2(j, requiredAttributes, attributes);
+	READREQ(j, slots);
+	READREQ(j, difficulty);
+	// READ(j, curDisruption);
+	// READ(j, timeElapsed);
+	READ(j, dangerous);
+	READ(j, triggered);
+	// READ(j, disrupted);
+	// READ(j, assignedHeroes);
+
+	const auto& suc = j.at("success");
+	READ2(suc, missionDuration, duration);
+	READ2(suc, successMsg, message);
+	READ2(suc, successMissionTime, delay);
+	READ2(suc, successMission, mission);
+
+	const auto& fail = j.at("failure");
+	READ2(fail, failureTime, duration);
+	READ2(fail, failureMsg, message);
+	READ2(fail, failureMissionTime, delay);
+	READ2(fail, failureMission, mission);
+}
+
+void Disruption::to_json(nlohmann::json& j, const Disruption& inst) {
+	j = json{
+		WRITE(options),
+		WRITE(description),
+		WRITE(timeout),
+		// WRITE(elapsedTime),
+		// WRITE(selected_option),
+		// WRITE(optionButtons),
+	};
+}
+void Disruption::from_json(const nlohmann::json& j, Disruption& inst) {
+	READ(j, options);
+	READ(j, description);
+	READ(j, timeout);
+	// READ(j, elapsedTime);
+	// READ(j, selected_option);
+	// READ(j, optionButtons);
+}
+
+void Disruption::Option::to_json(nlohmann::json& j, const Option& inst) {
+	j = json{
+		WRITE(name),
+		WRITE(hero),
+		WRITE(attribute),
+		WRITE(value),
+		WRITE(type),
+		WRITE(disabled),
+		{ "success", {
+			WRITE2(successMessage, message),
+		}},
+		{ "failure", {
+			WRITE2(failureMessage, message),
+		}},
+	};
+}
+void Disruption::Option::from_json(const nlohmann::json& j, Option& inst) {
+	READ(j, name);
+	READ(j, hero);
+	READ(j, attribute);
+	READ(j, successMessage);
+	READ(j, failureMessage);
+	READ(j, value);
+	READ(j, type);
+	READ(j, disabled);
+
+	if (j.contains("success")) {
+		const auto& suc = j.at("success");
+		READ2(suc, successMessage, message);
+	}
+
+	if (j.contains("failure")) {
+		const auto& fail = j.at("failure");
+		READ2(fail, failureMessage, message);
+	}
 }

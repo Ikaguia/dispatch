@@ -1,0 +1,1627 @@
+[
+	{
+		"name": "Refinery Fuel Heist",
+		"type": "Assault",
+		"caller": "Redrock Refinery Ops",
+		"description": "The Redline gang is staging a massive fuel heist at the main pumping station. They are heavily armed and the situation is volatile.",
+		"requirements": [
+			"NEUTRALIZE all Redline gang members on site",
+			"SECURE the main fuel pumps",
+			"PREVENT any sparks from igniting the fumes"
+		],
+		"attributes": {
+			"COMBAT": 9,
+			"VIGOR": 8,
+			"MOBILITY": 6,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			850,
+			200
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Traffic-Stopping Magic Show",
+		"type": "Minor Inconvenience",
+		"caller": "@TORRANCEPD",
+		"description": "A street magician at 5th and Main is causing a major traffic jam. He is actually levitating and he refuses to come down.",
+		"requirements": [
+			"CONVINCE the magician to land",
+			"DISPERSE the crowd and clear traffic"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 3,
+			"MOBILITY": 4,
+			"CHARISMA": 7,
+			"INTELLIGENCE": 6
+		},
+		"position": [
+			550,
+			280
+		],
+		"slots": 2,
+		"difficulty": 2,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Missing Student",
+		"type": "Investigation",
+		"caller": "SECURITY / @TORRCOLLEGE",
+		"description": "A student was last seen in the library's restricted archive. He has been missing for 12 hours. His friends said he was researching local legends.",
+		"requirements": [
+			"SEARCH the library restricted archive",
+			"INVESTIGATE the student's research notes",
+			"LOCATE the missing student"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 4,
+			"MOBILITY": 6,
+			"CHARISMA": 5,
+			"INTELLIGENCE": 8
+		},
+		"position": [
+			410,
+			210
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 70
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Red Ring Arms Shipment",
+		"type": "Red Ring",
+		"caller": "GALEN / @SDN-T",
+		"description": "We've got a Red Ring cell at Pier 9. They're unloading a VAND-CO weapons container. Stop them before that hardware hits the streets.",
+		"requirements": [
+			"INTERCEPT the Red Ring unloading crew",
+			"SECURE the VAND-CO weapons container",
+			"NEUTRALIZE all Red Ring resistance"
+		],
+		"attributes": {
+			"COMBAT": 8,
+			"VIGOR": 7,
+			"MOBILITY": 8,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			190,
+			260
+		],
+		"slots": 4,
+		"difficulty": 4,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Museum History Panel",
+		"type": "Social Event",
+		"caller": "CURATOR / @TORRMOA",
+		"description": "We are hosting a \"History of Heroics\" panel. Our keynote speaker just cancelled. We need a real hero to come fill in and be heroic.",
+		"requirements": [
+			"PARTICIPATE in the panel discussion",
+			"ANSWER questions from the audience"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 3,
+			"MOBILITY": 2,
+			"CHARISMA": 7,
+			"INTELLIGENCE": 6
+		},
+		"position": [
+			510,
+			240
+		],
+		"slots": 1,
+		"difficulty": 1,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Highway Pileup",
+		"type": "Rescue",
+		"caller": "@TORRANCEFD",
+		"description": "We have a 10-car pileup on the I-5, and a fuel tanker is compromised. We need immediate help extracting survivors and clearing the wreckage.",
+		"requirements": [
+			"RESCUE trapped motorists from the vehicles",
+			"CONTAIN the fuel spill before it ignites",
+			"CLEAR the wreckage to open the highway"
+		],
+		"attributes": {
+			"COMBAT": 6,
+			"VIGOR": 8,
+			"MOBILITY": 8,
+			"CHARISMA": 3,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			700,
+			250
+		],
+		"slots": 3,
+		"difficulty": 3,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Aggressive Goose",
+		"type": "Minor Inconvenience",
+		"caller": "REBECCA / @VANDCO",
+		"description": "A goose, a very aggressive goose, has stolen Mr. Vanderstenk's prototype phone at the park. He threw it. At the goose. Please get it back.",
+		"requirements": [
+			"RETRIEVE the VAND-CO prototype",
+			"DISTRACT the goose to get the phone"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 3,
+			"MOBILITY": 7,
+			"CHARISMA": 5,
+			"INTELLIGENCE": 1
+		},
+		"position": [
+			450,
+			250
+		],
+		"slots": 1,
+		"difficulty": 1,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 15
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Phased Laboratory",
+		"type": "Investigation",
+		"caller": "LUCAS / @VANDLABS",
+		"description": "Dr. Eldritch's lab is vibrating and semi-transparent. He has been trying to breach other dimensions again. He is also still inside.",
+		"requirements": [
+			"STABILIZE the dimensional phasing",
+			"ENTER the lab and investigate the experiment",
+			"LOCATE and rescue Dr. Eldritch"
+		],
+		"attributes": {
+			"COMBAT": 2,
+			"VIGOR": 7,
+			"MOBILITY": 6,
+			"CHARISMA": 3,
+			"INTELLIGENCE": 9
+		},
+		"position": [
+			760,
+			310
+		],
+		"slots": 2,
+		"difficulty": 4,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Vandalism on Hoverboards",
+		"type": "Pursuit",
+		"caller": "PETUNIA @TORRLIBRARY",
+		"description": "The 'Peen Teens' are back! This time they are on VAND-CO hoverboards, tagging everything! They are too fast for our guards!",
+		"requirements": [
+			"PURSUE the teens on their hoverboards",
+			"APPREHEND the vandals"
+		],
+		"attributes": {
+			"COMBAT": 3,
+			"VIGOR": 4,
+			"MOBILITY": 8,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			580,
+			290
+		],
+		"slots": 2,
+		"difficulty": 2,
+		"failure": {
+			"duration": 40
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Red Ring in the Play-Place",
+		"type": "Red Ring",
+		"caller": "GALEN / @SDN-T",
+		"description": "Intel points to a Red Ring meeting in the Gigaburger... in the ball pit. I'm not joking. Go in, get evidence, and grab the cell leader.",
+		"requirements": [
+			"GO undercover as a customer",
+			"SECUREly record the meeting",
+			"APPREHEND the Red Ring cell leader"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 5,
+			"MOBILITY": 7,
+			"CHARISMA": 8,
+			"INTELLIGENCE": 7
+		},
+		"position": [
+			570,
+			320
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 45
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "VAND-CO Tower Fire",
+		"type": "Rescue",
+		"caller": "@TORRANCEFD",
+		"description": "A fire has broken out in the VAND-CO tower server room on the 40th floor. The automated sprinklers have failed. We need evac and containment!",
+		"requirements": [
+			"ASCEND to the 40th floor",
+			"RESCUE any trapped office workers",
+			"CONTAIN the fire before it destroys the server hub"
+		],
+		"attributes": {
+			"COMBAT": 6,
+			"VIGOR": 9,
+			"MOBILITY": 8,
+			"CHARISMA": 3,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			780,
+			250
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Stolen Police Car",
+		"type": "Pursuit",
+		"caller": "OFFICER RAMIREZ / @TORRANCEPD",
+		"description": "A suspect just stole one of my patrol cars from the Gigaburger lot! He's heading for the highway. I need him stopped!",
+		"requirements": [
+			"PURSUE the stolen police cruiser",
+			"DISABLE the vehicle without destroying it"
+		],
+		"attributes": {
+			"COMBAT": 5,
+			"VIGOR": 6,
+			"MOBILITY": 9,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			580,
+			310
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 20
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Red Ring 'Charity' Gala",
+		"type": "Red Ring",
+		"caller": "GALEN / @SDN-T",
+		"description": "The Red Ring is hosting a black-tie gala at the museum as a front for an arms auction. We need someone to infiltrate the party and identify the buyers.",
+		"requirements": [
+			"INFILTRATE the gala undercover",
+			"GATHER intel on the auction items and buyers",
+			"PLANT a tracker on the Red Ring leader"
+		],
+		"attributes": {
+			"COMBAT": 3,
+			"VIGOR": 5,
+			"MOBILITY": 8,
+			"CHARISMA": 7,
+			"INTELLIGENCE": 6
+		},
+		"position": [
+			510,
+			240
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 40
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Rogue VAND-CO Mech",
+		"type": "Assault",
+		"caller": "REBECCA / @VANDCO",
+		"description": "A VAND-CO 'Atlas' construction mech has gone rogue at the port. It's destroying cargo containers. We need it shut down.",
+		"requirements": [
+			"EVADE the mech's hydraulic attacks",
+			"CLIMB the chassis to the main cockpit",
+			"DISABLE the mech's primary power core"
+		],
+		"attributes": {
+			"COMBAT": 7,
+			"VIGOR": 8,
+			"MOBILITY": 8,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			200,
+			250
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Lost Dog Pack",
+		"type": "Minor Inconvenience",
+		"caller": "@SDNTIPLINE",
+		"description": "A dog walker lost her entire pack of ten dogs. They're running loose in the park and causing chaos. Can you herd them?",
+		"requirements": [
+			"LOCATE and round up all ten lost dogs",
+			"RETURN the pack to the dog walker"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 5,
+			"MOBILITY": 6,
+			"CHARISMA": 5,
+			"INTELLIGENCE": 2
+		},
+		"position": [
+			460,
+			250
+		],
+		"slots": 1,
+		"difficulty": 2,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Sub-Zero Anomaly",
+		"type": "Natural Disaster",
+		"caller": "@TORRCOLLEGE",
+		"description": "The college physics lab just had a containment breach. It's 100 degrees outside, but the entire building is frozen solid. We think students are inside.",
+		"requirements": [
+			"BREACH the frozen laboratory",
+			"LOCATE and rescue the trapped students",
+			"SHUT DOWN the experimental cryo-engine"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 9,
+			"MOBILITY": 7,
+			"CHARISMA": 3,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			410,
+			210
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "'The Bone Zone' Interview",
+		"type": "Social Event",
+		"caller": "@BONEZONE",
+		"description": "My scheduled guest, the 'Psychic Squirrel', just cancelled. I need a hero to come on the show right now! We'll talk capes. And... justice.",
+		"requirements": [
+			"SURVIVE the live interview with 'The Bone Zone'",
+			"DEFEND the reputation of SDN and heroes"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 4,
+			"MOBILITY": 3,
+			"CHARISMA": 8,
+			"INTELLIGENCE": 6
+		},
+		"position": [
+			630,
+			270
+		],
+		"slots": 1,
+		"difficulty": 2,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 35
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Red Ring Safehouse Raid",
+		"type": "Red Ring",
+		"caller": "@TORRANCEPD",
+		"description": "We've confirmed a Red Ring safehouse in an apartment complex. We're evacuating the building. We need your team to go in, loud and fast.",
+		"requirements": [
+			"BREACH the 4th-floor apartment",
+			"NEUTRALIZE all Red Ring operatives",
+			"SECURE their intelligence and weapons"
+		],
+		"attributes": {
+			"COMBAT": 9,
+			"VIGOR": 7,
+			"MOBILITY": 6,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			660,
+			300
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Illegal Drone Race",
+		"type": "Pursuit",
+		"caller": "@TORRANCEPD",
+		"description": "We've got an illegal drone race happening between the downtown skyscrapers. They're a hazard to air traffic. Shut them down.",
+		"requirements": [
+			"PURSUE the racing drones",
+			"DISABLE the drones with non-lethal means",
+			"LOCATE and apprehend the pilots"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 5,
+			"MOBILITY": 9,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 7
+		},
+		"position": [
+			550,
+			280
+		],
+		"slots": 3,
+		"difficulty": 3,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Stuck Elevator",
+		"type": "Minor Inconvenience",
+		"caller": "@IBSSURVIVOR69",
+		"description": "I'm stuck! In the VAND-CO tower elevator! And it's playing horrible jazz! Get me out! Please!",
+		"requirements": [
+			"PRY open the elevator doors",
+			"RESCUE the trapped civilian"
+		],
+		"attributes": {
+			"COMBAT": 2,
+			"VIGOR": 8,
+			"MOBILITY": 2,
+			"CHARISMA": 4,
+			"INTELLIGENCE": 1
+		},
+		"position": [
+			780,
+			250
+		],
+		"slots": 1,
+		"difficulty": 1,
+		"failure": {
+			"duration": 50
+		},
+		"success": {
+			"duration": 15
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Refinery Overload",
+		"type": "Security",
+		"caller": "Redrock Refinery Ops",
+		"description": "The main processing core is overloading! All our automated safeties are failing. Someone needs to get to the manual override inside the core housing.",
+		"requirements": [
+			"ENTER the hazardous core housing",
+			"SURVIVE the extreme heat and pressure",
+			"ACTIVATE the manual override lever"
+		],
+		"attributes": {
+			"COMBAT": 5,
+			"VIGOR": 10,
+			"MOBILITY": 7,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			830,
+			220
+		],
+		"slots": 3,
+		"difficulty": 5,
+		"failure": {
+			"duration": 20
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "VANDLABS Creature Loose",
+		"type": "Assault",
+		"caller": "LUCAS / @VANDLABS",
+		"description": "Experiment 42-B is loose! It's a silicon-based wolf and it's eating the servers. Stop it before it eats the mainfraime!",
+		"requirements": [
+			"TRACK the 'Silicon Wolf'",
+			"SUBDUE the creature",
+			"RETURN it to VANDLABS containment"
+		],
+		"attributes": {
+			"COMBAT": 7,
+			"VIGOR": 6,
+			"MOBILITY": 8,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			760,
+			310
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Red Ring Protection Racket",
+		"type": "Investigation",
+		"caller": "KIM / @KIMMART",
+		"description": "The Red Ring is offering 'protection' to my store for a fee. I said no. Now my windows are broken. Help.",
+		"requirements": [
+			"GO undercover as a new shop owner",
+			"GATHER evidence of the extortion",
+			"AMBUSH and capture the Red Ring thugs"
+		],
+		"attributes": {
+			"COMBAT": 6,
+			"VIGOR": 5,
+			"MOBILITY": 6,
+			"CHARISMA": 7,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			390,
+			320
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 50
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Movie Premiere Security",
+		"type": "Social Event",
+		"caller": "LIAM / @IAMLIAMTOWERS",
+		"description": "It's the 'Mecha-Man 3' premiere! We need heroes on the red carpet. Look good, smile for the cameras, and gently manage the fans.",
+		"requirements": [
+			"PATROL the red carpet",
+			"PROVIDE security and crowd control"
+		],
+		"attributes": {
+			"COMBAT": 3,
+			"VIGOR": 6,
+			"MOBILITY": 4,
+			"CHARISMA": 8,
+			"INTELLIGENCE": 2
+		},
+		"position": [
+			470,
+			280
+		],
+		"slots": 2,
+		"difficulty": 2,
+		"failure": {
+			"duration": 70
+		},
+		"success": {
+			"duration": 35
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Train Uncoupled",
+		"type": "Rescue",
+		"caller": "@TORRANCETRAK",
+		"description": "The last three cars of the 10:15 passenger train have uncoupled! They're rolling backward down the hill toward the station!",
+		"requirements": [
+			"CATCH up to the runaway train cars",
+			"BRING the cars to a safe stop",
+			"CALM the panicking passengers"
+		],
+		"attributes": {
+			"COMBAT": 5,
+			"VIGOR": 9,
+			"MOBILITY": 8,
+			"CHARISMA": 3,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			680,
+			240
+		],
+		"slots": 3,
+		"difficulty": 3,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Rival Hero PR Stunt",
+		"type": "Security",
+		"caller": "@TorranceTrends",
+		"description": "One of those influencer-heroes is staging a fake monster attack at the mall for views. Stop him.",
+		"requirements": [
+			"INTERRUPT the fake attack",
+			"EXPOSE the hero's stunt",
+			"MANAGE the confused crowd"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 6,
+			"MOBILITY": 5,
+			"CHARISMA": 7,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			430,
+			260
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 45
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Red Ring Port Ambush",
+		"type": "Red Ring",
+		"caller": "Torrance Marina Patrol",
+		"description": "A Red Ring squad just ambushed a police checkpoint at the port! They're heavily armed. We need immediate backup!",
+		"requirements": [
+			"REINFORCE the TPD checkpoint",
+			"DEFEND the officers",
+			"NEUTRALIZE the Red Ring assault squad"
+		],
+		"attributes": {
+			"COMBAT": 9,
+			"VIGOR": 8,
+			"MOBILITY": 6,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			220,
+			270
+		],
+		"slots": 4,
+		"difficulty": 4,
+		"failure": {
+			"duration": 20
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Ghost Ship",
+		"type": "Investigation",
+		"caller": "Torrance Marina Patrol",
+		"description": "A yacht just drifted into the marina with no one on board. The engine is cold. It's spooky.",
+		"requirements": [
+			"BOARD the ghost yacht",
+			"INVESTIGATE the scene for clues",
+			"DETERMINE what happened to the crew"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 5,
+			"MOBILITY": 7,
+			"CHARISMA": 4,
+			"INTELLIGENCE": 6
+		},
+		"position": [
+			230,
+			280
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 50
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": false
+	},
+	{
+		"name": "VAND-CO Food Truck",
+		"type": "Assault",
+		"caller": "@SDNTIPLINE",
+		"description": "A VAND-CO food truck is handing out free tacos... but the tacos are exploding! With... condiments!",
+		"requirements": [
+			"EVADE the taco projectiles",
+			"DISABLE the food truck's defenses",
+			"APPREHEND the rogue chef-bot"
+		],
+		"attributes": {
+			"COMBAT": 6,
+			"VIGOR": 7,
+			"MOBILITY": 8,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			700,
+			300
+		],
+		"slots": 3,
+		"difficulty": 3,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Lost Mascot",
+		"type": "Minor Inconvenience",
+		"caller": "TRENT / @TORRANCETURTS",
+		"description": "It's Terrence, our mascot. The student inside is fine, but the costume is missing. He left it somewhere.",
+		"requirements": [
+			"RETRACE the mascot's steps",
+			"LOCATE the 'Terrence' costume"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 3,
+			"MOBILITY": 6,
+			"CHARISMA": 4,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			400,
+			230
+		],
+		"slots": 1,
+		"difficulty": 1,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 15
+		},
+		"dangerous": false
+	},
+	{
+		"name": "City Hall Statue Attack",
+		"type": "Assault",
+		"caller": "Mayor's Office",
+		"description": "The Founder's Statue at City Hall is alive! And it's throwing park benches at the Mayor!",
+		"requirements": [
+			"SUBDUE the animated statue",
+			"PROTECT the Mayor",
+			"RESTRAIN the historical figure"
+		],
+		"attributes": {
+			"COMBAT": 8,
+			"VIGOR": 8,
+			"MOBILITY": 5,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			500,
+			230
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Red Ring Hacker Van",
+		"type": "Red Ring",
+		"caller": "GALEN / @SDN-T",
+		"description": "We've located a Red Ring hacker van parked near the VAND-CO tower. They're trying to breach the network. We need that van intact.",
+		"requirements": [
+			"INFILTRATE the area silently",
+			"NEUTRALIZE the guards",
+			"SECURE the van and the hacker"
+		],
+		"attributes": {
+			"COMBAT": 6,
+			"VIGOR": 5,
+			"MOBILITY": 8,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 7
+		},
+		"position": [
+			770,
+			260
+		],
+		"slots": 2,
+		"difficulty": 4,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Space Junk Crash",
+		"type": "Natural Disaster",
+		"caller": "@TORRANCEPD",
+		"description": "Something big just crashed in the refinery parking lot. It looks like a satellite. And it's on fire.",
+		"requirements": [
+			"SECURE the crash site perimeter",
+			"EXTINGUISH the chemical fire",
+			"ANALYZE the 'space junk' for clues"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 8,
+			"MOBILITY": 6,
+			"CHARISMA": 3,
+			"INTELLIGENCE": 6
+		},
+		"position": [
+			800,
+			200
+		],
+		"slots": 3,
+		"difficulty": 3,
+		"failure": {
+			"duration": 35
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Gourmet Hot Dog Theft",
+		"type": "Minor Inconvenience",
+		"caller": "@SDNTIPLINE",
+		"description": "A man just stole my gourmet hot dog. He ran into an alley. I need justice!",
+		"requirements": [
+			"TRACK the hot dog thief"
+		],
+		"attributes": {
+			"COMBAT": 2,
+			"VIGOR": 3,
+			"MOBILITY": 7,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 1
+		},
+		"position": [
+			600,
+			310
+		],
+		"slots": 1,
+		"difficulty": 1,
+		"failure": {
+			"duration": 50
+		},
+		"success": {
+			"duration": 15
+		},
+		"dangerous": false
+	},
+	{
+		"name": "VAND-CO Sky-Show Failure",
+		"type": "Rescue",
+		"caller": "@VANDCO",
+		"description": "Our VAND-CO Promotional Drone Show has failed. The drones are falling from the sky over downtown! Catch them!",
+		"requirements": [
+			"INTERCEPT the falling drones",
+			"PROTECT the civilians below",
+			"SECURE the drone payloads"
+		],
+		"attributes": {
+			"COMBAT": 3,
+			"VIGOR": 7,
+			"MOBILITY": 9,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			530,
+			280
+		],
+		"slots": 3,
+		"difficulty": 3,
+		"failure": {
+			"duration": 20
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Political Rally Brawl",
+		"type": "Social Event",
+		"caller": "@TORRANCEPD",
+		"description": "Two rival political rallies booked the plaza at the same time. Now they're brawling. Separate them.",
+		"requirements": [
+			"CREATE a human barrier",
+			"DE-ESCALATE the political brawl",
+			"NEGOTIATE a truce"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 8,
+			"MOBILITY": 5,
+			"CHARISMA": 7,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			480,
+			280
+		],
+		"slots": 3,
+		"difficulty": 3,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Red Ring Subway Base",
+		"type": "Red Ring",
+		"caller": "@TORRANCEPD",
+		"description": "We've found a Red Ring hideout in the abandoned subway station. Intel says it's a staging ground. Clear it out.",
+		"requirements": [
+			"BREACH the subway station",
+			"CLEAR the tunnels of Red Ring thugs",
+			"SECURE their operations map"
+		],
+		"attributes": {
+			"COMBAT": 8,
+			"VIGOR": 7,
+			"MOBILITY": 7,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			450,
+			350
+		],
+		"slots": 4,
+		"difficulty": 4,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Escaped Balloons",
+		"type": "Minor Inconvenience",
+		"caller": "@SDNTIPLINE",
+		"description": "A clown... his entire inventory of balloons... he let go. They're blocking the sun. It's creepy.",
+		"requirements": [
+			"RETRIEVE the massive clump of balloons"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 3,
+			"MOBILITY": 7,
+			"CHARISMA": 4,
+			"INTELLIGENCE": 1
+		},
+		"position": [
+			500,
+			200
+		],
+		"slots": 1,
+		"difficulty": 1,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 15
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Sewer Monster Sighting",
+		"type": "Investigation",
+		"caller": "@SDNTIPLINE",
+		"description": "I saw it! In the sewer grate! Green eyes. And... tentacles! It grabbed a rat!",
+		"requirements": [
+			"ENTER the sewer system",
+			"TRACK the creature",
+			"CONFIRM or debunk the sighting"
+		],
+		"attributes": {
+			"COMBAT": 3,
+			"VIGOR": 7,
+			"MOBILITY": 6,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			380,
+			330
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 45
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Rogue A.I. Therapist",
+		"type": "Investigation",
+		"caller": "@TORRMEDICAL",
+		"description": "Our new VAND-CO A.I. Therapist is giving bad advice. It told a patient to 'embrace their chaos' and 'burn it all down'. We need to shut it down.",
+		"requirements": [
+			"ACCESS the hospital server room",
+			"BYPASS the A.I.'s defenses",
+			"DECOMMISSION the rogue A.I."
+		],
+		"attributes": {
+			"COMBAT": 2,
+			"VIGOR": 4,
+			"MOBILITY": 6,
+			"CHARISMA": 5,
+			"INTELLIGENCE": 8
+		},
+		"position": [
+			590,
+			300
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 50
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "VAND-CO Tanker Heist",
+		"type": "Pursuit",
+		"caller": "@TORRANCEPD",
+		"description": "A 'Redline' crew just hijacked a VAND-CO tanker truck full of... unknown chemicals. They're on the I-5.",
+		"requirements": [
+			"PURSUE the hijacked tanker",
+			"PERFORM a high-speed boarding",
+			"SECURE the truck and the chemicals"
+		],
+		"attributes": {
+			"COMBAT": 7,
+			"VIGOR": 8,
+			"MOBILITY": 9,
+			"CHARISMA": 1,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			740,
+			250
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Library Fire",
+		"type": "Rescue",
+		"caller": "@TORRANCEFD",
+		"description": "The West Torrance Library is on fire! We think it's arson. We have people trapped in the basement!",
+		"requirements": [
+			"ENTER the burning building",
+			"NAVIGATE the smoke-filled basement",
+			"RESCUE the trapped civilians"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 9,
+			"MOBILITY": 7,
+			"CHARISMA": 4,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			360,
+			270
+		],
+		"slots": 3,
+		"difficulty": 3,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Charity Auction Security",
+		"type": "Security",
+		"caller": "GENA / @VAZLAV",
+		"description": "My client is attending a high-profile charity auction at the museum. I expect... uninvited guests. Keep your eyes open.",
+		"requirements": [
+			"PROVIDE close protection for the client",
+			"MONITOR the crowd for threats",
+			"NEUTRALIZE any assassins"
+		],
+		"attributes": {
+			"COMBAT": 6,
+			"VIGOR": 7,
+			"MOBILITY": 6,
+			"CHARISMA": 4,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			510,
+			240
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 35
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Red Ring 'Peace' Talks",
+		"type": "Red Ring",
+		"caller": "GALEN / @SDN-T",
+		"description": "The Red Ring wants 'peace talks'. At the Gigaburger. It's obviously a trap. Play along... but be ready.",
+		"requirements": [
+			"ATTEND the 'peace talks' undercover",
+			"IDENTIFY the Red Ring negotiator",
+			"SURVIVE the inevitable ambush"
+		],
+		"attributes": {
+			"COMBAT": 6,
+			"VIGOR": 6,
+			"MOBILITY": 7,
+			"CHARISMA": 8,
+			"INTELLIGENCE": 7
+		},
+		"position": [
+			570,
+			320
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Lost Time Traveler",
+		"type": "Investigation",
+		"caller": "@SDNTIPLINE",
+		"description": "There's a man in the plaza in a shiny suit. He says he's from the future and needs 'plutonium'. Is this... your problem?",
+		"requirements": [
+			"LOCATE the 'time traveler'",
+			"ASSESS his technology",
+			"BRING him in for questioning"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 4,
+			"MOBILITY": 5,
+			"CHARISMA": 7,
+			"INTELLIGENCE": 8
+		},
+		"position": [
+			500,
+			230
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Alien Landing",
+		"type": "Natural Disaster",
+		"caller": "@TORRANCEPD",
+		"description": "A ship just landed. Right in the refinery. It doesn't look VAND-CO. Or... human. Secure the scene.",
+		"requirements": [
+			"ESTABLISH first contact",
+			"SECURE the refinery perimeter",
+			"PREVENT inter-galactic war"
+		],
+		"attributes": {
+			"COMBAT": 5,
+			"VIGOR": 8,
+			"MOBILITY": 6,
+			"CHARISMA": 9,
+			"INTELLIGENCE": 7
+		},
+		"position": [
+			820,
+			210
+		],
+		"slots": 4,
+		"difficulty": 5,
+		"failure": {
+			"duration": 30
+		},
+		"success": {
+			"duration": 40
+		},
+		"dangerous": true
+	},
+	{
+		"name": "VAND-CO Robo-Dog",
+		"type": "Pursuit",
+		"caller": "@VANDCO",
+		"description": "An experimental Robo-Dog prototype has escaped. It's fast. And it thinks cars are chew-toys. Retrieve it.",
+		"requirements": [
+			"PURSUE the Robo-Dog",
+			"CONTAIN it without damage"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 6,
+			"MOBILITY": 9,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			770,
+			240
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Red Ring Museum Party",
+		"type": "Red Ring",
+		"caller": "CURATOR / @TORRMOA",
+		"description": "The Red Ring is hosting a 'gala' at the museum. They booked it under a fake name. Crash this party.",
+		"requirements": [
+			"INFILTRATE the gala",
+			"IDENTIFY the Red Ring leaders",
+			"NEUTRALIZE the command structure"
+		],
+		"attributes": {
+			"COMBAT": 4,
+			"VIGOR": 6,
+			"MOBILITY": 8,
+			"CHARISMA": 7,
+			"INTELLIGENCE": 5
+		},
+		"position": [
+			510,
+			240
+		],
+		"slots": 3,
+		"difficulty": 4,
+		"failure": {
+			"duration": 35
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Stolen Ambulance Parts",
+		"type": "Investigation",
+		"caller": "@TORRMEDICAL",
+		"description": "Someone is stealing parts from our ambulances. Sirens, tires, gurneys. Why?! Find them.",
+		"requirements": [
+			"INVESTIGATE the thefts",
+			"STAKE-OUT the ambulance bay",
+			"APPREHEND the unusual thief"
+		],
+		"attributes": {
+			"COMBAT": 3,
+			"VIGOR": 4,
+			"MOBILITY": 7,
+			"CHARISMA": 4,
+			"INTELLIGENCE": 6
+		},
+		"position": [
+			590,
+			300
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 50
+		},
+		"success": {
+			"duration": 25
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Zombie Movie Night",
+		"type": "Social Event",
+		"caller": "SECURITY / @TORRCOLLEGE",
+		"description": "The college is hosting a zombie movie marathon on the quad. We need security. In case it gets 'too real'.",
+		"requirements": [
+			"MONITOR the student crowd",
+			"PROVIDE a calming presence"
+		],
+		"attributes": {
+			"COMBAT": 2,
+			"VIGOR": 5,
+			"MOBILITY": 3,
+			"CHARISMA": 6,
+			"INTELLIGENCE": 3
+		},
+		"position": [
+			410,
+			210
+		],
+		"slots": 2,
+		"difficulty": 2,
+		"failure": {
+			"duration": 70
+		},
+		"success": {
+			"duration": 30
+		},
+		"dangerous": false
+	},
+	{
+		"name": "Aggressive Recycling",
+		"type": "Minor Inconvenience",
+		"caller": "@SDNTIPLINE",
+		"description": "My neighbor is a 'recycling vigilante'. He is stealing my trash and sorting it on my lawn. Make him stop.",
+		"requirements": [
+			"MEDIATE the recycling dispute",
+			"CONVINCE the neighbor to desist"
+		],
+		"attributes": {
+			"COMBAT": 1,
+			"VIGOR": 4,
+			"MOBILITY": 3,
+			"CHARISMA": 5,
+			"INTELLIGENCE": 2
+		},
+		"position": [
+			680,
+			290
+		],
+		"slots": 1,
+		"difficulty": 1,
+		"failure": {
+			"duration": 60
+		},
+		"success": {
+			"duration": 15
+		},
+		"dangerous": false
+	},
+	{
+		"name": "VAND-CO Weather Balloon",
+		"type": "Rescue",
+		"caller": "@VANDCO",
+		"description": "A VAND-CO weather balloon has lost altitude... and the scientist is still in it! It's heading for the ocean. Catch it!",
+		"requirements": [
+			"INTERCEPT the falling balloon",
+			"RESCUE the scientist"
+		],
+		"attributes": {
+			"COMBAT": 3,
+			"VIGOR": 7,
+			"MOBILITY": 9,
+			"CHARISMA": 2,
+			"INTELLIGENCE": 4
+		},
+		"position": [
+			250,
+			330
+		],
+		"slots": 2,
+		"difficulty": 3,
+		"failure": {
+			"duration": 25
+		},
+		"success": {
+			"duration": 20
+		},
+		"dangerous": true
+	},
+	{
+		"name": "Red Ring HQ Found",
+		"type": "Red Ring",
+		"caller": "GALEN / @SDN-T",
+		"description": "This is it. We've found their main HQ. Under the Gigaburger. I'm not kidding. Full tactical assault. End this.",
+		"requirements": [
+			"BREACH the HQ entrance",
+			"FIGHT through to the command center",
+			"CAPTURE the Red Ring Mastermind"
+		],
+		"attributes": {
+			"COMBAT": 10,
+			"VIGOR": 9,
+			"MOBILITY": 8,
+			"CHARISMA": 3,
+			"INTELLIGENCE": 6
+		},
+		"position": [
+			570,
+			320
+		],
+		"slots": 4,
+		"difficulty": 5,
+		"failure": {
+			"duration": 20
+		},
+		"success": {
+			"duration": 40
+		},
+		"dangerous": true
+	}
+]

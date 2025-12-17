@@ -1,6 +1,7 @@
 #include <cctype>
 #include <tuple>
 #include <memory>
+#include <typeinfo>
 
 #include <Utils.hpp>
 #include <Common.hpp>
@@ -8,50 +9,14 @@
 #include <Mission.hpp>
 #include <CityMap.hpp>
 #include <HeroesHandler.hpp>
+#include <Power.hpp>
+#include <Attribute.hpp>
 
-Hero::Hero(const JSONish::Node& data) {
-	name = data.get<std::string>("name");
-	Utils::println("Initializing hero", name);
-	nickname = data.get<std::string>("nickname", "?");
-	if (data.has("bio")) {
-		auto& dataBio = data["bio"];
-		for (const auto& [key, val] : dataBio.obj) bio[key] = dataBio.get<std::string>(key);
-	} // else throw std::invalid_argument("Hero 'bio' cannot be empty");
+using nlohmann::json;
 
-	flies = data.get<bool>("flies", false);
-
-	travelSpeedMult = data.get<float>("travelSpeedMult", 1.0f);
-	restingTime = data.get<float>("restingTime", 10.0f);
-
-	level = data.get<int>("level", 1);
-	exp = data.get<int>("exp", 0);
-	skillPoints = data.get<int>("skillPoints", 0);
-
-	if (data.has("tags")) for (auto& tag : data["tags"].arr) tags.push_back(tag.sval);
-	if (data.has("attributes")) {
-		auto& attributes = data["attributes"];
-		for (Attribute attr : Attribute::Values) real_attributes[attr] = attributes.get<int>(Utils::toLower((std::string)attr.toString()));
-	} else throw std::invalid_argument("Hero 'attributes' cannot be empty");
-	if (data.has("powers")) {
-		auto& pwrs = data["powers"];
-		for (const auto& pwrData : pwrs.arr) powers.emplace_back(pwrData, (int)powers.size() == 0);
-	} // else throw std::invalid_argument("Hero 'powers' cannot be empty");
-
-	std::string path_full = std::format("resources/images/heroes/{}/full-image.png", name);
-	std::string path_portrait = std::format("resources/images/heroes/{}/base-portrait.png", name);
-	std::string path_wounded = std::format("resources/images/heroes/{}/wounded-portrait.png", name);
-	std::string path_mugshot = std::format("resources/images/heroes/{}/mugshot.jpg", name);
-	if (data.has("images")) {
-		auto& imagesData = data["images"];
-		path_full = imagesData.get<std::string>("full", path_full);
-		path_portrait = imagesData.get<std::string>("portrait", path_portrait);
-		path_wounded = imagesData.get<std::string>("wounded", path_wounded);
-		path_mugshot = imagesData.get<std::string>("mugshot", path_mugshot);
-	}
-	imgs["full"] = raylib::Texture(path_full);
-	imgs["portrait"] = raylib::Texture(path_portrait);
-	imgs["wounded"] = raylib::Texture(path_wounded);
-	imgs["mugshot"] = raylib::Texture(path_mugshot);
+Hero::Hero(const json& data) {
+	Utils::println("Initializing hero", data.at("name").get<std::string>());
+	Hero::from_json(data, *this);
 }
 
 AttrMap<int> Hero::attributes() const {
@@ -279,4 +244,81 @@ std::string_view Hero::HealthToString(Health hlt) {
 	if (hlt == WOUNDED) return "WOUNDED";
 	if (hlt == DOWNED) return "DOWNED";
 	throw std::invalid_argument("Invalid health");
+}
+
+
+#define READ(j, var)		hero.var = j.value(#var, hero.var)
+#define READREQ(j, var) { \
+							if (j.contains(#var)) hero.var = j.at(#var).get<decltype(hero.var)>(); \
+							else throw std::invalid_argument("Hero '" + std::string(#var) + "' cannot be empty"); \
+						}
+#define READ2(j, var, key)	hero.var = j.value(#key, hero.var)
+#define READREQ2(j, var, key) { \
+							if (j.contains(#key)) hero.var = j.at(#key).get<decltype(hero.var)>(); \
+							else throw std::invalid_argument("Hero '" + std::string(#key) + "' cannot be empty"); \
+						}
+
+void Hero::to_json(nlohmann::json& j, const Hero& hero) {
+	j = json{
+		{"name", hero.name},
+		{"nickname", hero.nickname},
+		{"tags", hero.tags},
+		{"bio", hero.bio},
+		{"images", hero.img_paths},
+		{"attributes", hero.real_attributes},
+		{"unconfirmed_attributes", hero.unconfirmed_attributes},
+		{"powers", hero.powers},
+		{"status", hero.status},
+		{"health", hero.health},
+		{"travelSpeedMult", hero.travelSpeedMult},
+		{"elapsedTime", hero.elapsedTime},
+		{"finishTime", hero.finishTime},
+		{"restingTime", hero.restingTime},
+		{"flies", hero.flies},
+		{"level", hero.level},
+		{"exp", hero.exp},
+		{"skillPoints", hero.skillPoints},
+		{"mission", hero.mission.lock()->name},
+		{"pos", hero.pos},
+		{"path", hero.path},
+	};
+}
+void Hero::from_json(const nlohmann::json& j, Hero& hero) {
+	READREQ(j, name);
+	READ(j, nickname);
+	READ(j, tags);
+	READ(j, bio);
+
+	hero.img_paths["full"] = std::format("resources/images/heroes/{}/full-image.png", hero.name);
+	hero.img_paths["portrait"] = std::format("resources/images/heroes/{}/base-portrait.png", hero.name);
+	hero.img_paths["wounded"] = std::format("resources/images/heroes/{}/wounded-portrait.png", hero.name);
+	hero.img_paths["mugshot"] = std::format("resources/images/heroes/{}/mugshot.jpg", hero.name);
+	if (j.contains("images")) {
+		auto& imagesData = j["images"];
+		READ2(imagesData, img_paths["full"], full);
+		READ2(imagesData, img_paths["portrait"], portrait);
+		READ2(imagesData, img_paths["wounded"], wounded);
+		READ2(imagesData, img_paths["mugshot"], mugshot);
+	}
+	hero.imgs["full"] = raylib::Texture(hero.img_paths["full"]);
+	hero.imgs["portrait"] = raylib::Texture(hero.img_paths["portrait"]);
+	hero.imgs["wounded"] = raylib::Texture(hero.img_paths["wounded"]);
+	hero.imgs["mugshot"] = raylib::Texture(hero.img_paths["mugshot"]);
+
+	READREQ2(j, real_attributes, attributes);
+	READ(j, unconfirmed_attributes);
+	READ(j, powers);
+	READ(j, status);
+	READ(j, health);
+	READ(j, travelSpeedMult);
+	READ(j, elapsedTime);
+	READ(j, finishTime);
+	READ(j, restingTime);
+	READ(j, flies);
+	READ(j, level);
+	READ(j, exp);
+	READ(j, skillPoints);
+	// READ(j, mission); TODO
+	READ(j, pos);
+	READ(j, path);
 }

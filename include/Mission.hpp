@@ -6,12 +6,13 @@
 #include <iostream>
 #include <memory>
 
+#include <nlohmann/json.hpp>
+
 class Mission;
 
 #include <raylib-cpp.hpp>
 #include <Attribute.hpp>
 #include <Hero.hpp>
-#include <JSONish.hpp>
 
 class Disruption {
 public:
@@ -20,12 +21,18 @@ public:
 		int value;
 		enum Type { HERO, ATTRIBUTE } type;
 		bool disabled = false;
+
+		static void to_json(nlohmann::json& j, const Option& option);
+		static void from_json(const nlohmann::json& j, Option& option);
 	};
 	std::vector<Option> options;
 	std::string description;
 	float timeout, elapsedTime;
 	int selected_option = -1;
 	std::vector<raylib::Rectangle> optionButtons;
+
+	static void to_json(nlohmann::json& j, const Disruption& disruption);
+	static void from_json(const nlohmann::json& j, Disruption& disruption);
 };
 
 class Mission : public std::enable_shared_from_this<Mission> {
@@ -44,34 +51,23 @@ public:
 		MISSED,
 		DISRUPTION,
 		DISRUPTION_MENU
-	};
+	} status{PENDING};
 
 	std::string name, type, caller, description, failureMsg="MISSION FAILED", failureMission, successMsg="MISSION COMPLETED", successMission;
 	std::vector<std::string> requirements;
 	std::vector<Disruption> disruptions;
 	raylib::Vector2 position{0.0f, 0.0f};
 	AttrMap<int> requiredAttributes{};
-	int slots;
-	int difficulty = 1;
-	float failureTime = 60.0f;
-	float missionDuration = 20.0f;
-	float failureMissionTime = 0.0f;
-	float successMissionTime = 0.0f;
-	bool dangerous = false;
-	bool triggered = false;
-	bool disrupted = false;
-	int curDisruption = -1;
-
+	int slots, difficulty=1, curDisruption=-1;
+	float failureTime=60.0f, missionDuration=20.0f, failureMissionTime=0.0f, successMissionTime=0.0f, timeElapsed=0.0f;
+	bool dangerous=false, triggered=false, disrupted=false;
 	std::set<std::shared_ptr<Hero>> assignedHeroes{};
-	Status status = Mission::PENDING;
-	float timeElapsed = 0.0f;
 
 	Mission(const std::string& name, const std::string& type, const std::string& caller, const std::string& description, const std::string& failureMsg, const std::string& failureMission, const std::string& successMsg, const std::string& successMission, const std::vector<std::string>& requirements, raylib::Vector2 pos, const std::map<std::string,int> &attr, int slots, int difficulty, float failureTime, float missionDuration, float failureMissionTimeool, float successMissionTime, bool dangerous);
-	Mission(const JSONish::Node& data);
+	Mission(const nlohmann::json& data);
 	Mission(const Mission&) = delete;
 	Mission& operator=(const Mission&) = delete;
 
-	void load(const JSONish::Node& data);
 	void validate() const;
 
 	void toggleHero(std::shared_ptr<Hero> hero);
@@ -92,4 +88,46 @@ public:
 	bool isMenuOpen() const;
 
 	static std::string statusToString(Status st);
+
+	static void to_json(nlohmann::json& j, const Mission& mission);
+	static void from_json(const nlohmann::json& j, Mission& mission);
 };
+
+namespace nlohmann {
+	template <>
+	struct adl_serializer<Mission> {
+		static void to_json(json& j, const Mission& mission) { Mission::to_json(j, mission); }
+		static void from_json(const json& j, Mission& mission) { Mission::from_json(j, mission); }
+	};
+
+	NLOHMANN_JSON_SERIALIZE_ENUM( Mission::Status, {
+		{ Mission::Status::PENDING, "pending" },
+		{ Mission::Status::SELECTED, "selected" },
+		{ Mission::Status::TRAVELLING, "travelling" },
+		{ Mission::Status::PROGRESS, "progress" },
+		{ Mission::Status::AWAITING_REVIEW, "awaiting_review" },
+		{ Mission::Status::REVIEWING_SUCESS, "reviewing_sucess" },
+		{ Mission::Status::REVIEWING_FAILURE, "reviewing_failure" },
+		{ Mission::Status::DONE, "done" },
+		{ Mission::Status::MISSED, "missed" },
+		{ Mission::Status::DISRUPTION, "disruption" },
+		{ Mission::Status::DISRUPTION_MENU, "disruption_menu" },
+	});
+
+	template <>
+	struct adl_serializer<Disruption> {
+		static void to_json(json& j, const Disruption& disruption) { Disruption::to_json(j, disruption); }
+		static void from_json(const json& j, Disruption& disruption) { Disruption::from_json(j, disruption); }
+	};
+
+	template <>
+	struct adl_serializer<Disruption::Option> {
+		static void to_json(json& j, const Disruption::Option& option) { Disruption::Option::to_json(j, option); }
+		static void from_json(const json& j, Disruption::Option& option) { Disruption::Option::from_json(j, option); }
+	};
+
+	NLOHMANN_JSON_SERIALIZE_ENUM( Disruption::Option::Type, {
+		{ Disruption::Option::Type::HERO, "hero" },
+		{ Disruption::Option::Type::ATTRIBUTE, "attribute" },
+	});
+}

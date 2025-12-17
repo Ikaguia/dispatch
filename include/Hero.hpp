@@ -4,21 +4,21 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <nlohmann/json.hpp>
 
 class Hero;
 
 #include <Attribute.hpp>
 #include <Mission.hpp>
-#include <JSONish.hpp>
 #include <Power.hpp>
 
 class Hero : public std::enable_shared_from_this<Hero> {
 private:
 	AttrMap<int> real_attributes;
 public:
-	std::string name, nickname;
+	std::string name, nickname{"?"};
 	std::vector<std::string> tags;
-	std::map<std::string, std::string> bio;
+	std::map<std::string, std::string> bio, img_paths;
 	std::map<std::string, raylib::Texture> imgs;
 	AttrMap<int> unconfirmed_attributes;
 	std::vector<Power> powers;
@@ -32,27 +32,20 @@ public:
 		AVAILABLE,
 		UNAVAILABLE,
 		AWAITING_REVIEW
-	};
+	} status{AVAILABLE};
 	enum Health {
 		NORMAL,
 		WOUNDED,
 		DOWNED
-	};
-	Health health=NORMAL;
-	float travelSpeedMult = 1.0f;
-	float elapsedTime = 0.0f;
-	float finishTime = 0.0f;
-	float restingTime = 10.0f;
-	bool flies = false;
-	int level = 1;
-	int exp = 0;
-	int skillPoints = 0;
-	Status status{Hero::AVAILABLE};
+	} health{NORMAL};
+	float travelSpeedMult=1.0f, elapsedTime=0.0f, finishTime=0.0f, restingTime=10.0f;
+	bool flies=false;
+	int level=1, exp=0, skillPoints=0;
 	std::weak_ptr<Mission> mission{};
 	raylib::Vector2 pos{500, 200}, path;
 	raylib::Rectangle uiRect{};
 
-	Hero(const JSONish::Node& data);
+	Hero(const nlohmann::json& data);
 
 	Hero(const Hero&) = delete;
 	Hero& operator=(const Hero&) = delete;
@@ -81,4 +74,32 @@ public:
 
 	static std::string_view StatusToString(Status st);
 	static std::string_view HealthToString(Health hlt);
+
+	static void to_json(nlohmann::json& j, const Hero& hero);
+	static void from_json(const nlohmann::json& j, Hero& hero);
 };
+
+namespace nlohmann {
+	template <>
+	struct adl_serializer<Hero> {
+		static void to_json(json& j, const Hero& hero) { Hero::to_json(j, hero); }
+		static void from_json(const json& j, Hero& hero) { Hero::from_json(j, hero); }
+	};
+
+	NLOHMANN_JSON_SERIALIZE_ENUM( Hero::Status, {
+		{ Hero::Status::UNAVAILABLE, nullptr },
+		{ Hero::Status::ASSIGNED, "assigned" },
+		{ Hero::Status::TRAVELLING, "travelling" },
+		{ Hero::Status::WORKING, "working" },
+		{ Hero::Status::DISRUPTED, "disrupted" },
+		{ Hero::Status::RETURNING, "returning" },
+		{ Hero::Status::RESTING, "resting" },
+		{ Hero::Status::AVAILABLE, "available" },
+		{ Hero::Status::AWAITING_REVIEW, "awaiting_review" },
+	});
+	NLOHMANN_JSON_SERIALIZE_ENUM( Hero::Health, {
+		{ Hero::Health::NORMAL, "normal" },
+		{ Hero::Health::WOUNDED, "wounded" },
+		{ Hero::Health::DOWNED, "downed" },
+	});
+}

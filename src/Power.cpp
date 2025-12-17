@@ -1,9 +1,10 @@
 #include <Power.hpp>
+using nlohmann::json;
 
-Power::Power(const JSONish::Node& data, bool unlock) {
-	name = data.get<std::string>("name");
-	description = data.get<std::string>("description");
+Power::Power(const json& data, bool unlock) {
+	name = data.at("name").get<std::string>();
+	description = data.at("description").get<std::string>();
 
-	unlocked = data.get<bool>("unlocked", unlock);
-	flight = data.get<bool>("flight", false);
+	unlocked = data.value("unlocked", unlock);
+	flight = data.value("flight", false);
 }
