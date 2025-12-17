@@ -43,13 +43,25 @@ namespace Dispatch::UI {
 	const bool Element::colidesWith(const raylib::Rectangle& other) const { return boundingRect().CheckCollision(other); }
 
 	void Element::render() {
-		raylib::Rectangle renderRect = boundingRect();
+		raylib::Rectangle outterRect = boundingRect();
+		raylib::Rectangle innerRect = subElementsRect();
+		
 		if ((shadowOffset.x != 0 || shadowOffset.y != 0) && shadowColor.a != 0) {
-			raylib::Rectangle{renderRect.GetPosition() + shadowOffset, renderRect.GetSize()}.Draw(ColorAlpha(shadowColor, 1));
+			raylib::Rectangle shadowRect{outterRect.GetPosition() + shadowOffset, outterRect.GetSize()};
+			if (roundnessSegments > 0) shadowRect.DrawRounded(roundness, roundnessSegments, shadowColor);
+			else shadowRect.Draw(shadowColor);
 		}
-		renderRect.Draw(ColorAlpha(GRAY, 1));
-		subElementsRect().Draw(ColorAlpha(LIGHTGRAY, 1));
-		renderRect.DrawLines(BLACK);
+		if (roundnessSegments > 0) {
+			outterRect.DrawRounded(roundness, roundnessSegments, outterColor);
+			innerRect.DrawRounded(roundness, roundnessSegments, innerColor);
+		} else {
+			outterRect.Draw(outterColor);
+			innerRect.Draw(innerColor);
+		}
+		if (borderThickness > 0.0f) {
+			if (roundnessSegments > 0) outterRect.DrawRoundedLines(roundness, roundnessSegments, borderThickness, borderColor);
+			else outterRect.DrawLines(borderColor, borderThickness);
+		}
 		auto& lElements = elements.at(layout_name);
 		for (const std::string& el_id : subElement_ids) lElements.at(el_id)->render();
 	}
@@ -195,7 +207,7 @@ namespace Dispatch::UI {
 
 	std::unique_ptr<Element> elementFactory(std::string type) {
 		if (type == "ELEMENT") return std::make_unique<Element>();
-		// else if (type == "BLOCK") return std::make_unique<Block>();
+		else if (type == "BOX") return std::make_unique<Box>();
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
@@ -240,6 +252,9 @@ namespace Dispatch::UI {
 		for (const std::string& id : top_level_ids) lElements.at(id)->solveLayout();
 	}
 
+}
+
+namespace nlohmann {
 	#define READ(j, var)		inst.var = j.value(#var, inst.var)
 	#define READREQ(j, var) { \
 								if (j.contains(#var)) inst.var = j.at(#var).get<decltype(inst.var)>(); \
@@ -254,9 +269,12 @@ namespace Dispatch::UI {
 	#define WRITE2(var, key)	{#key, inst.var}
 
 	// JSON Serialization
-	void to_json(json& j, const Element& inst) {
+	void to_json(json& j, const Dispatch::UI::Element& inst) {
 		j = json{
 			WRITE(z_order),
+			WRITE(roundnessSegments),
+			WRITE(borderThickness),
+			WRITE(roundness),
 			WRITE(id),
 			WRITE(father_id),
 			// WRITE(layout_name),
@@ -265,13 +283,19 @@ namespace Dispatch::UI {
 			WRITE(shadowOffset),
 			WRITE(outterMargin),
 			WRITE(innerMargin),
+			WRITE(innerColor),
+			WRITE(outterColor),
+			WRITE(borderColor),
 			WRITE(shadowColor),
 			WRITE(verticalConstraint),
 			WRITE(horizontalConstraint),
 		};
 	}
-	void from_json(const json& j, Element& inst) {
+	void from_json(const json& j, Dispatch::UI::Element& inst) {
 		READ(j, z_order);
+		READ(j, roundnessSegments);
+		READ(j, borderThickness);
+		READ(j, roundness);
 		READREQ(j, id);
 		READ(j, father_id);
 		// READ(j, layout_name);
@@ -280,12 +304,58 @@ namespace Dispatch::UI {
 		READ(j, shadowOffset);
 		READ(j, outterMargin);
 		READ(j, innerMargin);
+		READ(j, innerColor);
+		READ(j, outterColor);
+		READ(j, borderColor);
 		READ(j, shadowColor);
 		READREQ(j, verticalConstraint);
 		READREQ(j, horizontalConstraint);
 		inst.origSize = inst.size;
 	}
-	void to_json(json& j, const Element::Constraint& inst) {
+	void to_json(json& j, const Dispatch::UI::Box& inst) {
+		j = json{
+			WRITE(z_order),
+			WRITE(roundnessSegments),
+			WRITE(borderThickness),
+			WRITE(roundness),
+			WRITE(id),
+			WRITE(father_id),
+			// WRITE(layout_name),
+			WRITE(subElement_ids),
+			WRITE(size),
+			WRITE(shadowOffset),
+			WRITE(outterMargin),
+			WRITE(innerMargin),
+			WRITE(innerColor),
+			WRITE(outterColor),
+			WRITE(borderColor),
+			WRITE(shadowColor),
+			WRITE(verticalConstraint),
+			WRITE(horizontalConstraint),
+		};
+	}
+	void from_json(const json& j, Dispatch::UI::Box& inst) {
+		READ(j, z_order);
+		READ(j, roundnessSegments);
+		READ(j, borderThickness);
+		READ(j, roundness);
+		READREQ(j, id);
+		READ(j, father_id);
+		// READ(j, layout_name);
+		READ(j, subElement_ids);
+		READREQ(j, size);
+		READ(j, shadowOffset);
+		READ(j, outterMargin);
+		READ(j, innerMargin);
+		READ(j, innerColor);
+		READ(j, outterColor);
+		READ(j, borderColor);
+		READ(j, shadowColor);
+		READREQ(j, verticalConstraint);
+		READREQ(j, horizontalConstraint);
+		inst.origSize = inst.size;
+	}
+	void to_json(json& j, const Dispatch::UI::Element::Constraint& inst) {
 		j = json{
 			WRITE(offset),
 			WRITE(ratio),
@@ -293,20 +363,20 @@ namespace Dispatch::UI {
 			WRITE(end),
 		};
 	};
-	void from_json(const nlohmann::json& j, Element::Constraint& inst) {
+	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst) {
 		READ(j, offset);
 		READ(j, ratio);
 		READ(j, start);
 		READ(j, end);
 	}
-	void to_json(nlohmann::json& j, const Element::Constraint::ConstraintPart& inst) {
+	void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
 		j = json{
 			WRITE(type),
 			WRITE(element_id),
 			WRITE(side),
 		};
 	}
-	void from_json(const nlohmann::json& j, Element::Constraint::ConstraintPart& inst) {
+	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
 		READREQ(j, type);
 		READ(j, element_id);
 		READREQ(j, side);

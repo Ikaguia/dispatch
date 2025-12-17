@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/detail/macro_scope.hpp>
 #include <Utils.hpp>
+#include <Common.hpp>
 
 namespace Dispatch::UI {
 	enum struct FillType {
@@ -32,12 +33,13 @@ namespace Dispatch::UI {
 
 	class Element {
 	public:
-		int z_order = -1;
+		int z_order = -1, roundnessSegments = 0;
+		float borderThickness = 0.0f, roundness = 0.0f;
 		std::string id, father_id, layout_name;
 		std::vector<std::string> subElement_ids;
 		raylib::Vector2 size, origSize, shadowOffset;
 		raylib::Vector4 outterMargin, innerMargin;
-		raylib::Color shadowColor = ColorAlpha(BLACK, 0.3f);
+		raylib::Color innerColor{0,0,0,0}, outterColor{0,0,0,0}, borderColor{0,0,0,0}, shadowColor = ColorAlpha(BLACK, 0.3f);
 		struct Constraint {
 			float offset = 0.0f, ratio = 0.5f;
 			struct ConstraintPart {
@@ -68,33 +70,48 @@ namespace Dispatch::UI {
 		bool initialized = false;
 	};
 
+	class Box : public Element {
+	public:
+		Box() {
+			borderThickness = 1.0f;
+			innerColor = bgLgt;
+			outterColor = bgMed;
+			borderColor = BLACK;
+		}
+	};
+
 	extern std::map<std::string, std::map<std::string, std::unique_ptr<Element>>> elements;
 
 	void loadLayout(std::string path);
 
-	// JSON Serialization
-	void to_json(nlohmann::json& j, const Element& element);
-	void from_json(const nlohmann::json& j, Element& element);
-	void to_json(nlohmann::json& j, const Element::Constraint& constraint);
-	void from_json(const nlohmann::json& j, Element::Constraint& constraint);
-	void to_json(nlohmann::json& j, const Element::Constraint::ConstraintPart& constraintPart);
-	void from_json(const nlohmann::json& j, Element::Constraint::ConstraintPart& constraintPart);
+}
 
-	NLOHMANN_JSON_SERIALIZE_ENUM( Side, {
-		{Side::INVALID, nullptr},
-		{Side::TOP, "top"},
-		{Side::BOTTOM, "bottom"},
-		{Side::START, "start"},
-		{Side::END, "end"},
-		{Side::LEFT, "left"},
-		{Side::RIGHT, "right"},
+namespace nlohmann {
+	// JSON Serialization
+	void to_json(nlohmann::json& j, const Dispatch::UI::Element& element);
+	void from_json(const nlohmann::json& j, Dispatch::UI::Element& element);
+	void to_json(nlohmann::json& j, const Dispatch::UI::Box& box);
+	void from_json(const nlohmann::json& j, Dispatch::UI::Box& box);
+	void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint& constraint);
+	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& constraint);
+	void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& constraintPart);
+	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& constraintPart);
+
+	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Side, {
+		{Dispatch::UI::Side::INVALID, nullptr},
+		{Dispatch::UI::Side::TOP, "top"},
+		{Dispatch::UI::Side::BOTTOM, "bottom"},
+		{Dispatch::UI::Side::START, "start"},
+		{Dispatch::UI::Side::END, "end"},
+		{Dispatch::UI::Side::LEFT, "left"},
+		{Dispatch::UI::Side::RIGHT, "right"},
 	});
 
-	NLOHMANN_JSON_SERIALIZE_ENUM( Element::Constraint::ConstraintPart::ConstraintType, {
-		{ Element::Constraint::ConstraintPart::ConstraintType::UNATTACHED, nullptr },
-		{ Element::Constraint::ConstraintPart::ConstraintType::FATHER, "father" },
-		{ Element::Constraint::ConstraintPart::ConstraintType::ELEMENT, "element" },
-		{ Element::Constraint::ConstraintPart::ConstraintType::SCREEN, "screen" },
+	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType, {
+		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::UNATTACHED, nullptr },
+		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::FATHER, "father" },
+		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::ELEMENT, "element" },
+		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::SCREEN, "screen" },
 	});
 
 	// class Box : Element {
