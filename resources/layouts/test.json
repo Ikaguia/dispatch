@@ -77,7 +77,7 @@
 		},
 		"shadowOffset": [ 4, 4 ]
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "tab-upgrades",
 		"father_id": "mapRect",
 		"size": {
@@ -103,9 +103,10 @@
 			},
 			"offset": 19
 		},
-		"shadowOffset": [ 4, 4 ]
+		"shadowOffset": [ 4, 4 ],
+		"text": "UPGRADES"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "tab-powers",
 		"father_id": "mapRect",
 		"size": {
@@ -133,9 +134,10 @@
 				"side": "end"
 			}
 		},
-		"shadowOffset": [ 4, 4 ]
+		"shadowOffset": [ 4, 4 ],
+		"text": "POWERS"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "tab-info",
 		"father_id": "mapRect",
 		"size": {
@@ -161,7 +163,8 @@
 			},
 			"offset": 19
 		},
-		"shadowOffset": [ 4, 4 ]
+		"shadowOffset": [ 4, 4 ],
+		"text": "INFO"
 	}, {
 		"type": "BOX",
 		"id": "heroDetails-left/middle-top",
@@ -218,7 +221,7 @@
 			}
 		}
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "heroDetails-backButton",
 		"father_id": "heroDetails-left/middle-bottom",
 		"size": {
@@ -244,7 +247,8 @@
 				"type": "father",
 				"side": "end"
 			}
-		}
+		},
+		"text": "BACK"
 	}, {
 		"type": "BOX",
 		"id": "heroDetails-stats",
@@ -281,7 +285,7 @@
 			"offset": 32
 		}
 	}, {
-		"type": "ELEMENT",
+		"type": "TEXT",
 		"id": "heroDetails-stats-points",
 		"father_id": "heroDetails-stats",
 		"size": {
@@ -314,12 +318,13 @@
 				"type": "father",
 				"side": "end"
 			}
-		}
+		},
+		"text": "Stat Points: ?"
 	}, {
 		"type": "ELEMENT",
 		"id": "heroDetails-stats-combat",
 		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-combat-minus", "heroDetails-stats-combat-value", "heroDetails-stats-combat-plus" ],
+		"subElement_ids": [ "heroDetails-stats-combat-text", "heroDetails-stats-combat-minus", "heroDetails-stats-combat-value", "heroDetails-stats-combat-plus" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.15
@@ -352,7 +357,39 @@
 			}
 		}
 	}, {
-		"type": "BOX",
+		"type": "TEXT",
+		"id": "heroDetails-stats-combat-text",
+		"father_id": "heroDetails-stats-combat",
+		"size": {
+			"x": 0.6,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 4,
+			"y": 2,
+			"z": 0,
+			"w": 2
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		},
+		"text": "Combat",
+		"textAnchor": "left"
+	}, {
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-combat-minus",
 		"father_id": "heroDetails-stats-combat",
 		"size": {
@@ -385,9 +422,10 @@
 				"side": "end"
 			},
 			"ratio": 0.72
-		}
+		},
+		"text": "-"
 	}, {
-		"type": "ELEMENT",
+		"type": "TEXT",
 		"id": "heroDetails-stats-combat-value",
 		"father_id": "heroDetails-stats-combat",
 		"size": {
@@ -420,9 +458,10 @@
 				"side": "end"
 			},
 			"ratio": 0.86
-		}
+		},
+		"text": "?"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-combat-plus",
 		"father_id": "heroDetails-stats-combat",
 		"size": {
@@ -455,12 +494,13 @@
 				"side": "end"
 			},
 			"ratio": 1.0
-		}
+		},
+		"text": "+"
 	}, {
 		"type": "ELEMENT",
 		"id": "heroDetails-stats-vigor",
 		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-vigor-minus", "heroDetails-stats-vigor-value", "heroDetails-stats-vigor-plus" ],
+		"subElement_ids": [ "heroDetails-stats-vigor-text",  "heroDetails-stats-vigor-minus", "heroDetails-stats-vigor-value", "heroDetails-stats-vigor-plus" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.15
@@ -493,7 +533,39 @@
 			}
 		}
 	}, {
-		"type": "BOX",
+		"type": "TEXT",
+		"id": "heroDetails-stats-vigor-text",
+		"father_id": "heroDetails-stats-vigor",
+		"size": {
+			"x": 0.6,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 4,
+			"y": 2,
+			"z": 0,
+			"w": 2
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		},
+		"text": "Vigor",
+		"textAnchor": "left"
+	}, {
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-vigor-minus",
 		"father_id": "heroDetails-stats-vigor",
 		"size": {
@@ -526,9 +598,10 @@
 				"side": "end"
 			},
 			"ratio": 0.72
-		}
+		},
+		"text": "-"
 	}, {
-		"type": "ELEMENT",
+		"type": "TEXT",
 		"id": "heroDetails-stats-vigor-value",
 		"father_id": "heroDetails-stats-vigor",
 		"size": {
@@ -561,9 +634,10 @@
 				"side": "end"
 			},
 			"ratio": 0.86
-		}
+		},
+		"text": "?"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-vigor-plus",
 		"father_id": "heroDetails-stats-vigor",
 		"size": {
@@ -596,12 +670,13 @@
 				"side": "end"
 			},
 			"ratio": 1.0
-		}
+		},
+		"text": "+"
 	}, {
 		"type": "ELEMENT",
 		"id": "heroDetails-stats-mobility",
 		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-mobility-minus", "heroDetails-stats-mobility-value", "heroDetails-stats-mobility-plus" ],
+		"subElement_ids": [ "heroDetails-stats-mobility-text", "heroDetails-stats-mobility-minus", "heroDetails-stats-mobility-value", "heroDetails-stats-mobility-plus" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.15
@@ -634,7 +709,39 @@
 			}
 		}
 	}, {
-		"type": "BOX",
+		"type": "TEXT",
+		"id": "heroDetails-stats-mobility-text",
+		"father_id": "heroDetails-stats-mobility",
+		"size": {
+			"x": 0.6,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 4,
+			"y": 2,
+			"z": 0,
+			"w": 2
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		},
+		"text": "Mobility",
+		"textAnchor": "left"
+	}, {
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-mobility-minus",
 		"father_id": "heroDetails-stats-mobility",
 		"size": {
@@ -667,9 +774,10 @@
 				"side": "end"
 			},
 			"ratio": 0.72
-		}
+		},
+		"text": "-"
 	}, {
-		"type": "ELEMENT",
+		"type": "TEXT",
 		"id": "heroDetails-stats-mobility-value",
 		"father_id": "heroDetails-stats-mobility",
 		"size": {
@@ -702,9 +810,10 @@
 				"side": "end"
 			},
 			"ratio": 0.86
-		}
+		},
+		"text": "?"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-mobility-plus",
 		"father_id": "heroDetails-stats-mobility",
 		"size": {
@@ -737,12 +846,13 @@
 				"side": "end"
 			},
 			"ratio": 1.0
-		}
+		},
+		"text": "+"
 	}, {
 		"type": "ELEMENT",
 		"id": "heroDetails-stats-charisma",
 		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-charisma-minus", "heroDetails-stats-charisma-value", "heroDetails-stats-charisma-plus" ],
+		"subElement_ids": [ "heroDetails-stats-charisma-text", "heroDetails-stats-charisma-minus", "heroDetails-stats-charisma-value", "heroDetails-stats-charisma-plus" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.15
@@ -775,7 +885,39 @@
 			}
 		}
 	}, {
-		"type": "BOX",
+		"type": "TEXT",
+		"id": "heroDetails-stats-charisma-text",
+		"father_id": "heroDetails-stats-charisma",
+		"size": {
+			"x": 0.6,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 4,
+			"y": 2,
+			"z": 0,
+			"w": 2
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		},
+		"text": "Charisma",
+		"textAnchor": "left"
+	}, {
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-charisma-minus",
 		"father_id": "heroDetails-stats-charisma",
 		"size": {
@@ -808,9 +950,10 @@
 				"side": "end"
 			},
 			"ratio": 0.72
-		}
+		},
+		"text": "-"
 	}, {
-		"type": "ELEMENT",
+		"type": "TEXT",
 		"id": "heroDetails-stats-charisma-value",
 		"father_id": "heroDetails-stats-charisma",
 		"size": {
@@ -843,9 +986,10 @@
 				"side": "end"
 			},
 			"ratio": 0.86
-		}
+		},
+		"text": "?"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-charisma-plus",
 		"father_id": "heroDetails-stats-charisma",
 		"size": {
@@ -878,12 +1022,13 @@
 				"side": "end"
 			},
 			"ratio": 1.0
-		}
+		},
+		"text": "+"
 	}, {
 		"type": "ELEMENT",
 		"id": "heroDetails-stats-intelligence",
 		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-intelligence-minus", "heroDetails-stats-intelligence-value", "heroDetails-stats-intelligence-plus" ],
+		"subElement_ids": [ "heroDetails-stats-intelligence-text", "heroDetails-stats-intelligence-minus", "heroDetails-stats-intelligence-value", "heroDetails-stats-intelligence-plus" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.15
@@ -916,7 +1061,39 @@
 			}
 		}
 	}, {
-		"type": "BOX",
+		"type": "TEXT",
+		"id": "heroDetails-stats-intelligence-text",
+		"father_id": "heroDetails-stats-intelligence",
+		"size": {
+			"x": 0.6,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 4,
+			"y": 2,
+			"z": 0,
+			"w": 2
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		},
+		"text": "Intelligence",
+		"textAnchor": "left"
+	}, {
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-intelligence-minus",
 		"father_id": "heroDetails-stats-intelligence",
 		"size": {
@@ -949,9 +1126,10 @@
 				"side": "end"
 			},
 			"ratio": 0.72
-		}
+		},
+		"text": "-"
 	}, {
-		"type": "ELEMENT",
+		"type": "TEXT",
 		"id": "heroDetails-stats-intelligence-value",
 		"father_id": "heroDetails-stats-intelligence",
 		"size": {
@@ -984,9 +1162,10 @@
 				"side": "end"
 			},
 			"ratio": 0.86
-		}
+		},
+		"text": "?"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-intelligence-plus",
 		"father_id": "heroDetails-stats-intelligence",
 		"size": {
@@ -1019,9 +1198,10 @@
 				"side": "end"
 			},
 			"ratio": 1.0
-		}
+		},
+		"text": "+"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-reset",
 		"father_id": "heroDetails-stats",
 		"size": {
@@ -1045,9 +1225,10 @@
 				"type": "father",
 				"side": "start"
 			}
-		}
+		},
+		"text": "RESET"
 	}, {
-		"type": "BOX",
+		"type": "TEXTBOX",
 		"id": "heroDetails-stats-confirm",
 		"father_id": "heroDetails-stats",
 		"size": {
@@ -1071,6 +1252,7 @@
 				"type": "father",
 				"side": "end"
 			}
-		}
+		},
+		"text": "CONFIRM"
 	}
 ]

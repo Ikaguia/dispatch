@@ -65,12 +65,15 @@ namespace Dispatch::UI {
 		virtual void handleInput();
 		virtual void solveLayout();
 		virtual void sortSubElements(bool z_order);
+
+		virtual void to_json(nlohmann::json& j) const;
+		virtual void from_json(const nlohmann::json& j);
 	private:
 		raylib::Rectangle bounds, innerBounds;
 		bool initialized = false;
 	};
 
-	class Box : public Element {
+	class Box : public virtual Element {
 	public:
 		Box() {
 			borderThickness = 1.0f;
@@ -80,22 +83,40 @@ namespace Dispatch::UI {
 		}
 	};
 
+	class Text : public virtual Element {
+		raylib::Font font = GetFontDefault();
+	public:
+		int fontSize = 16;
+		float spacing = 1.0f;
+		std::string text, fontName;
+		raylib::Color fontColor = textColor;
+		Utils::Anchor textAnchor = Utils::Anchor::center;
+
+		virtual void render() override;
+
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
+	};
+
+	class TextBox : public Box, public Text {};
+
 	extern std::map<std::string, std::map<std::string, std::unique_ptr<Element>>> elements;
 
 	void loadLayout(std::string path);
-
 }
 
 namespace nlohmann {
 	// JSON Serialization
-	void to_json(nlohmann::json& j, const Dispatch::UI::Element& element);
-	void from_json(const nlohmann::json& j, Dispatch::UI::Element& element);
-	void to_json(nlohmann::json& j, const Dispatch::UI::Box& box);
-	void from_json(const nlohmann::json& j, Dispatch::UI::Box& box);
-	void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint& constraint);
-	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& constraint);
-	void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& constraintPart);
-	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& constraintPart);
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Box& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Box& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Text& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Text& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint& inst);
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst);
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst);
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst);
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Side, {
 		{Dispatch::UI::Side::INVALID, nullptr},
@@ -113,30 +134,4 @@ namespace nlohmann {
 		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::ELEMENT, "element" },
 		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::SCREEN, "screen" },
 	});
-
-	// class Box : Element {
-	// public:
-	// 	raylib::Vector2 size;
-	// 	raylib::Vector4 outMargin, inMargin;
-	// 	struct Edge {
-	// 		float round, thickness;
-	// 		raylib::Color color;
-	// 	} edge;
-	// 	struct Fill {
-	// 		FillType fillType;
-	// 		std::vector<raylib::Color> color;
-	// 	} fillMargin, fillInner;
-
-	// 	const raylib::Vector2& position() const override;
-	// 	const raylib::Vector2& anchor(raylib::Vector2 offset, Utils::Anchor anchor = Utils::Anchor::center) override;
-	// 	const raylib::Rectangle& anchor(raylib::Rectangle rect, Utils::Anchor anchor = Utils::Anchor::center) override;
-	// 	const raylib::Rectangle& boundingRect() const override;
-
-	// 	const bool colidesWith(const Element& other) const override;
-	// 	const bool colidesWith(const raylib::Vector2& other) const override;
-	// 	const bool colidesWith(const raylib::Rectangle& other) const override;
-
-	// 	void render(const raylib::Vector2 offset = raylib::Vector2{0.0f, 0.0f}) override;
-	// 	void handleInput() override;
-	// };
 };

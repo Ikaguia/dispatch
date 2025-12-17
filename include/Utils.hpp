@@ -256,4 +256,36 @@ namespace nlohmann {
 			} else throw std::runtime_error("Invalid color format");
 		}
 	};
+
+	NLOHMANN_JSON_SERIALIZE_ENUM( Utils::Anchor, {
+		{Utils::Anchor::center, "center"},
+		{Utils::Anchor::topLeft, "topLeft"},
+		{Utils::Anchor::top, "top"},
+		{Utils::Anchor::topRight, "topRight"},
+		{Utils::Anchor::left, "left"},
+		{Utils::Anchor::right, "right"},
+		{Utils::Anchor::bottomLeft, "bottomLeft"},
+		{Utils::Anchor::bottom, "bottom"},
+		{Utils::Anchor::bottomRight, "bottomRight"},
+	});
+	NLOHMANN_JSON_SERIALIZE_ENUM( Utils::AnchorType, {
+		{Utils::AnchorType::automatic, "automatic"},
+		{Utils::AnchorType::topLeft, "topLeft"},
+		{Utils::AnchorType::top, "top"},
+		{Utils::AnchorType::topRight, "topRight"},
+		{Utils::AnchorType::left, "left"},
+		{Utils::AnchorType::center, "center"},
+		{Utils::AnchorType::right, "right"},
+		{Utils::AnchorType::bottomLeft, "bottomLeft"},
+		{Utils::AnchorType::bottom, "bottom"},
+		{Utils::AnchorType::bottomRight, "bottomRight"},
+	});
+	NLOHMANN_JSON_SERIALIZE_ENUM( Utils::FillType, {
+		{Utils::FillType::stretch, "stretch"},
+		{Utils::FillType::tile, "tile"},
+		{Utils::FillType::tileX, "tileX"},
+		{Utils::FillType::tileY, "tileY"},
+		{Utils::FillType::fit, "fit"},
+		{Utils::FillType::fill, "fill"},
+	});
 };

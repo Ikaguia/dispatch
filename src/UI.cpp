@@ -205,9 +205,27 @@ namespace Dispatch::UI {
 		subElement_ids = std::move(sortedIds);
 	}
 
+	void Text::render() {
+		Element::render();
+		raylib::Rectangle rect = boundingRect();
+		Utils::drawTextAnchored(
+			text,
+			rect,
+			textAnchor,
+			font,
+			textColor,
+			fontSize,
+			spacing,
+			{},
+			rect.width
+		);
+	}
+
 	std::unique_ptr<Element> elementFactory(std::string type) {
 		if (type == "ELEMENT") return std::make_unique<Element>();
 		else if (type == "BOX") return std::make_unique<Box>();
+		else if (type == "TEXT") return std::make_unique<Text>();
+		else if (type == "TEXTBOX") return std::make_unique<TextBox>();
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
@@ -252,9 +270,8 @@ namespace Dispatch::UI {
 		for (const std::string& id : top_level_ids) lElements.at(id)->solveLayout();
 	}
 
-}
 
-namespace nlohmann {
+	// JSON Serialization Macros
 	#define READ(j, var)		inst.var = j.value(#var, inst.var)
 	#define READREQ(j, var) { \
 								if (j.contains(#var)) inst.var = j.at(#var).get<decltype(inst.var)>(); \
@@ -265,33 +282,33 @@ namespace nlohmann {
 								if (j.contains(#key)) inst.var = j.at(#key).get<decltype(inst.var)>(); \
 								else throw std::invalid_argument("Hero '" + std::string(#key) + "' cannot be empty"); \
 							}
-	#define WRITE(var)			{#var, inst.var}
-	#define WRITE2(var, key)	{#key, inst.var}
+	#define WRITE(var)			j[#var] = inst.var;
+	#define WRITE2(var, key)	j[#key] = inst.var;
 
 	// JSON Serialization
-	void to_json(json& j, const Dispatch::UI::Element& inst) {
-		j = json{
-			WRITE(z_order),
-			WRITE(roundnessSegments),
-			WRITE(borderThickness),
-			WRITE(roundness),
-			WRITE(id),
-			WRITE(father_id),
-			// WRITE(layout_name),
-			WRITE(subElement_ids),
-			WRITE(size),
-			WRITE(shadowOffset),
-			WRITE(outterMargin),
-			WRITE(innerMargin),
-			WRITE(innerColor),
-			WRITE(outterColor),
-			WRITE(borderColor),
-			WRITE(shadowColor),
-			WRITE(verticalConstraint),
-			WRITE(horizontalConstraint),
-		};
+	void Element::to_json(json& j) const {
+		auto& inst = *this;
+		WRITE(z_order);
+		WRITE(roundnessSegments);
+		WRITE(borderThickness);
+		WRITE(roundness);
+		WRITE(id);
+		WRITE(father_id);
+		// WRITE(layout_name);
+		WRITE(subElement_ids);
+		WRITE(size);
+		WRITE(shadowOffset);
+		WRITE(outterMargin);
+		WRITE(innerMargin);
+		WRITE(innerColor);
+		WRITE(outterColor);
+		WRITE(borderColor);
+		WRITE(shadowColor);
+		WRITE(verticalConstraint);
+		WRITE(horizontalConstraint);
 	}
-	void from_json(const json& j, Dispatch::UI::Element& inst) {
+	void Element::from_json(const json& j) {
+		auto& inst = *this;
 		READ(j, z_order);
 		READ(j, roundnessSegments);
 		READ(j, borderThickness);
@@ -312,71 +329,47 @@ namespace nlohmann {
 		READREQ(j, horizontalConstraint);
 		inst.origSize = inst.size;
 	}
-	void to_json(json& j, const Dispatch::UI::Box& inst) {
-		j = json{
-			WRITE(z_order),
-			WRITE(roundnessSegments),
-			WRITE(borderThickness),
-			WRITE(roundness),
-			WRITE(id),
-			WRITE(father_id),
-			// WRITE(layout_name),
-			WRITE(subElement_ids),
-			WRITE(size),
-			WRITE(shadowOffset),
-			WRITE(outterMargin),
-			WRITE(innerMargin),
-			WRITE(innerColor),
-			WRITE(outterColor),
-			WRITE(borderColor),
-			WRITE(shadowColor),
-			WRITE(verticalConstraint),
-			WRITE(horizontalConstraint),
-		};
+	void Text::to_json(json& j) const {
+		auto& inst = *this;
+		Element::to_json(j);
+		WRITE(fontSize);
+		WRITE(spacing);
+		WRITE(text);
+		WRITE(fontName);
+		WRITE(fontColor);
+		WRITE(textAnchor);
 	}
-	void from_json(const json& j, Dispatch::UI::Box& inst) {
-		READ(j, z_order);
-		READ(j, roundnessSegments);
-		READ(j, borderThickness);
-		READ(j, roundness);
-		READREQ(j, id);
-		READ(j, father_id);
-		// READ(j, layout_name);
-		READ(j, subElement_ids);
-		READREQ(j, size);
-		READ(j, shadowOffset);
-		READ(j, outterMargin);
-		READ(j, innerMargin);
-		READ(j, innerColor);
-		READ(j, outterColor);
-		READ(j, borderColor);
-		READ(j, shadowColor);
-		READREQ(j, verticalConstraint);
-		READREQ(j, horizontalConstraint);
-		inst.origSize = inst.size;
+	void Text::from_json(const json& j) {
+		auto& inst = *this;
+		Element::from_json(j);
+		READ(j, fontSize);
+		READ(j, spacing);
+		READREQ(j, text);
+		READ(j, fontName);
+		READ(j, fontColor);
+		READ(j, textAnchor);
 	}
-	void to_json(json& j, const Dispatch::UI::Element::Constraint& inst) {
-		j = json{
-			WRITE(offset),
-			WRITE(ratio),
-			WRITE(start),
-			WRITE(end),
-		};
+}
+
+namespace nlohmann {
+	inline void to_json(json& j, const Dispatch::UI::Element::Constraint& inst) {
+		WRITE(offset);
+		WRITE(ratio);
+		WRITE(start);
+		WRITE(end);
 	};
-	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst) {
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst) {
 		READ(j, offset);
 		READ(j, ratio);
 		READ(j, start);
 		READ(j, end);
 	}
-	void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
-		j = json{
-			WRITE(type),
-			WRITE(element_id),
-			WRITE(side),
-		};
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
+		WRITE(type);
+		WRITE(element_id);
+		WRITE(side);
 	}
-	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
 		READREQ(j, type);
 		READ(j, element_id);
 		READREQ(j, side);
