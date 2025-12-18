@@ -4,6 +4,7 @@
 #include <map>
 #include <queue>
 #include <set>
+#include <regex>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -31,9 +32,9 @@ namespace Dispatch::UI {
 		for (const auto& data : data_array) {
 			std::string type = data.at("type").get<std::string>();
 			auto el = elementFactory(type);
+			el->layout = this;
 			try { data.get_to(*el); }
 			catch (const std::exception& e) { throw std::runtime_error("Layout Error: Failed to deserialize element of type '" + type + "'. " + e.what()); }
-			el->layout = this;
 			if (elements.count(el->id)) throw std::runtime_error("Layout Error: Element with ID '" + el->id + "' already exists in the map.");
 			if (el->father_id.empty()) rootElements.insert(el->id);
 
@@ -57,6 +58,15 @@ namespace Dispatch::UI {
 	}
 
 	void Layout::render() { for (const std::string& id : rootElements) elements.at(id)->render(); }
+	void Layout::updateSharedData(const std::string& key, const std::string& value) {
+		sharedData[key] = value;
+		for (const std::string& id : sharedDataListeners[key]) elements.at(id)->onSharedDataUpdate(key, value);
+	}
+	void Layout::registerSharedDataListener(const std::string& key, const std::string& element_id) {
+		Utils::println("Registering element '{}' as listener for shared data key '{}'", element_id, key);
+		sharedDataListeners[key].insert(element_id);
+	}
+
 
 	// Element
 	const float Element::side(Side side, bool inner) const {
@@ -267,7 +277,50 @@ namespace Dispatch::UI {
 			rect.width
 		);
 	}
-	void Image::render() {
+	void Text::onSharedDataUpdate(const std::string& key, const std::string& value) { updateText(); }
+	void Text::parseText() {
+		static const std::regex pattern{R"(\{@(\w+)\})"};
+		std::sregex_token_iterator iter(origText.begin(), origText.end(), pattern, 1);
+		std::sregex_token_iterator end;
+
+		for (; iter != end; ++iter) layout->registerSharedDataListener(*iter, id);
+		updateText();
+	}
+	void Text::updateText() {
+		static const std::regex pattern{R"(\{@(\w+)\})"};
+		
+		std::string result;
+		result.reserve(origText.size());
+
+		auto it = std::sregex_iterator(origText.begin(), origText.end(), pattern);
+		auto end = std::sregex_iterator();
+		
+		size_t lastPos = 0;
+
+		for (; it != end; ++it) {
+			const std::smatch& match = *it;
+			
+			// 1. Append the text between the last match and this one
+			result.append(origText, lastPos, match.position(0) - lastPos);
+			
+			// 2. Lookup the replacement
+			std::string key = match[1].str();
+			auto dataIt = layout->sharedData.find(key);
+			
+			if (dataIt != layout->sharedData.end()) result.append(dataIt->second);
+			else result.append("???");
+
+			// 3. Move the cursor forward
+			lastPos = match.position(0) + match.length(0);
+		}
+
+		// 4. Append any remaining text after the last match
+		result.append(origText, lastPos, std::string::npos);
+		
+		text = std::move(result);
+	}
+
+void Image::render() {
 		Element::render();
 		Utils::drawTextureAnchored(
 			texture,
@@ -277,6 +330,7 @@ namespace Dispatch::UI {
 			imageAnchor
 		);
 	}
+
 	void RadarGraph::render() {
 		raylib::Rectangle rect = subElementsRect();
 		raylib::Vector2 center = this->center();
@@ -390,7 +444,7 @@ namespace Dispatch::UI {
 		Element::to_json(j);
 		WRITE(fontSize);
 		WRITE(spacing);
-		WRITE(text);
+		WRITE2(origText, text);
 		WRITE(fontName);
 		WRITE(fontColor);
 		WRITE(textAnchor);
@@ -400,10 +454,12 @@ namespace Dispatch::UI {
 		Element::from_json(j);
 		READ(j, fontSize);
 		READ(j, spacing);
-		READREQ(j, text);
+		READREQ2(j, origText, text);
 		READ(j, fontName);
 		READ(j, fontColor);
 		READ(j, textAnchor);
+		// font = Utils::getFont(fontName);
+		parseText();
 	}
 	void Circle::to_json(json& j) const {
 		auto& inst = *this;

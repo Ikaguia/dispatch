@@ -21,10 +21,13 @@ namespace Dispatch::UI {
 		std::map<std::string, std::unique_ptr<Element>> elements;
 		std::set<std::string> rootElements;
 		std::map<std::string, std::string> sharedData;
+		std::map<std::string, std::set<std::string>> sharedDataListeners;
 
 		Layout(std::string path);
 
 		void render();
+		void updateSharedData(const std::string& key, const std::string& value);
+		void registerSharedDataListener(const std::string& key, const std::string& element_id);
 	};
 
 	enum struct FillType {
@@ -80,6 +83,7 @@ namespace Dispatch::UI {
 		virtual void handleInput();
 		virtual void solveLayout();
 		virtual void sortSubElements(bool z_order);
+		virtual void onSharedDataUpdate(const std::string& key, const std::string& value) {}
 
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
@@ -103,14 +107,17 @@ namespace Dispatch::UI {
 	public:
 		int fontSize = 16;
 		float spacing = 1.0f;
-		std::string text, fontName;
+		std::string origText, text, fontName;
 		raylib::Color fontColor = textColor;
 		Utils::Anchor textAnchor = Utils::Anchor::center;
 
 		virtual void render() override;
-
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
+		virtual void onSharedDataUpdate(const std::string& key, const std::string& value) override;
+
+		void parseText();
+		void updateText();
 	};
 
 	class TextBox : public virtual Box, public virtual Text {};

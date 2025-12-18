@@ -65,6 +65,10 @@ int main() {
 		if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 			raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 			std::cout << "mousePos: " << mousePos.x << "," << mousePos.y << std::endl;
+			if (heroesHandler.selectedHeroIndex >= 0) {
+				Hero& hero = *heroesHandler.active_heroes[heroesHandler.selectedHeroIndex];
+				test.updateSharedData("selectedHeroName", hero.name);
+			} else test.updateSharedData("selectedHeroName", "???");
 		}
 
 		target.BeginMode();
