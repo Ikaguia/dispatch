@@ -3,6 +3,9 @@
 #include <memory>
 #include <vector>
 #include <fstream>
+#include <map>
+#include <set>
+#include <string>
 
 #include <raylib-cpp.hpp>
 #include <nlohmann/json.hpp>
@@ -11,6 +14,19 @@
 #include <Common.hpp>
 
 namespace Dispatch::UI {
+	class Element;
+
+	class Layout {
+	public:
+		std::map<std::string, std::unique_ptr<Element>> elements;
+		std::set<std::string> rootElements;
+		std::map<std::string, std::string> sharedData;
+
+		Layout(std::string path);
+
+		void render();
+	};
+
 	enum struct FillType {
 		NONE,
 		FULL,
@@ -18,8 +34,6 @@ namespace Dispatch::UI {
 		GRADIENT_H,
 		GRADIENT_V,
 	};
-
-	class Element;
 
 	enum struct Side {
 		TOP,
@@ -33,9 +47,10 @@ namespace Dispatch::UI {
 
 	class Element {
 	public:
+		Layout* layout = nullptr;
 		int z_order = -1, roundnessSegments = 0;
 		float borderThickness = 0.0f, roundness = 0.0f;
-		std::string id, father_id, layout_name;
+		std::string id, father_id;
 		std::vector<std::string> subElement_ids;
 		raylib::Vector2 size, origSize, shadowOffset;
 		raylib::Vector4 outterMargin, innerMargin;
@@ -160,10 +175,6 @@ namespace Dispatch::UI {
 			drawIcons = true;
 		}
 	};
-
-	extern std::map<std::string, std::map<std::string, std::unique_ptr<Element>>> elements;
-
-	void loadLayout(std::string path);
 }
 
 namespace nlohmann {

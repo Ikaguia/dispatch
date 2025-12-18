@@ -41,8 +41,7 @@ int main() {
 	cloudShader.SetValue(cloudsDensityLoc, (float[1]){ 0.5f }, SHADER_UNIFORM_FLOAT);
 	raylib::Texture dummy(raylib::Image{1,1,WHITE});
 
-	Dispatch::UI::loadLayout(std::string{"resources/layouts/test.json"});
-	auto& element = Dispatch::UI::elements.at("test").at("mapRect");
+	Dispatch::UI::Layout test{"resources/layouts/test.json"};
 
 	while (!window.ShouldClose()) {
 		float deltaTime = GetFrameTime();
@@ -92,7 +91,7 @@ int main() {
 				heroesHandler.renderUI();
 				missionsHandler.renderUI();
 			}
-			element->render();
+			test.render();
 		target.EndMode();
 
 		BeginDrawing();

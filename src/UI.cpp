@@ -9,7 +9,54 @@
 using json = nlohmann::json;
 
 namespace Dispatch::UI {
-	std::map<std::string, std::map<std::string, std::unique_ptr<Element>>> elements;
+	std::unique_ptr<Element> elementFactory(std::string type) {
+		if (type == "ELEMENT") return std::make_unique<Element>();
+		else if (type == "BOX") return std::make_unique<Box>();
+		else if (type == "TEXT") return std::make_unique<Text>();
+		else if (type == "TEXTBOX") return std::make_unique<TextBox>();
+		else if (type == "CIRCLE") return std::make_unique<Circle>();
+		else if (type == "TEXTCIRCLE") return std::make_unique<TextCircle>();
+		else if (type == "IMAGE") return std::make_unique<Image>();
+		else if (type == "RADARGRAPH") return std::make_unique<RadarGraph>();
+		else if (type == "ATTRGRAPH") return std::make_unique<AttrGraph>();
+		else throw std::invalid_argument("Invalid type in JSON layout");
+	}
+
+	Layout::Layout(std::string path) {
+		json data_array = Utils::readJsonFile(path);
+		Utils::println("Reading layout '{}'", path);
+
+		if (!data_array.is_array()) throw std::runtime_error("Layout Error: Top-level JSON must be an array of elements.");
+
+		for (const auto& data : data_array) {
+			std::string type = data.at("type").get<std::string>();
+			auto el = elementFactory(type);
+			try { data.get_to(*el); }
+			catch (const std::exception& e) { throw std::runtime_error("Layout Error: Failed to deserialize element of type '" + type + "'. " + e.what()); }
+			el->layout = this;
+			if (elements.count(el->id)) throw std::runtime_error("Layout Error: Element with ID '" + el->id + "' already exists in the map.");
+			if (el->father_id.empty()) rootElements.insert(el->id);
+
+			if (elements.count(el->father_id)) {
+				const auto& father = elements[el->father_id];
+				if (!std::any_of(father->subElement_ids.begin(), father->subElement_ids.end(), [&](std::string id){ return id == el->id; })) {
+					throw std::runtime_error(std::format("Layout Error: Father/Subelements mismatch between '{}' and '{}'", el->id, el->father_id));
+				}
+			}
+			for (const auto& subElement_id : el->subElement_ids) {
+				if (elements.count(subElement_id) && elements[subElement_id]->father_id != el->id) {
+					throw std::runtime_error(std::format("Layout Error: Father/Subelements mismatch between '{}' and '{}'", el->id, subElement_id));
+				}
+			}
+
+			elements[el->id] = std::move(el);
+		}
+
+		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
+		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
+	}
+
+	void Layout::render() { for (const std::string& id : rootElements) elements.at(id)->render(); }
 
 	// Element
 	const float Element::side(Side side, bool inner) const {
@@ -62,21 +109,21 @@ namespace Dispatch::UI {
 			if (roundnessSegments > 0) outterRect.DrawRoundedLines(roundness, roundnessSegments, borderThickness, borderColor);
 			else outterRect.DrawLines(borderColor, borderThickness);
 		}
-		auto& lElements = elements.at(layout_name);
-		for (const std::string& el_id : subElement_ids) lElements.at(el_id)->render();
+		auto& elements = layout->elements;
+		for (const std::string& el_id : subElement_ids) elements.at(el_id)->render();
 	}
 	void Element::handleInput() {
-		auto& lElements = elements.at(layout_name);
-		for (const std::string& el_id : subElement_ids) lElements.at(el_id)->handleInput();
+		auto& elements = layout->elements;
+		for (const std::string& el_id : subElement_ids) elements.at(el_id)->handleInput();
 	}
 	void Element::solveLayout() {
-		auto& lElements = elements.at(layout_name);
+		auto& elements = layout->elements;
 		if (origSize.x >= 0.0f && origSize.x <= 1.0f) {
-			float maxW = father_id.empty() ? GetScreenWidth() : lElements.at(father_id)->subElementsRect().width;
+			float maxW = father_id.empty() ? GetScreenWidth() : elements.at(father_id)->subElementsRect().width;
 			size.x = std::round(maxW * origSize.x - (outterMargin.x + outterMargin.z));
 		}
 		if (origSize.y >= 0.0f && origSize.y <= 1.0f) {
-			float maxH = father_id.empty() ? GetScreenHeight() : lElements.at(father_id)->subElementsRect().height;
+			float maxH = father_id.empty() ? GetScreenHeight() : elements.at(father_id)->subElementsRect().height;
 			size.y = std::round(maxH * origSize.y - (outterMargin.y + outterMargin.w));
 		}
 
@@ -92,13 +139,13 @@ namespace Dispatch::UI {
 
 			float startPos, endPos;
 			if (constraint.start.type == Constraint::ConstraintPart::UNATTACHED) startPos = nanf("");
-			else if (constraint.start.type == Constraint::ConstraintPart::FATHER) startPos = lElements.at(father_id)->side(constraint.start.side, true);
-			else if (constraint.start.type == Constraint::ConstraintPart::ELEMENT) startPos = lElements.at(constraint.start.element_id)->side(constraint.start.side, true);
+			else if (constraint.start.type == Constraint::ConstraintPart::FATHER) startPos = elements.at(father_id)->side(constraint.start.side, true);
+			else if (constraint.start.type == Constraint::ConstraintPart::ELEMENT) startPos = elements.at(constraint.start.element_id)->side(constraint.start.side, true);
 			else if (constraint.start.type == Constraint::ConstraintPart::SCREEN) startPos = 0.0f;
 
 			if (constraint.end.type == Constraint::ConstraintPart::UNATTACHED) endPos = nanf("");
-			else if (constraint.end.type == Constraint::ConstraintPart::FATHER) endPos = lElements.at(father_id)->side(constraint.end.side, true);
-			else if (constraint.end.type == Constraint::ConstraintPart::ELEMENT) endPos = lElements.at(constraint.end.element_id)->side(constraint.end.side, true);
+			else if (constraint.end.type == Constraint::ConstraintPart::FATHER) endPos = elements.at(father_id)->side(constraint.end.side, true);
+			else if (constraint.end.type == Constraint::ConstraintPart::ELEMENT) endPos = elements.at(constraint.end.element_id)->side(constraint.end.side, true);
 			else if (constraint.end.type == Constraint::ConstraintPart::SCREEN) endPos = screen;
 
 			bool startAttached = constraint.start.type != Constraint::ConstraintPart::UNATTACHED;
@@ -116,15 +163,15 @@ namespace Dispatch::UI {
 
 		initialized = true;
 		sortSubElements(false);
-		for (const std::string& el_id : subElement_ids) lElements.at(el_id)->solveLayout();
+		for (const std::string& el_id : subElement_ids) elements.at(el_id)->solveLayout();
 		sortSubElements(true);
 	}
 
 	void Element::sortSubElements(bool z_order) {
-		auto& lElements = elements.at(layout_name);
+		auto& elements = layout->elements;
 		// Sort based on the z_order member
 		if (z_order) {
-			std::sort(subElement_ids.begin(), subElement_ids.end(), [&](const auto& lhs, const auto& rhs) { return lElements.at(lhs)->z_order < lElements.at(rhs)->z_order; });
+			std::sort(subElement_ids.begin(), subElement_ids.end(), [&](const auto& lhs, const auto& rhs) { return elements.at(lhs)->z_order < elements.at(rhs)->z_order; });
 			return;
 		}
 
@@ -145,7 +192,7 @@ namespace Dispatch::UI {
 		for (size_t i = 0; i < N; ++i) {
 			// Element i is the dependent element (child)
 			std::string dependent_id = subElement_ids[i];
-			const Element& dependent = *lElements.at(dependent_id);
+			const Element& dependent = *elements.at(dependent_id);
 
 			// Helper function to check and build dependency for one constraint part
 			auto processConstraint = [&](const Element::Constraint::ConstraintPart& part) {
@@ -277,60 +324,6 @@ namespace Dispatch::UI {
 				} else if (sideLength > 20) point.DrawCircle(3, color.Fade(0.4f));
 			}
 		}
-	}
-
-	std::unique_ptr<Element> elementFactory(std::string type) {
-		if (type == "ELEMENT") return std::make_unique<Element>();
-		else if (type == "BOX") return std::make_unique<Box>();
-		else if (type == "TEXT") return std::make_unique<Text>();
-		else if (type == "TEXTBOX") return std::make_unique<TextBox>();
-		else if (type == "CIRCLE") return std::make_unique<Circle>();
-		else if (type == "TEXTCIRCLE") return std::make_unique<TextCircle>();
-		else if (type == "IMAGE") return std::make_unique<Image>();
-		else if (type == "RADARGRAPH") return std::make_unique<RadarGraph>();
-		else if (type == "ATTRGRAPH") return std::make_unique<AttrGraph>();
-		else throw std::invalid_argument("Invalid type in JSON layout");
-	}
-
-	void loadLayout(std::string path) {
-		json data_array = Utils::readJsonFile(path);
-		size_t name_start = path.find_last_of("/");
-		size_t type_start = path.find_last_of(".");
-		std::string layout_name = name_start == std::string::npos ? path : path.substr(name_start+1, type_start-name_start-1);
-		Utils::println("Reading layout '{}'", layout_name);
-
-		if (!data_array.is_array()) throw std::runtime_error("Layout Error: Top-level JSON must be an array of elements.");
-		if (elements.count(layout_name)) throw std::runtime_error("Layout Error: Duplicated layout name");
-
-		auto& lElements = elements[layout_name];
-		std::set<std::string> top_level_ids;
-
-		for (const auto& data : data_array) {
-			std::string type = data.at("type").get<std::string>();
-			auto el = elementFactory(type);
-			try { data.get_to(*el); }
-			catch (const std::exception& e) { throw std::runtime_error("Layout Error: Failed to deserialize element of type '" + type + "'. " + e.what()); }
-			el->layout_name = layout_name;
-			if (lElements.count(el->id)) throw std::runtime_error("Layout Error: Element with ID '" + el->id + "' already exists in the map.");
-			if (el->father_id.empty()) top_level_ids.insert(el->id);
-
-			if (lElements.count(el->father_id)) {
-				const auto& father = lElements[el->father_id];
-				if (!std::any_of(father->subElement_ids.begin(), father->subElement_ids.end(), [&](std::string id){ return id == el->id; })) {
-					throw std::runtime_error(std::format("Layout Error: Father/Subelements mismatch between '{}' and '{}'", el->id, el->father_id));
-				}
-			}
-			for (const auto& subElement_id : el->subElement_ids) {
-				if (lElements.count(subElement_id) && lElements[subElement_id]->father_id != el->id) {
-					throw std::runtime_error(std::format("Layout Error: Father/Subelements mismatch between '{}' and '{}'", el->id, subElement_id));
-				}
-			}
-
-			lElements[el->id] = std::move(el);
-		}
-
-		if (!data_array.empty() && top_level_ids.empty()) throw std::runtime_error("Layout Error: No root element found");
-		for (const std::string& id : top_level_ids) lElements.at(id)->solveLayout();
 	}
 
 
