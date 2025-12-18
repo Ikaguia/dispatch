@@ -59,6 +59,7 @@
 		"type": "BOX",
 		"id": "heroDetails-right",
 		"father_id": "mapRect",
+		"subElement_ids": [ "heroDetails-right-attrGraph" ],
 		"size": {
 			"x": 0.32,
 			"y": 0.893
@@ -263,7 +264,7 @@
 		"outterMargin": {
 			"x": 0,
 			"y": 0,
-			"z": 10,
+			"z": 0,
 			"w": 0
 		},
 		"verticalConstraint": {
@@ -1322,5 +1323,39 @@
 			}
 		},
 		"text": "CONFIRM"
+	}, {
+		"type": "ATTRGRAPH",
+		"id": "heroDetails-right-attrGraph",
+		"father_id": "heroDetails-right",
+		"size": {
+			"x": 0.8,
+			"y": 0.8
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		},
+		"groups": [
+			{
+				"values": [1, 2, 3, 4, 5],
+				"color": "ORANGE"
+			}
+		]
 	}
 ]

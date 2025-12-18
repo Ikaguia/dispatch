@@ -130,6 +130,37 @@ namespace Dispatch::UI {
 		virtual void to_json(nlohmann::json& j) const override;
 	};
 
+	class RadarGraph : public virtual Element {
+	public:
+		struct Segment {
+			std::string label, icon;
+		};
+		struct Group {
+			std::vector<float> values;
+			raylib::Color color = BLUE;
+		};
+		std::vector<Segment> segments;
+		std::vector<Group> groups;
+		float maxValue = 10.0f;
+		int fontSize = 14, precision=0;
+		raylib::Color fontColor=textColor, overlapColor=WHITE, bgLines=bgDrk;
+		bool drawLabels=true, drawIcons=false, drawOverlap=true;
+
+		virtual void render() override;
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
+	};
+
+	class AttrGraph : public virtual RadarGraph {
+	public:
+		AttrGraph() : Element(), RadarGraph() {
+			for (const Attribute attr : Attribute::Values) segments.push_back({std::string(attr.toString()), std::string(attr.toIcon())});
+			innerColor = BLACK;
+			borderColor = WHITE;
+			drawIcons = true;
+		}
+	};
+
 	extern std::map<std::string, std::map<std::string, std::unique_ptr<Element>>> elements;
 
 	void loadLayout(std::string path);
@@ -151,10 +182,18 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::TextCircle& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Image& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Image& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::AttrGraph& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::AttrGraph& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint& inst);
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst);
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst);
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst);
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Segment& inst);
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Segment& inst);
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Group& inst);
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Group& inst);
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Side, {
 		{Dispatch::UI::Side::INVALID, nullptr},

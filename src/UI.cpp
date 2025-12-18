@@ -230,6 +230,54 @@ namespace Dispatch::UI {
 			imageAnchor
 		);
 	}
+	void RadarGraph::render() {
+		raylib::Rectangle rect = subElementsRect();
+		raylib::Vector2 center = this->center();
+		float sideLength = std::min(rect.width, rect.height) / 2.0f;
+		if (drawIcons) sideLength *= 0.8f;
+
+		const int sides = segments.size();
+		float baseRotation = 90.0f + 180.0f / sides;
+		DrawPoly(center, sides, sideLength+1, baseRotation, innerColor);
+		DrawPolyLines(center, sides, sideLength-1, baseRotation, borderColor);
+		for (int i = 1; i < 5; i++) DrawPolyLines(center, sides, i * sideLength / 5, baseRotation, bgLines);
+		for (int i = 0; i < sides; i++) center.DrawLine(center + raylib::Vector2{0, -sideLength}.Rotate(i * 2.0f * PI / sides), bgLines);
+		if (drawIcons) for (int i = 0; i < sides; i++) {
+			std::string icon = segments[i].icon;
+			auto pos = center + raylib::Vector2{0, -(sideLength * 1.33f)}.Rotate(i * 2.0f * PI / sides);
+			pos.DrawCircle(18, innerColor);
+			DrawCircleLines(pos.x, pos.y, 16, borderColor);
+			Utils::drawTextCenteredShadow(icon, pos, emojiFont, 26);
+		}
+		for (auto [values, color] : groups) {
+			if (values.size() != (size_t)sides) throw std::runtime_error("RadarGraph group values size does not match segments size");
+			std::vector<raylib::Vector2> points;
+			for (int i = 0; i < sides; i++) {
+				float value = values[i];
+				value = std::clamp(value, 0.0f, maxValue);
+				auto cur = center + raylib::Vector2{0, -(sideLength * value / maxValue)}.Rotate(i * 2.0f * PI / sides);
+				if (i > 0) cur.DrawLine(points.back(), color);
+				points.push_back(cur);
+			}
+			points.back().DrawLine(points.front(), color);
+			points.push_back(points.front());
+			points.push_back(center);
+			std::reverse(points.begin(), points.end());
+			DrawTriangleFan(points.data(), points.size(), color.Fade(0.5f));
+			std::reverse(points.begin(), points.end());
+			for (int idx = 0; idx < sides; idx++) {
+				float value = values[idx];
+				auto point = points[idx];
+				value = std::clamp(value, 0.0f, maxValue);
+				if (drawLabels) {
+					point.DrawCircle(6, color);
+					auto text = std::format("{:.{}f}", value, precision);
+					auto sz = Dispatch::UI::defaultFont.MeasureText(text, 12, 2);
+					Dispatch::UI::defaultFont.DrawText(text, point - sz/2, 12, 2, BLACK);
+				} else if (sideLength > 20) point.DrawCircle(3, color.Fade(0.4f));
+			}
+		}
+	}
 
 	std::unique_ptr<Element> elementFactory(std::string type) {
 		if (type == "ELEMENT") return std::make_unique<Element>();
@@ -239,6 +287,8 @@ namespace Dispatch::UI {
 		else if (type == "CIRCLE") return std::make_unique<Circle>();
 		else if (type == "TEXTCIRCLE") return std::make_unique<TextCircle>();
 		else if (type == "IMAGE") return std::make_unique<Image>();
+		else if (type == "RADARGRAPH") return std::make_unique<RadarGraph>();
+		else if (type == "ATTRGRAPH") return std::make_unique<AttrGraph>();
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
@@ -371,7 +421,6 @@ namespace Dispatch::UI {
 		}
 	}
 	void Circle::from_json(const json& j) {
-		auto& inst = *this;
 		json j_copy = j;
 		if (j_copy.contains("radius")) {
 			float radius = j_copy["radius"].get<float>();
@@ -412,6 +461,33 @@ namespace Dispatch::UI {
 		READ(j, tintColor);
 		texture.Load(path);
 	}
+	void RadarGraph::to_json(json& j) const {
+		auto& inst = *this;
+		Element::to_json(j);
+		WRITE(segments);
+		WRITE(groups);
+		WRITE(maxValue);
+		WRITE(fontSize);
+		WRITE(fontColor);
+		WRITE(overlapColor);
+		WRITE(drawLabels);
+		WRITE(drawIcons);
+		WRITE(drawOverlap);
+	}
+	void RadarGraph::from_json(const json& j) {
+		auto& inst = *this;
+		Element::from_json(j);
+		if (segments.size() == 0) { READREQ(j, segments); }
+		else { READ(j, segments); }
+		READREQ(j, groups);
+		READ(j, maxValue);
+		READ(j, fontSize);
+		READ(j, fontColor);
+		READ(j, overlapColor);
+		READ(j, drawLabels);
+		READ(j, drawIcons);
+		READ(j, drawOverlap);
+	}
 }
 
 namespace nlohmann {
@@ -436,5 +512,21 @@ namespace nlohmann {
 		READREQ(j, type);
 		READ(j, element_id);
 		READREQ(j, side);
+	}
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Segment& inst) {
+		WRITE(label);
+		WRITE(icon);
+	}
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Segment& inst) {
+		READREQ(j, label);
+		READ(j, icon);
+	}
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Group& inst) {
+		WRITE(values);
+		WRITE(color);
+	}
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Group& inst) {
+		READREQ(j, values);
+		READ(j, color);
 	}
 };
