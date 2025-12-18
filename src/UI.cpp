@@ -226,6 +226,8 @@ namespace Dispatch::UI {
 		else if (type == "BOX") return std::make_unique<Box>();
 		else if (type == "TEXT") return std::make_unique<Text>();
 		else if (type == "TEXTBOX") return std::make_unique<TextBox>();
+		else if (type == "CIRCLE") return std::make_unique<Circle>();
+		else if (type == "TEXTCIRCLE") return std::make_unique<TextCircle>();
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
@@ -348,6 +350,39 @@ namespace Dispatch::UI {
 		READ(j, fontName);
 		READ(j, fontColor);
 		READ(j, textAnchor);
+	}
+	void Circle::to_json(json& j) const {
+		auto& inst = *this;
+		Element::to_json(j);
+		if (size.x == size.y) {
+			WRITE2(size.x, radius);
+			j.erase("size");
+		}
+	}
+	void Circle::from_json(const json& j) {
+		auto& inst = *this;
+		json j_copy = j;
+		if (j_copy.contains("radius")) {
+			float radius = j_copy["radius"].get<float>();
+			j_copy["size"] = raylib::Vector2{radius, radius};
+		}
+		Element::from_json(j_copy);
+	}
+	void TextCircle::to_json(json& j) const {
+		auto& inst = *this;
+		Text::to_json(j);
+		if (size.x == size.y) {
+			WRITE2(size.x, radius);
+			j.erase("size");
+		}
+	}
+	void TextCircle::from_json(const json& j) {
+		json j_copy = j;
+		if (j_copy.contains("radius")) {
+			float radius = j_copy["radius"].get<float>();
+			j_copy["size"] = raylib::Vector2{radius, radius};
+		}
+		Text::from_json(j_copy);
 	}
 }
 

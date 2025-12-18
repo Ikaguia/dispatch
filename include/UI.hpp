@@ -98,7 +98,23 @@ namespace Dispatch::UI {
 		virtual void to_json(nlohmann::json& j) const override;
 	};
 
-	class TextBox : public Box, public Text {};
+	class TextBox : public virtual Box, public virtual Text {};
+
+	class Circle : public virtual Box {
+	public:
+		Circle() : Element(), Box() {
+			roundness = 1.0f;
+			roundnessSegments = 32;
+		}
+
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
+	};
+
+	class TextCircle : public virtual Circle, public virtual Text {
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
+	};
 
 	extern std::map<std::string, std::map<std::string, std::unique_ptr<Element>>> elements;
 
