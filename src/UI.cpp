@@ -220,6 +220,16 @@ namespace Dispatch::UI {
 			rect.width
 		);
 	}
+	void Image::render() {
+		Element::render();
+		Utils::drawTextureAnchored(
+			texture,
+			boundingRect(),
+			tintColor,
+			fillType,
+			imageAnchor
+		);
+	}
 
 	std::unique_ptr<Element> elementFactory(std::string type) {
 		if (type == "ELEMENT") return std::make_unique<Element>();
@@ -228,6 +238,7 @@ namespace Dispatch::UI {
 		else if (type == "TEXTBOX") return std::make_unique<TextBox>();
 		else if (type == "CIRCLE") return std::make_unique<Circle>();
 		else if (type == "TEXTCIRCLE") return std::make_unique<TextCircle>();
+		else if (type == "IMAGE") return std::make_unique<Image>();
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
@@ -383,6 +394,23 @@ namespace Dispatch::UI {
 			j_copy["size"] = raylib::Vector2{radius, radius};
 		}
 		Text::from_json(j_copy);
+	}
+	void Image::to_json(json& j) const {
+		auto& inst = *this;
+		Element::to_json(j);
+		WRITE(path);
+		WRITE(fillType);
+		WRITE(imageAnchor);
+		WRITE(tintColor);
+	}
+	void Image::from_json(const json& j) {
+		auto& inst = *this;
+		Element::from_json(j);
+		READREQ(j, path);
+		READ(j, fillType);
+		READ(j, imageAnchor);
+		READ(j, tintColor);
+		texture.Load(path);
 	}
 }
 

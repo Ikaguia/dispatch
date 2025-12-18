@@ -104,7 +104,8 @@
 			"offset": 19
 		},
 		"shadowOffset": [ 4, 4 ],
-		"text": "UPGRADES"
+		"text": "UPGRADES",
+		"innerColor": "ORANGE"
 	}, {
 		"type": "TEXTBOX",
 		"id": "tab-powers",
@@ -135,7 +136,8 @@
 			}
 		},
 		"shadowOffset": [ 4, 4 ],
-		"text": "POWERS"
+		"text": "POWERS",
+		"innerColor": "DARKGREEN"
 	}, {
 		"type": "TEXTBOX",
 		"id": "tab-info",
@@ -164,12 +166,13 @@
 			"offset": 19
 		},
 		"shadowOffset": [ 4, 4 ],
-		"text": "INFO"
+		"text": "INFO",
+		"innerColor": "DARKGREEN"
 	}, {
 		"type": "BOX",
 		"id": "heroDetails-left/middle-top",
 		"father_id": "heroDetails-left/middle",
-		"subElement_ids": [ "heroDetails-stats" ],
+		"subElement_ids": [ "heroDetails-image", "heroDetails-mask", "heroDetails-stats" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.88
@@ -249,6 +252,71 @@
 			}
 		},
 		"text": "BACK"
+	}, {
+		"type": "IMAGE",
+		"id": "heroDetails-mask",
+		"father_id": "heroDetails-left/middle-top",
+		"size": {
+			"x": 1.0,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 0,
+			"z": 10,
+			"w": 0
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		},
+		"path": "resources/images/hero-details-mask.png",
+		"fillType": "stretch"
+	}, {
+		"type": "IMAGE",
+		"id": "heroDetails-image",
+		"father_id": "heroDetails-left/middle-top",
+		"size": {
+			"x": 1.0,
+			"y": 1.0
+		},
+		"outterMargin": {
+			"x": 0,
+			"y": 0,
+			"z": 10,
+			"w": 0
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			}
+		},
+		"path": "resources/images/heroes/Crumple/full-image.png",
+		"fillType": "fit",
+		"anchor": "left"
 	}, {
 		"type": "BOX",
 		"id": "heroDetails-stats",
