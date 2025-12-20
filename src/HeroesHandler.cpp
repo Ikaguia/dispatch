@@ -277,8 +277,8 @@ void HeroesHandler::renderUI() {
 }
 
 void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
-	Dispatch::UI::TextBox* confirm = dynamic_cast<Dispatch::UI::TextBox*>(layout.elements.at("heroDetails-stats-confirm").get());
-	Dispatch::UI::TextBox* reset = dynamic_cast<Dispatch::UI::TextBox*>(layout.elements.at("heroDetails-stats-reset").get());
+	Dispatch::UI::Button* confirm = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("heroDetails-stats-confirm").get());
+	Dispatch::UI::Button* reset = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("heroDetails-stats-reset").get());
 	if (!confirm) throw std::runtime_error("Hero details layout is missing 'heroDetails-stats-confirm' element or it is of the wrong type.");
 	if (!reset) throw std::runtime_error("Hero details layout is missing 'heroDetails-stats-reset' element or it is of the wrong type.");
 
@@ -287,28 +287,26 @@ void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
 	int totalUnconfirmed = 0;
 
 	layout.updateSharedData("skillPoints", std::to_string(hero.skillPoints));
-	layout.updateSharedData("attributes", hero.attributes());
+	layout.updateSharedData("attributes", attrs);
 	for (Attribute::Value attr : Attribute::Values) {
 		std::string attr_str = Utils::toLower((std::string)Attribute(attr).toString());
 		std::string str_minus = std::format("heroDetails-stats-{}-minus", attr_str);
-		std::string str_value = std::format("heroDetails-stats-{}-value", attr_str);
 		std::string str_plus = std::format("heroDetails-stats-{}-plus", attr_str);
-		Dispatch::UI::TextBox* minus = dynamic_cast<Dispatch::UI::TextBox*>(layout.elements.at(str_minus).get());
-		Dispatch::UI::Text* value = dynamic_cast<Dispatch::UI::Text*>(layout.elements.at(str_value).get());
-		Dispatch::UI::TextBox* plus = dynamic_cast<Dispatch::UI::TextBox*>(layout.elements.at(str_plus).get());
+		Dispatch::UI::Button* minus = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at(str_minus).get());
+		Dispatch::UI::Button* plus = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at(str_plus).get());
 		if (!minus) throw std::runtime_error(std::format("Hero details layout is missing '{}' element or it is of the wrong type.", str_minus));
-		if (!value) throw std::runtime_error(std::format("Hero details layout is missing '{}' element or it is of the wrong type.", str_value));
 		if (!plus) throw std::runtime_error(std::format("Hero details layout is missing '{}' element or it is of the wrong type.", str_plus));
 
 		int unconfirmed = unc_attrs[attr];
 		totalUnconfirmed += unconfirmed;
 
-		minus->innerColor = unconfirmed ? Dispatch::UI::bgLgt : Dispatch::UI::bgDrk;
-		value->text = std::to_string(attrs[attr] + unconfirmed);
-		plus->innerColor = hero.skillPoints ? Dispatch::UI::bgLgt : Dispatch::UI::bgDrk;
+		minus->changeStatus(unconfirmed ? Dispatch::UI::Element::Status::REGULAR : Dispatch::UI::Element::Status::DISABLED);
+		plus->changeStatus(hero.skillPoints ? Dispatch::UI::Element::Status::REGULAR : Dispatch::UI::Element::Status::DISABLED);
+		layout.updateSharedData(attr_str, std::to_string(attrs[attr] + unconfirmed));
 	}
-	reset->innerColor = totalUnconfirmed ? Dispatch::UI::bgLgt : Dispatch::UI::bgDrk;
-	confirm->innerColor = totalUnconfirmed ? Dispatch::UI::bgLgt : Dispatch::UI::bgDrk;
+	auto status = totalUnconfirmed ? Dispatch::UI::Element::Status::REGULAR : Dispatch::UI::Element::Status::DISABLED;
+	reset->changeStatus(status);
+	confirm->changeStatus(status);
 }
 
 bool HeroesHandler::handleInput() {
@@ -337,48 +335,49 @@ bool HeroesHandler::handleInput() {
 				if (it != active_heroes.end()) selectHero(it - active_heroes.begin());
 				else selectHero(0);
 			}
-		} else if (selectedHeroIndex != -1) {
-			auto& hero = active_heroes[selectedHeroIndex];
+		}
+	}
+	if (selectedHeroIndex != -1) {
+		auto& hero = active_heroes[selectedHeroIndex];
 
-			if (layoutHeroDetails.elements.at("tab-upgrades").get()->colidesWith(mousePos)) {
-				changeTab(UPGRADE);
-				return true;
-			} else if (layoutHeroDetails.elements.at("tab-powers").get()->colidesWith(mousePos)) {
-				changeTab(POWERS);
-				return true;
-			} else if (layoutHeroDetails.elements.at("tab-info").get()->colidesWith(mousePos)) {
-				changeTab(INFO);
-				return true;
-			} else if (layoutHeroDetails.elements.at("heroDetails-backButton").get()->colidesWith(mousePos)) {
-				selectHero(-1);
-				return true;
-			} else if (layoutHeroDetails.elements.at("heroDetails-stats-reset").get()->colidesWith(mousePos)) {
-				hero->resetAttributeChanges();
-				updateLayoutStatsData(layoutHeroDetails, *hero);
-				return true;
-			} else if (layoutHeroDetails.elements.at("heroDetails-stats-confirm").get()->colidesWith(mousePos)) {
-				hero->applyAttributeChanges();
-				updateLayoutStatsData(layoutHeroDetails, *hero);
-				return true;
-			} else {
-				for (auto attr : Attribute::Values) {
-					std::string minus = std::format("heroDetails-stats-{}-minus", Utils::toLower((std::string)Attribute(attr).toString()));
-					std::string plus = std::format("heroDetails-stats-{}-plus", Utils::toLower((std::string)Attribute(attr).toString()));
-					if (layoutHeroDetails.elements.at(minus).get()->colidesWith(mousePos)) {
-						if (hero->unconfirmed_attributes[attr] > 0) {
-							hero->unconfirmed_attributes[attr]--;
-							hero->skillPoints++;
-						}
-						updateLayoutStatsData(layoutHeroDetails, *hero);
-						return true;
-					} else if (layoutHeroDetails.elements.at(plus).get()->colidesWith(mousePos)) {
-						if (hero->skillPoints > 0) {
-							hero->unconfirmed_attributes[attr]++;
-							hero->skillPoints--;
-						}
-						updateLayoutStatsData(layoutHeroDetails, *hero);
-						return true;
+		if (layoutHeroDetails.release.contains("tab-upgrades")) {
+			changeTab(UPGRADE);
+			return true;
+		} else if (layoutHeroDetails.release.contains("tab-powers")) {
+			changeTab(POWERS);
+			return true;
+		} else if (layoutHeroDetails.release.contains("tab-info")) {
+			changeTab(INFO);
+			return true;
+		} else if (layoutHeroDetails.release.contains("heroDetails-backButton")) {
+			selectHero(-1);
+			return true;
+		} else if (layoutHeroDetails.release.contains("heroDetails-stats-reset")) {
+			hero->resetAttributeChanges();
+			updateLayoutStatsData(layoutHeroDetails, *hero);
+			return true;
+		} else if (layoutHeroDetails.release.contains("heroDetails-stats-confirm")) {
+			hero->applyAttributeChanges();
+			updateLayoutStatsData(layoutHeroDetails, *hero);
+			return true;
+		} else {
+			for (auto attr : Attribute::Values) {
+				std::string minus = std::format("heroDetails-stats-{}-minus", Utils::toLower((std::string)Attribute(attr).toString()));
+				std::string plus = std::format("heroDetails-stats-{}-plus", Utils::toLower((std::string)Attribute(attr).toString()));
+				if (layoutHeroDetails.release.contains(minus)) {
+					if (hero->unconfirmed_attributes[attr] > 0) {
+						hero->unconfirmed_attributes[attr]--;
+						hero->skillPoints++;
 					}
+					updateLayoutStatsData(layoutHeroDetails, *hero);
+					return true;
+				} else if (layoutHeroDetails.release.contains(plus)) {
+					if (hero->skillPoints > 0) {
+						hero->unconfirmed_attributes[attr]++;
+						hero->skillPoints--;
+					}
+					updateLayoutStatsData(layoutHeroDetails, *hero);
+					return true;
 				}
 			}
 		}

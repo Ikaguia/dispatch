@@ -141,21 +141,25 @@ namespace Dispatch::UI {
 	void Element::handleInput() {
 		auto& elements = layout->elements;
 		for (const std::string& el_id : subElement_ids) elements.at(el_id)->handleInput();
+
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 		bool wasHovered = hovered, wasPressed = pressed;
 		hovered = colidesWith(mousePos);
 		clicked = hovered && !wasPressed && raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT);
-		pressed = (hovered || wasPressed) && raylib::Mouse::IsButtonDown(MOUSE_BUTTON_LEFT);
+		pressed = clicked || (wasPressed && raylib::Mouse::IsButtonDown(MOUSE_BUTTON_LEFT));
 		unhover = wasHovered && !hovered;
-		release = wasPressed && !pressed;
+		release = wasPressed && !pressed && hovered;
 		if (hovered) layout->hovered.insert(id);
 		if (clicked) layout->clicked.insert(id);
 		if (pressed) layout->pressed.insert(id);
 		if (unhover) layout->unhover.insert(id);
 		if (release) layout->release.insert(id);
-		if (clicked || pressed) status = Status::PRESSED;
-		else if (hovered) status = Status::HOVERED;
-		else status = Status::REGULAR;
+
+		if (status != Status::DISABLED && status != Status::SELECTED) {
+			if (clicked || pressed) changeStatus(Status::PRESSED);
+			else if (hovered) changeStatus(Status::HOVERED);
+			else changeStatus(Status::REGULAR);
+		}
 	}
 	void Element::solveLayout() {
 		auto& elements = layout->elements;
@@ -295,6 +299,7 @@ namespace Dispatch::UI {
 		// 4. Update the vector
 		subElement_ids = std::move(sortedIds);
 	}
+	void Element::changeStatus(Status st) { status = st; }
 	// Text
 	void Text::_render() {
 		Element::_render();
@@ -371,11 +376,6 @@ namespace Dispatch::UI {
 		);
 	}
 	// Button
-	void Button::handleInput() {
-		Status prevStatus = status;
-		Element::handleInput();
-		if (status != prevStatus) applyStatusChages();
-	}
 	void Button::solveSize() {
 		Element::solveSize();
 		size.x *= size_mult;
@@ -383,14 +383,18 @@ namespace Dispatch::UI {
 		bounds.width *= size_mult;
 		bounds.height *= size_mult;
 	}
-	void Button::applyStatusChages() {
-		StatusChanges& sc = statusChanges[status];
-		innerColor = sc.inner;
-		outterColor = sc.outter;
-		borderColor = sc.border;
-		textColor = sc.text;
-		size_mult = sc.size_mult;
-		if (initialized) solveLayout();
+	void Button::changeStatus(Status st) {
+		Status oldStatus = status;
+		Element::changeStatus(st);
+		if (status != oldStatus) {
+			StatusChanges& sc = statusChanges[status];
+			innerColor = sc.inner;
+			outterColor = sc.outter;
+			borderColor = sc.border;
+			textColor = sc.text;
+			size_mult = sc.size_mult;
+			if (initialized) solveLayout();
+		}
 	}
 	// RadarGraph
 	void RadarGraph::_render() {
@@ -557,7 +561,8 @@ namespace Dispatch::UI {
 		auto& inst = *this;
 		Text::from_json(j);
 		READ(j, statusChanges);
-		applyStatusChages();
+		changeStatus(Status::DISABLED);
+		changeStatus(Status::REGULAR);
 	}
 	void Circle::to_json(json& j) const {
 		auto& inst = *this;

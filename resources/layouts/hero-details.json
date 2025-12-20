@@ -544,7 +544,7 @@
 		"text": "Combat",
 		"textAnchor": "left"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-combat-minus",
 		"father_id": "heroDetails-stats-combat",
 		"size": {
@@ -614,9 +614,9 @@
 			},
 			"ratio": 0.86
 		},
-		"text": "?"
+		"text": "{@combat}"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-combat-plus",
 		"father_id": "heroDetails-stats-combat",
 		"size": {
@@ -720,7 +720,7 @@
 		"text": "Vigor",
 		"textAnchor": "left"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-vigor-minus",
 		"father_id": "heroDetails-stats-vigor",
 		"size": {
@@ -790,9 +790,9 @@
 			},
 			"ratio": 0.86
 		},
-		"text": "?"
+		"text": "{@vigor}"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-vigor-plus",
 		"father_id": "heroDetails-stats-vigor",
 		"size": {
@@ -896,7 +896,7 @@
 		"text": "Mobility",
 		"textAnchor": "left"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-mobility-minus",
 		"father_id": "heroDetails-stats-mobility",
 		"size": {
@@ -966,9 +966,9 @@
 			},
 			"ratio": 0.86
 		},
-		"text": "?"
+		"text": "{@mobility}"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-mobility-plus",
 		"father_id": "heroDetails-stats-mobility",
 		"size": {
@@ -1072,7 +1072,7 @@
 		"text": "Charisma",
 		"textAnchor": "left"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-charisma-minus",
 		"father_id": "heroDetails-stats-charisma",
 		"size": {
@@ -1142,9 +1142,9 @@
 			},
 			"ratio": 0.86
 		},
-		"text": "?"
+		"text": "{@charisma}"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-charisma-plus",
 		"father_id": "heroDetails-stats-charisma",
 		"size": {
@@ -1248,7 +1248,7 @@
 		"text": "Intelligence",
 		"textAnchor": "left"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-intelligence-minus",
 		"father_id": "heroDetails-stats-intelligence",
 		"size": {
@@ -1318,9 +1318,9 @@
 			},
 			"ratio": 0.86
 		},
-		"text": "?"
+		"text": "{@intelligence}"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-intelligence-plus",
 		"father_id": "heroDetails-stats-intelligence",
 		"size": {
@@ -1356,7 +1356,7 @@
 		},
 		"text": "+"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-reset",
 		"father_id": "heroDetails-stats",
 		"size": {
@@ -1383,7 +1383,7 @@
 		},
 		"text": "RESET"
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-stats-confirm",
 		"father_id": "heroDetails-stats",
 		"size": {

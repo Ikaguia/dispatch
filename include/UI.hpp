@@ -99,6 +99,7 @@ namespace Dispatch::UI {
 		virtual void solveSize();
 		virtual void sortSubElements(bool z_order);
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {}
+		virtual void changeStatus(Status st);
 
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
@@ -145,19 +146,18 @@ namespace Dispatch::UI {
 		};
 		std::map<Status, StatusChanges> statusChanges{
 			{Status::REGULAR, {bgLgt, bgMed, BLACK, textColor, 1.0f}},
-			{Status::HOVERED, {BLUE, DARKBLUE, BLACK, textColor, 1.1f}},
-			{Status::PRESSED, {SKYBLUE, BLUE, BLACK, textColor, 1.0f}},
+			{Status::HOVERED, {SKYBLUE, BLUE, BLACK, textColor, 1.1f}},
+			{Status::PRESSED, {BLUE, DARKBLUE, BLACK, textColor, 1.1f}},
 			{Status::SELECTED, {ORANGE, BROWN, BLACK, WHITE, 1.0f}},
 			{Status::DISABLED, {bgDrk, DARKGRAY, BLACK, LIGHTGRAY, 1.0f}}
 		};
 		float size_mult = 1.0f;
 
-		virtual void handleInput() override;
 		virtual void solveSize() override;
+		virtual void changeStatus(Status st) override;
+
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
-
-		void applyStatusChages();
 	};
 
 	class Circle : public virtual Box {
