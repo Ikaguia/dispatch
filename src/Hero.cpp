@@ -16,6 +16,7 @@ using nlohmann::json;
 
 Hero::Hero(const json& data) {
 	Utils::println("Initializing hero", data.at("name").get<std::string>());
+	for (auto attr : Attribute::Values) unconfirmed_attributes[attr] = 0;
 	Hero::from_json(data, *this);
 }
 

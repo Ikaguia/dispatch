@@ -40,7 +40,7 @@ public:
 	} health{NORMAL};
 	float travelSpeedMult=1.0f, elapsedTime=0.0f, finishTime=0.0f, restingTime=10.0f;
 	bool flies=false;
-	int level=1, exp=0, skillPoints=0;
+	int level=1, exp=0, skillPoints=3;
 	std::weak_ptr<Mission> mission{};
 	raylib::Vector2 pos{500, 200}, path;
 	raylib::Rectangle uiRect{};

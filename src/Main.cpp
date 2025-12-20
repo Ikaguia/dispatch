@@ -41,8 +41,6 @@ int main() {
 	cloudShader.SetValue(cloudsDensityLoc, (float[1]){ 0.5f }, SHADER_UNIFORM_FLOAT);
 	raylib::Texture dummy(raylib::Image{1,1,WHITE});
 
-	Dispatch::UI::Layout test{"resources/layouts/test.json"};
-
 	while (!window.ShouldClose()) {
 		float deltaTime = GetFrameTime();
 
@@ -65,10 +63,6 @@ int main() {
 		if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 			raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 			std::cout << "mousePos: " << mousePos.x << "," << mousePos.y << std::endl;
-			if (heroesHandler.selectedHeroIndex >= 0) {
-				Hero& hero = *heroesHandler.active_heroes[heroesHandler.selectedHeroIndex];
-				test.updateSharedData("selectedHeroName", hero.name);
-			} else test.updateSharedData("selectedHeroName", "???");
 		}
 
 		target.BeginMode();
@@ -95,7 +89,6 @@ int main() {
 				heroesHandler.renderUI();
 				missionsHandler.renderUI();
 			}
-			test.render();
 		target.EndMode();
 
 		BeginDrawing();

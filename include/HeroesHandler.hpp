@@ -6,6 +6,7 @@
 
 #include <Hero.hpp>
 #include <Mission.hpp>
+#include <UI.hpp>
 
 class HeroesHandler {
 private:
@@ -23,6 +24,7 @@ public:
 	};
 	Tabs tab = UPGRADE;
 	std::map<std::string, raylib::Rectangle> btns;
+	Dispatch::UI::Layout layoutHeroDetails{"resources/layouts/hero-details.json"};
 
 	static HeroesHandler& inst();
 	void loadHeroes(const std::string& filePath, bool activate=false);
@@ -36,5 +38,6 @@ public:
 	void renderUI();
 	bool handleInput();
 	void update(float deltaTime);
-
+	void selectHero(int idx);
+	void changeTab(Tabs newTab);
 };

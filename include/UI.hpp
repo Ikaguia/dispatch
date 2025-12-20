@@ -20,13 +20,14 @@ namespace Dispatch::UI {
 	public:
 		std::map<std::string, std::unique_ptr<Element>> elements;
 		std::set<std::string> rootElements;
-		std::map<std::string, std::string> sharedData;
+		std::map<std::string, nlohmann::json> sharedData;
 		std::map<std::string, std::set<std::string>> sharedDataListeners;
 
 		Layout(std::string path);
 
 		void render();
-		void updateSharedData(const std::string& key, const std::string& value);
+		void updateSharedData(const std::string& key, const nlohmann::json& value);
+		void deleteSharedData(const std::string& key);
 		void registerSharedDataListener(const std::string& key, const std::string& element_id);
 	};
 
@@ -49,13 +50,17 @@ namespace Dispatch::UI {
 	};
 
 	class Element {
+	protected:
+		nlohmann::json orig;
+		std::set<std::string> dynamic_vars;
 	public:
 		Layout* layout = nullptr;
+		bool visible = true;
 		int z_order = -1, roundnessSegments = 0;
 		float borderThickness = 0.0f, roundness = 0.0f;
 		std::string id, father_id;
 		std::vector<std::string> subElement_ids;
-		raylib::Vector2 size, origSize, shadowOffset;
+		raylib::Vector2 size, shadowOffset;
 		raylib::Vector4 outterMargin, innerMargin;
 		raylib::Color innerColor{0,0,0,0}, outterColor{0,0,0,0}, borderColor{0,0,0,0}, shadowColor = ColorAlpha(BLACK, 0.3f);
 		struct Constraint {
@@ -80,10 +85,11 @@ namespace Dispatch::UI {
 		virtual const bool colidesWith(const raylib::Rectangle& other) const;
 
 		virtual void render();
+		virtual void _render();
 		virtual void handleInput();
 		virtual void solveLayout();
 		virtual void sortSubElements(bool z_order);
-		virtual void onSharedDataUpdate(const std::string& key, const std::string& value) {}
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {}
 
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
@@ -107,14 +113,14 @@ namespace Dispatch::UI {
 	public:
 		int fontSize = 16;
 		float spacing = 1.0f;
-		std::string origText, text, fontName;
+		std::string text, fontName;
 		raylib::Color fontColor = textColor;
 		Utils::Anchor textAnchor = Utils::Anchor::center;
 
-		virtual void render() override;
+		virtual void _render() override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
-		virtual void onSharedDataUpdate(const std::string& key, const std::string& value) override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 
 		void parseText();
 		void updateText();
@@ -147,7 +153,7 @@ namespace Dispatch::UI {
 		Utils::Anchor imageAnchor = Utils::Anchor::center;
 		raylib::Color tintColor = WHITE;
 
-		virtual void render() override;
+		virtual void _render() override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 	};
@@ -168,9 +174,10 @@ namespace Dispatch::UI {
 		raylib::Color fontColor=textColor, overlapColor=WHITE, bgLines=bgDrk;
 		bool drawLabels=true, drawIcons=false, drawOverlap=true;
 
-		virtual void render() override;
+		virtual void _render() override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 	};
 
 	class AttrGraph : public virtual RadarGraph {

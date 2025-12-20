@@ -23,6 +23,7 @@ namespace Dispatch::UI {
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
+	// Layout
 	Layout::Layout(std::string path) {
 		json data_array = Utils::readJsonFile(path);
 		Utils::println("Reading layout '{}'", path);
@@ -56,17 +57,21 @@ namespace Dispatch::UI {
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
 		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
 	}
-
 	void Layout::render() { for (const std::string& id : rootElements) elements.at(id)->render(); }
-	void Layout::updateSharedData(const std::string& key, const std::string& value) {
+	void Layout::updateSharedData(const std::string& key, const json& value) {
+		if (value == sharedData[key]) return;
 		sharedData[key] = value;
 		for (const std::string& id : sharedDataListeners[key]) elements.at(id)->onSharedDataUpdate(key, value);
+	}
+	void Layout::deleteSharedData(const std::string& key) {
+		if (sharedData.find(key) == sharedData.end()) return;
+		sharedData.erase(key);
+		for (const std::string& id : sharedDataListeners[key]) elements.at(id)->onSharedDataUpdate(key, nullptr);
 	}
 	void Layout::registerSharedDataListener(const std::string& key, const std::string& element_id) {
 		Utils::println("Registering element '{}' as listener for shared data key '{}'", element_id, key);
 		sharedDataListeners[key].insert(element_id);
 	}
-
 
 	// Element
 	const float Element::side(Side side, bool inner) const {
@@ -94,12 +99,16 @@ namespace Dispatch::UI {
 		if (!initialized) throw std::runtime_error("Element inner bounding rect requested before initialization");
 		return innerBounds;
 	}
-
 	const bool Element::colidesWith(const Element& other) const { return boundingRect().CheckCollision(other.boundingRect()); }
 	const bool Element::colidesWith(const raylib::Vector2& other) const { return boundingRect().CheckCollision(other); }
 	const bool Element::colidesWith(const raylib::Rectangle& other) const { return boundingRect().CheckCollision(other); }
-
 	void Element::render() {
+		if (!visible) return;
+		_render();
+		auto& elements = layout->elements;
+		for (const std::string& el_id : subElement_ids) elements.at(el_id)->render();
+	}
+	void Element::_render() {
 		raylib::Rectangle outterRect = boundingRect();
 		raylib::Rectangle innerRect = subElementsRect();
 		
@@ -119,8 +128,6 @@ namespace Dispatch::UI {
 			if (roundnessSegments > 0) outterRect.DrawRoundedLines(roundness, roundnessSegments, borderThickness, borderColor);
 			else outterRect.DrawLines(borderColor, borderThickness);
 		}
-		auto& elements = layout->elements;
-		for (const std::string& el_id : subElement_ids) elements.at(el_id)->render();
 	}
 	void Element::handleInput() {
 		auto& elements = layout->elements;
@@ -128,6 +135,7 @@ namespace Dispatch::UI {
 	}
 	void Element::solveLayout() {
 		auto& elements = layout->elements;
+		raylib::Vector2 origSize = orig.at("size").get<raylib::Vector2>();
 		if (origSize.x >= 0.0f && origSize.x <= 1.0f) {
 			float maxW = father_id.empty() ? GetScreenWidth() : elements.at(father_id)->subElementsRect().width;
 			size.x = std::round(maxW * origSize.x - (outterMargin.x + outterMargin.z));
@@ -176,7 +184,6 @@ namespace Dispatch::UI {
 		for (const std::string& el_id : subElement_ids) elements.at(el_id)->solveLayout();
 		sortSubElements(true);
 	}
-
 	void Element::sortSubElements(bool z_order) {
 		auto& elements = layout->elements;
 		// Sort based on the z_order member
@@ -261,9 +268,9 @@ namespace Dispatch::UI {
 		// 4. Update the vector
 		subElement_ids = std::move(sortedIds);
 	}
-
-	void Text::render() {
-		Element::render();
+	// Text
+	void Text::_render() {
+		Element::_render();
 		raylib::Rectangle rect = boundingRect();
 		Utils::drawTextAnchored(
 			text,
@@ -277,18 +284,25 @@ namespace Dispatch::UI {
 			rect.width
 		);
 	}
-	void Text::onSharedDataUpdate(const std::string& key, const std::string& value) { updateText(); }
+	void Text::onSharedDataUpdate(const std::string& key, const json& value) { updateText(); }
 	void Text::parseText() {
 		static const std::regex pattern{R"(\{@(\w+)\})"};
+		std::string origText = orig.at("text").get<std::string>();
 		std::sregex_token_iterator iter(origText.begin(), origText.end(), pattern, 1);
 		std::sregex_token_iterator end;
+
+		if (iter == end) return;
+		dynamic_vars.insert("text");
 
 		for (; iter != end; ++iter) layout->registerSharedDataListener(*iter, id);
 		updateText();
 	}
 	void Text::updateText() {
+		if (!dynamic_vars.count("text")) return;
+
 		static const std::regex pattern{R"(\{@(\w+)\})"};
-		
+		std::string origText = orig.at("text").get<std::string>();
+
 		std::string result;
 		result.reserve(origText.size());
 
@@ -307,7 +321,7 @@ namespace Dispatch::UI {
 			std::string key = match[1].str();
 			auto dataIt = layout->sharedData.find(key);
 			
-			if (dataIt != layout->sharedData.end()) result.append(dataIt->second);
+			if (dataIt != layout->sharedData.end()) result.append(dataIt->second.get<std::string>());
 			else result.append("???");
 
 			// 3. Move the cursor forward
@@ -319,9 +333,8 @@ namespace Dispatch::UI {
 		
 		text = std::move(result);
 	}
-
-void Image::render() {
-		Element::render();
+	// Image
+	void Image::_render() {
 		Utils::drawTextureAnchored(
 			texture,
 			boundingRect(),
@@ -330,8 +343,8 @@ void Image::render() {
 			imageAnchor
 		);
 	}
-
-	void RadarGraph::render() {
+	// RadarGraph
+	void RadarGraph::_render() {
 		raylib::Rectangle rect = subElementsRect();
 		raylib::Vector2 center = this->center();
 		float sideLength = std::min(rect.width, rect.height) / 2.0f;
@@ -351,7 +364,7 @@ void Image::render() {
 			Utils::drawTextCenteredShadow(icon, pos, emojiFont, 26);
 		}
 		for (auto [values, color] : groups) {
-			if (values.size() != (size_t)sides) throw std::runtime_error("RadarGraph group values size does not match segments size");
+			if (values.size() != (size_t)sides) continue;
 			std::vector<raylib::Vector2> points;
 			for (int i = 0; i < sides; i++) {
 				float value = values[i];
@@ -379,7 +392,32 @@ void Image::render() {
 			}
 		}
 	}
-
+	void RadarGraph::onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {
+		int idx = 0;
+		Utils::println("RadarGraph '{}' received shared data update for key '{}'", id, key);
+		std::cout << "Value: " << value.dump(4) << std::endl;
+		if (dynamic_vars.count("groups")) {
+			for (auto& [values, color] : groups) {
+				if (dynamic_vars.count(std::format("groups[{}]", idx)) && orig["groups"].at(idx)["values"].get<std::string>() == std::format("{{@{}}}", key)) {
+					json jvalues = value.contains("values") ? value["values"] : value;
+					json jcolor = value.contains("color") ? value["color"] : json();
+					if (!jvalues.is_null()) {
+						values.clear();
+						if (jvalues.is_array()) for (const auto& jval : jvalues) values.push_back(jval.get<float>());
+						else if (jvalues.is_object()) {
+							for (const auto& seg : segments) {
+								auto lclabel = Utils::toLower(seg.label);
+								if (jvalues.contains(lclabel)) values.push_back(jvalues.at(lclabel).get<float>());
+								else values.push_back(0.0f);
+							}
+						} else throw std::runtime_error("RadarGraph '" + id + "' group values must be an array or object");
+					}
+					if (!jcolor.is_null()) color = jcolor.get<raylib::Color>();
+				}
+				idx++;
+			}
+		}
+	}
 
 	// JSON Serialization Macros
 	#define READ(j, var)		inst.var = j.value(#var, inst.var)
@@ -398,13 +436,13 @@ void Image::render() {
 	// JSON Serialization
 	void Element::to_json(json& j) const {
 		auto& inst = *this;
+		WRITE(visible);
 		WRITE(z_order);
 		WRITE(roundnessSegments);
 		WRITE(borderThickness);
 		WRITE(roundness);
 		WRITE(id);
 		WRITE(father_id);
-		// WRITE(layout_name);
 		WRITE(subElement_ids);
 		WRITE(size);
 		WRITE(shadowOffset);
@@ -418,14 +456,15 @@ void Image::render() {
 		WRITE(horizontalConstraint);
 	}
 	void Element::from_json(const json& j) {
+		orig = j;
 		auto& inst = *this;
+		READ(j, visible);
 		READ(j, z_order);
 		READ(j, roundnessSegments);
 		READ(j, borderThickness);
 		READ(j, roundness);
 		READREQ(j, id);
 		READ(j, father_id);
-		// READ(j, layout_name);
 		READ(j, subElement_ids);
 		READREQ(j, size);
 		READ(j, shadowOffset);
@@ -437,14 +476,13 @@ void Image::render() {
 		READ(j, shadowColor);
 		READREQ(j, verticalConstraint);
 		READREQ(j, horizontalConstraint);
-		inst.origSize = inst.size;
 	}
 	void Text::to_json(json& j) const {
 		auto& inst = *this;
 		Element::to_json(j);
 		WRITE(fontSize);
 		WRITE(spacing);
-		WRITE2(origText, text);
+		WRITE(text);
 		WRITE(fontName);
 		WRITE(fontColor);
 		WRITE(textAnchor);
@@ -454,7 +492,7 @@ void Image::render() {
 		Element::from_json(j);
 		READ(j, fontSize);
 		READ(j, spacing);
-		READREQ2(j, origText, text);
+		READREQ(j, text);
 		READ(j, fontName);
 		READ(j, fontColor);
 		READ(j, textAnchor);
@@ -528,7 +566,6 @@ void Image::render() {
 		Element::from_json(j);
 		if (segments.size() == 0) { READREQ(j, segments); }
 		else { READ(j, segments); }
-		READREQ(j, groups);
 		READ(j, maxValue);
 		READ(j, fontSize);
 		READ(j, fontColor);
@@ -536,6 +573,32 @@ void Image::render() {
 		READ(j, drawLabels);
 		READ(j, drawIcons);
 		READ(j, drawOverlap);
+
+		// Groups with dynamic values support
+		if (j.contains("groups") || !j["groups"].is_array() || j["groups"].empty()) {
+			groups.clear();
+			groups.resize(j["groups"].size());
+			int idx = 0;
+			for (auto& j_group : j["groups"]) {
+				if (j_group.is_object()) {
+					auto& group = groups[idx++];
+					group.color = j_group.value("color", group.color);
+					if (j_group.contains("values")) {
+						if (j_group["values"].is_array()) {
+							group.values = j_group["values"].get<std::vector<float>>();
+						} else if (j_group["values"].is_string()) {
+							std::string vals = j_group["values"].get<std::string>();
+							static const std::regex pattern{R"(^\{@(\w+)\}$)"};
+							std::smatch match;
+							if (!std::regex_match(vals, match, pattern)) throw std::runtime_error("RadarGraph group values dynamic string has invalid format");
+							dynamic_vars.insert("groups");
+							dynamic_vars.insert(std::format("groups[{}]", idx-1));
+							layout->registerSharedDataListener(match[1].str(), id);
+						} else throw std::runtime_error("RadarGraph group values must be an array or a dynamic string");
+					} else throw std::runtime_error("RadarGraph group must contain values");
+				} else throw std::runtime_error("RadarGraph group must be an object");
+			}
+		} else throw std::runtime_error("RadarGraph must contain at least one group");
 	}
 }
 

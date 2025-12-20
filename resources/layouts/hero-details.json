@@ -173,7 +173,7 @@
 		"type": "BOX",
 		"id": "heroDetails-left/middle-top",
 		"father_id": "heroDetails-left/middle",
-		"subElement_ids": [ "heroDetails-image", "heroDetails-mask", "heroDetails-name", "heroDetails-stats" ],
+		"subElement_ids": [ "heroDetails-image", "heroDetails-mask", "heroDetails-name", "heroDetails-stats", "heroDetails-upgrades", "heroDetails-bio" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.88
@@ -348,7 +348,7 @@
 			},
 			"ratio": 0.2
 		},
-		"text": "{@selectedHeroName}",
+		"text": "{@name}",
 		"textAnchor": "left"
 	}, {
 		"type": "BOX",
@@ -386,6 +386,60 @@
 			"offset": 32
 		}
 	}, {
+		"type": "TEXTBOX",
+		"id": "heroDetails-upgrades",
+		"father_id": "heroDetails-left/middle-top",
+		"size": {
+			"x": 0.38,
+			"y": 0.88
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"offset": 32
+		},
+		"text": "UPGRADES MUAHAHAHAHA",
+		"visible": false
+	}, {
+		"type": "TEXTBOX",
+		"id": "heroDetails-bio",
+		"father_id": "heroDetails-left/middle-top",
+		"size": {
+			"x": 0.38,
+			"y": 0.88
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
+		},
+		"horizontalConstraint": {
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"offset": 32
+		},
+		"text": "BIOGRAPHY",
+		"visible": false
+	}, {
 		"type": "TEXT",
 		"id": "heroDetails-stats-points",
 		"father_id": "heroDetails-stats",
@@ -420,7 +474,7 @@
 				"side": "end"
 			}
 		},
-		"text": "Stat Points: ?"
+		"text": "Skill Points: {@skillPoints}"
 	}, {
 		"type": "ELEMENT",
 		"id": "heroDetails-stats-combat",
@@ -1385,7 +1439,7 @@
 		},
 		"groups": [
 			{
-				"values": [1, 2, 3, 4, 5],
+				"values": "{@attributes}",
 				"color": "ORANGE"
 			}
 		]
