@@ -99,7 +99,7 @@ namespace Dispatch::UI {
 		virtual void solveSize();
 		virtual void sortSubElements(bool z_order);
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {}
-		virtual void changeStatus(Status st);
+		virtual void changeStatus(Status st, bool force=false);
 
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
@@ -154,7 +154,7 @@ namespace Dispatch::UI {
 		float size_mult = 1.0f;
 
 		virtual void solveSize() override;
-		virtual void changeStatus(Status st) override;
+		virtual void changeStatus(Status st, bool force=false) override;
 
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;

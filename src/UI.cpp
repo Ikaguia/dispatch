@@ -299,7 +299,7 @@ namespace Dispatch::UI {
 		// 4. Update the vector
 		subElement_ids = std::move(sortedIds);
 	}
-	void Element::changeStatus(Status st) { status = st; }
+	void Element::changeStatus(Status st, bool force) { status = st; }
 	// Text
 	void Text::_render() {
 		Element::_render();
@@ -309,7 +309,7 @@ namespace Dispatch::UI {
 			rect,
 			textAnchor,
 			font,
-			textColor,
+			fontColor,
 			fontSize,
 			spacing,
 			{},
@@ -383,15 +383,15 @@ namespace Dispatch::UI {
 		bounds.width *= size_mult;
 		bounds.height *= size_mult;
 	}
-	void Button::changeStatus(Status st) {
+	void Button::changeStatus(Status st, bool force) {
 		Status oldStatus = status;
 		Element::changeStatus(st);
-		if (status != oldStatus) {
+		if (force || (status != oldStatus)) {
 			StatusChanges& sc = statusChanges[status];
 			innerColor = sc.inner;
 			outterColor = sc.outter;
 			borderColor = sc.border;
-			textColor = sc.text;
+			fontColor = sc.text;
 			size_mult = sc.size_mult;
 			if (initialized) solveLayout();
 		}
@@ -447,8 +447,6 @@ namespace Dispatch::UI {
 	}
 	void RadarGraph::onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {
 		int idx = 0;
-		Utils::println("RadarGraph '{}' received shared data update for key '{}'", id, key);
-		std::cout << "Value: " << value.dump(4) << std::endl;
 		if (dynamic_vars.count("groups")) {
 			for (auto& [values, color] : groups) {
 				if (dynamic_vars.count(std::format("groups[{}]", idx)) && orig["groups"].at(idx)["values"].get<std::string>() == std::format("{{@{}}}", key)) {
@@ -561,8 +559,7 @@ namespace Dispatch::UI {
 		auto& inst = *this;
 		Text::from_json(j);
 		READ(j, statusChanges);
-		changeStatus(Status::DISABLED);
-		changeStatus(Status::REGULAR);
+		changeStatus(Status::REGULAR, true);
 	}
 	void Circle::to_json(json& j) const {
 		auto& inst = *this;
