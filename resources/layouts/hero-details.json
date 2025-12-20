@@ -173,7 +173,7 @@
 		"type": "BOX",
 		"id": "heroDetails-left/middle-top",
 		"father_id": "heroDetails-left/middle",
-		"subElement_ids": [ "heroDetails-image", "heroDetails-mask", "heroDetails-name", "heroDetails-stats", "heroDetails-upgrades", "heroDetails-bio" ],
+		"subElement_ids": [ "heroDetails-image", "heroDetails-mask", "heroDetails-name", "heroDetails-stats", "heroDetails-powers", "heroDetails-info" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.88
@@ -317,7 +317,7 @@
 		},
 		"path": "resources/images/heroes/Crumple/full-image.png",
 		"fillType": "fit",
-		"anchor": "left"
+		"imageAnchor": "left"
 	}, {
 		"type": "TEXT",
 		"id": "heroDetails-name",
@@ -387,7 +387,7 @@
 		}
 	}, {
 		"type": "TEXTBOX",
-		"id": "heroDetails-upgrades",
+		"id": "heroDetails-powers",
 		"father_id": "heroDetails-left/middle-top",
 		"size": {
 			"x": 0.38,
@@ -410,11 +410,11 @@
 			},
 			"offset": 32
 		},
-		"text": "UPGRADES MUAHAHAHAHA",
+		"text": "POWERS MUAHAHAHAHA",
 		"visible": false
 	}, {
 		"type": "TEXTBOX",
-		"id": "heroDetails-bio",
+		"id": "heroDetails-info",
 		"father_id": "heroDetails-left/middle-top",
 		"size": {
 			"x": 0.38,
