@@ -78,7 +78,7 @@
 		},
 		"shadowOffset": [ 4, 4 ]
 	}, {
-		"type": "TEXTBOX",
+		"type": "RADIOBUTTON",
 		"id": "tab-upgrades",
 		"father_id": "mapRect",
 		"size": {
@@ -106,9 +106,16 @@
 		},
 		"shadowOffset": [ 4, 4 ],
 		"text": "UPGRADES",
-		"innerColor": "ORANGE"
+		"statusChanges": {
+			"regular": {
+				"inner": "DARKGREEN",
+				"outter": "GREEN"
+			}
+		},
+		"key": "tab",
+		"selected": true
 	}, {
-		"type": "TEXTBOX",
+		"type": "RADIOBUTTON",
 		"id": "tab-powers",
 		"father_id": "mapRect",
 		"size": {
@@ -138,9 +145,15 @@
 		},
 		"shadowOffset": [ 4, 4 ],
 		"text": "POWERS",
-		"innerColor": "DARKGREEN"
+		"statusChanges": {
+			"regular": {
+				"inner": "DARKGREEN",
+				"outter": "GREEN"
+			}
+		},
+		"key": "tab"
 	}, {
-		"type": "TEXTBOX",
+		"type": "RADIOBUTTON",
 		"id": "tab-info",
 		"father_id": "mapRect",
 		"size": {
@@ -168,7 +181,13 @@
 		},
 		"shadowOffset": [ 4, 4 ],
 		"text": "INFO",
-		"innerColor": "DARKGREEN"
+		"statusChanges": {
+			"regular": {
+				"inner": "DARKGREEN",
+				"outter": "GREEN"
+			}
+		},
+		"key": "tab"
 	}, {
 		"type": "BOX",
 		"id": "heroDetails-left/middle-top",

@@ -19,7 +19,7 @@ namespace Dispatch::UI {
 	class Layout {
 	public:
 		std::map<std::string, std::unique_ptr<Element>> elements;
-		std::set<std::string> rootElements, hovered, clicked, pressed, unhover, release;
+		std::set<std::string> rootElements, hovered, clicked, pressed, unhover, release, dataChanged;
 		std::map<std::string, nlohmann::json> sharedData;
 		std::map<std::string, std::set<std::string>> sharedDataListeners;
 
@@ -72,13 +72,15 @@ namespace Dispatch::UI {
 				Side side;
 			} start, end;
 		} verticalConstraint, horizontalConstraint;
-		enum struct Status {
+		enum Status {
 			REGULAR,
 			HOVERED,
 			PRESSED,
 			SELECTED,
-			DISABLED
+			DISABLED,
+			COUNT
 		} status{Status::REGULAR};
+		inline static constexpr Status statuses[COUNT] = {Status::REGULAR, Status::HOVERED, Status::PRESSED, Status::SELECTED, Status::DISABLED};
 
 		virtual ~Element() = default;
 
@@ -143,21 +145,36 @@ namespace Dispatch::UI {
 		struct StatusChanges {
 			raylib::Color inner, outter, border, text;
 			float size_mult;
+			StatusChanges(raylib::Color i, raylib::Color o, raylib::Color b, raylib::Color t, float s) : inner{i}, outter{o}, border{b}, text{t}, size_mult{s} {}
+			StatusChanges() = default;
 		};
-		std::map<Status, StatusChanges> statusChanges{
-			{Status::REGULAR, {bgLgt, bgMed, BLACK, textColor, 1.0f}},
-			{Status::HOVERED, {SKYBLUE, BLUE, BLACK, textColor, 1.1f}},
-			{Status::PRESSED, {BLUE, DARKBLUE, BLACK, textColor, 1.1f}},
-			{Status::SELECTED, {ORANGE, BROWN, BLACK, WHITE, 1.0f}},
-			{Status::DISABLED, {bgDrk, DARKGRAY, BLACK, LIGHTGRAY, 1.0f}}
-		};
+		std::map<Status, StatusChanges> statusChanges;
 		float size_mult = 1.0f;
+
+		Button() : TextBox() {
+			statusChanges = std::map<Status, StatusChanges>{
+				{Status::REGULAR, {bgLgt, bgMed, BLACK, textColor, 1.0f}},
+				{Status::HOVERED, {SKYBLUE, BLUE, BLACK, textColor, 1.1f}},
+				{Status::PRESSED, {BLUE, DARKBLUE, BLACK, textColor, 1.1f}},
+				{Status::SELECTED, {ORANGE, BROWN, BLACK, WHITE, 1.0f}},
+				{Status::DISABLED, {bgDrk, DARKGRAY, BLACK, LIGHTGRAY, 1.0f}}
+			};
+		}
 
 		virtual void solveSize() override;
 		virtual void changeStatus(Status st, bool force=false) override;
-
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
+	};
+
+	class RadioButton : public virtual Button {
+	public:
+		std::string key;
+
+		virtual void handleInput() override;
+		virtual void to_json(nlohmann::json& j) const override;
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 	};
 
 	class Circle : public virtual Box {
@@ -271,5 +288,13 @@ namespace nlohmann {
 		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::FATHER, "father" },
 		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::ELEMENT, "element" },
 		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::SCREEN, "screen" },
+	});
+
+	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Element::Status, {
+		{ Dispatch::UI::Element::Status::REGULAR, "regular" },
+		{ Dispatch::UI::Element::Status::HOVERED, "hovered" },
+		{ Dispatch::UI::Element::Status::PRESSED, "pressed" },
+		{ Dispatch::UI::Element::Status::SELECTED, "selected" },
+		{ Dispatch::UI::Element::Status::DISABLED, "disabled" },
 	});
 };

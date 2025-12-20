@@ -40,4 +40,6 @@ public:
 	void update(float deltaTime);
 	void selectHero(int idx);
 	void changeTab(Tabs newTab);
+
+	std::string tabToString(Tabs t);
 };

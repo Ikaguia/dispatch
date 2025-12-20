@@ -340,15 +340,17 @@ bool HeroesHandler::handleInput() {
 	if (selectedHeroIndex != -1) {
 		auto& hero = active_heroes[selectedHeroIndex];
 
-		if (layoutHeroDetails.release.contains("tab-upgrades")) {
-			changeTab(UPGRADE);
-			return true;
-		} else if (layoutHeroDetails.release.contains("tab-powers")) {
-			changeTab(POWERS);
-			return true;
-		} else if (layoutHeroDetails.release.contains("tab-info")) {
-			changeTab(INFO);
-			return true;
+		if (layoutHeroDetails.dataChanged.contains("tab")) {
+			if (layoutHeroDetails.sharedData["tab"] == "tab-upgrades") {
+				changeTab(UPGRADE);
+				return true;
+			} else if (layoutHeroDetails.sharedData["tab"] == "tab-powers") {
+				changeTab(POWERS);
+				return true;
+			} else if (layoutHeroDetails.sharedData["tab"] == "tab-info") {
+				changeTab(INFO);
+				return true;
+			}
 		} else if (layoutHeroDetails.release.contains("heroDetails-backButton")) {
 			selectHero(-1);
 			return true;
@@ -407,4 +409,11 @@ void HeroesHandler::changeTab(Tabs newTab) {
 	layoutHeroDetails.elements.at("heroDetails-stats").get()->visible = (tab == UPGRADE);
 	layoutHeroDetails.elements.at("heroDetails-powers").get()->visible = (tab == POWERS);
 	layoutHeroDetails.elements.at("heroDetails-info").get()->visible = (tab == INFO);
+}
+
+std::string HeroesHandler::tabToString(Tabs t) {
+	if (t == UPGRADE) return "upgrade";
+	if (t == POWERS) return "powers";
+	if (t == INFO) return "info";
+	throw std::runtime_error("Invalid tab");
 }

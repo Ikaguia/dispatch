@@ -16,6 +16,7 @@ namespace Dispatch::UI {
 		else if (type == "TEXT") return std::make_unique<Text>();
 		else if (type == "TEXTBOX") return std::make_unique<TextBox>();
 		else if (type == "BUTTON") return std::make_unique<Button>();
+		else if (type == "RADIOBUTTON") return std::make_unique<RadioButton>();
 		else if (type == "CIRCLE") return std::make_unique<Circle>();
 		else if (type == "TEXTCIRCLE") return std::make_unique<TextCircle>();
 		else if (type == "IMAGE") return std::make_unique<Image>();
@@ -65,11 +66,13 @@ namespace Dispatch::UI {
 		pressed.clear();
 		unhover.clear();
 		release.clear();
+		dataChanged.clear();
 		for (const std::string& id : rootElements) elements.at(id)->handleInput();
 	}
 	void Layout::updateSharedData(const std::string& key, const json& value) {
 		if (value == sharedData[key]) return;
 		sharedData[key] = value;
+		dataChanged.insert(key);
 		for (const std::string& id : sharedDataListeners[key]) elements.at(id)->onSharedDataUpdate(key, value);
 	}
 	void Layout::deleteSharedData(const std::string& key) {
@@ -396,6 +399,16 @@ namespace Dispatch::UI {
 			if (initialized) solveLayout();
 		}
 	}
+	void RadioButton::handleInput() {
+		Button::handleInput();
+		if (release) layout->updateSharedData(key, id);
+	}
+	void RadioButton::onSharedDataUpdate(const std::string& k, const nlohmann::json& value) {
+		Button::onSharedDataUpdate(k, value);
+		if (key != k) return;
+		if (value == id) changeStatus(Status::SELECTED);
+		else if (status == Status::SELECTED) changeStatus(Status::REGULAR);
+	}
 	// RadarGraph
 	void RadarGraph::_render() {
 		raylib::Rectangle rect = subElementsRect();
@@ -556,10 +569,29 @@ namespace Dispatch::UI {
 		WRITE(statusChanges);
 	}
 	void Button::from_json(const nlohmann::json& j) {
-		auto& inst = *this;
 		Text::from_json(j);
-		READ(j, statusChanges);
-		changeStatus(Status::REGULAR, true);
+		if (j.contains("statusChanges")) {
+			for (Element::Status st : Element::statuses) {
+				std::string sts{json{st}.dump()}; sts = sts.substr(2, sts.size()-4);
+				if (j["statusChanges"].contains(sts)) j["statusChanges"][sts].get_to(statusChanges[st]);
+			}
+			changeStatus(Status::REGULAR, true);
+		}
+	}
+	void RadioButton::to_json(nlohmann::json& j) const {
+		auto& inst = *this;
+		Button::to_json(j);
+		WRITE(key);
+	}
+	void RadioButton::from_json(const nlohmann::json& j) {
+		auto& inst = *this;
+		Button::from_json(j);
+		READ(j, key);
+		if (j.contains("selected")) {
+			layout->updateSharedData(key, id);
+			changeStatus(Status::SELECTED);
+		}
+		layout->registerSharedDataListener(key, id);
 	}
 	void Circle::to_json(json& j) const {
 		auto& inst = *this;
@@ -711,10 +743,10 @@ namespace nlohmann {
 		WRITE(size_mult);
 	}
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button::StatusChanges& inst) {
-		READREQ(j, inner);
-		READREQ(j, outter);
-		READREQ(j, border);
-		READREQ(j, text);
-		READREQ(j, size_mult);
+		READ(j, inner);
+		READ(j, outter);
+		READ(j, border);
+		READ(j, text);
+		READ(j, size_mult);
 	}
 };
