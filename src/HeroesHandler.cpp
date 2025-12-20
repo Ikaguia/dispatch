@@ -314,6 +314,7 @@ void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
 bool HeroesHandler::handleInput() {
 	auto mission = MissionsHandler::inst().selectedMission;
 	auto missionStatus = mission.expired() ? Mission::DONE : mission.lock()->status;
+	if (selectedHeroIndex != -1) layoutHeroDetails.handleInput();
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 		raylib::Rectangle heroes{158*bgScale, 804*bgScale, 1603*bgScale, 236*bgScale};

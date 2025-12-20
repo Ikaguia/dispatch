@@ -19,13 +19,14 @@ namespace Dispatch::UI {
 	class Layout {
 	public:
 		std::map<std::string, std::unique_ptr<Element>> elements;
-		std::set<std::string> rootElements;
+		std::set<std::string> rootElements, hovered, clicked, pressed, unhover, release;
 		std::map<std::string, nlohmann::json> sharedData;
 		std::map<std::string, std::set<std::string>> sharedDataListeners;
 
 		Layout(std::string path);
 
 		void render();
+		void handleInput();
 		void updateSharedData(const std::string& key, const nlohmann::json& value);
 		void deleteSharedData(const std::string& key);
 		void registerSharedDataListener(const std::string& key, const std::string& element_id);
@@ -55,7 +56,7 @@ namespace Dispatch::UI {
 		std::set<std::string> dynamic_vars;
 	public:
 		Layout* layout = nullptr;
-		bool visible = true;
+		bool visible = true, hovered = false, clicked = false, pressed = false, unhover = false, release = false;
 		int z_order = -1, roundnessSegments = 0;
 		float borderThickness = 0.0f, roundness = 0.0f;
 		std::string id, father_id;
@@ -71,6 +72,13 @@ namespace Dispatch::UI {
 				Side side;
 			} start, end;
 		} verticalConstraint, horizontalConstraint;
+		enum struct Status {
+			REGULAR,
+			HOVERED,
+			PRESSED,
+			SELECTED,
+			DISABLED
+		} status{Status::REGULAR};
 
 		virtual ~Element() = default;
 
@@ -88,12 +96,13 @@ namespace Dispatch::UI {
 		virtual void _render();
 		virtual void handleInput();
 		virtual void solveLayout();
+		virtual void solveSize();
 		virtual void sortSubElements(bool z_order);
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {}
 
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
-	private:
+	protected:
 		raylib::Rectangle bounds, innerBounds;
 		bool initialized = false;
 	};
@@ -127,6 +136,29 @@ namespace Dispatch::UI {
 	};
 
 	class TextBox : public virtual Box, public virtual Text {};
+
+	class Button : public virtual TextBox {
+	public:
+		struct StatusChanges {
+			raylib::Color inner, outter, border, text;
+			float size_mult;
+		};
+		std::map<Status, StatusChanges> statusChanges{
+			{Status::REGULAR, {bgLgt, bgMed, BLACK, textColor, 1.0f}},
+			{Status::HOVERED, {BLUE, DARKBLUE, BLACK, textColor, 1.1f}},
+			{Status::PRESSED, {SKYBLUE, BLUE, BLACK, textColor, 1.0f}},
+			{Status::SELECTED, {ORANGE, BROWN, BLACK, WHITE, 1.0f}},
+			{Status::DISABLED, {bgDrk, DARKGRAY, BLACK, LIGHTGRAY, 1.0f}}
+		};
+		float size_mult = 1.0f;
+
+		virtual void handleInput() override;
+		virtual void solveSize() override;
+		virtual void to_json(nlohmann::json& j) const override;
+		virtual void from_json(const nlohmann::json& j) override;
+
+		void applyStatusChages();
+	};
 
 	class Circle : public virtual Box {
 	public:
@@ -201,6 +233,8 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Text& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::TextBox& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::TextBox& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Button& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Circle& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Circle& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::TextCircle& inst) { j = nlohmann::json(); inst.to_json(j); }
@@ -215,6 +249,8 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst);
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst);
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst);
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Button::StatusChanges& inst);
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button::StatusChanges& inst);
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Segment& inst);
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Segment& inst);
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Group& inst);

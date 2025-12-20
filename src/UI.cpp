@@ -15,6 +15,7 @@ namespace Dispatch::UI {
 		else if (type == "BOX") return std::make_unique<Box>();
 		else if (type == "TEXT") return std::make_unique<Text>();
 		else if (type == "TEXTBOX") return std::make_unique<TextBox>();
+		else if (type == "BUTTON") return std::make_unique<Button>();
 		else if (type == "CIRCLE") return std::make_unique<Circle>();
 		else if (type == "TEXTCIRCLE") return std::make_unique<TextCircle>();
 		else if (type == "IMAGE") return std::make_unique<Image>();
@@ -58,6 +59,14 @@ namespace Dispatch::UI {
 		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
 	}
 	void Layout::render() { for (const std::string& id : rootElements) elements.at(id)->render(); }
+	void Layout::handleInput() {
+		hovered.clear();
+		clicked.clear();
+		pressed.clear();
+		unhover.clear();
+		release.clear();
+		for (const std::string& id : rootElements) elements.at(id)->handleInput();
+	}
 	void Layout::updateSharedData(const std::string& key, const json& value) {
 		if (value == sharedData[key]) return;
 		sharedData[key] = value;
@@ -132,21 +141,25 @@ namespace Dispatch::UI {
 	void Element::handleInput() {
 		auto& elements = layout->elements;
 		for (const std::string& el_id : subElement_ids) elements.at(el_id)->handleInput();
+		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
+		bool wasHovered = hovered, wasPressed = pressed;
+		hovered = colidesWith(mousePos);
+		clicked = hovered && !wasPressed && raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT);
+		pressed = (hovered || wasPressed) && raylib::Mouse::IsButtonDown(MOUSE_BUTTON_LEFT);
+		unhover = wasHovered && !hovered;
+		release = wasPressed && !pressed;
+		if (hovered) layout->hovered.insert(id);
+		if (clicked) layout->clicked.insert(id);
+		if (pressed) layout->pressed.insert(id);
+		if (unhover) layout->unhover.insert(id);
+		if (release) layout->release.insert(id);
+		if (clicked || pressed) status = Status::PRESSED;
+		else if (hovered) status = Status::HOVERED;
+		else status = Status::REGULAR;
 	}
 	void Element::solveLayout() {
 		auto& elements = layout->elements;
-		raylib::Vector2 origSize = orig.at("size").get<raylib::Vector2>();
-		if (origSize.x >= 0.0f && origSize.x <= 1.0f) {
-			float maxW = father_id.empty() ? GetScreenWidth() : elements.at(father_id)->subElementsRect().width;
-			size.x = std::round(maxW * origSize.x - (outterMargin.x + outterMargin.z));
-		}
-		if (origSize.y >= 0.0f && origSize.y <= 1.0f) {
-			float maxH = father_id.empty() ? GetScreenHeight() : elements.at(father_id)->subElementsRect().height;
-			size.y = std::round(maxH * origSize.y - (outterMargin.y + outterMargin.w));
-		}
-
-		bounds.width = size.x;
-		bounds.height = size.y;
+		solveSize();
 		for (int i = 0; i < 2; i++) {
 			float& dest = i==0 ? bounds.x : bounds.y;
 			const auto& constraint = i==0 ? horizontalConstraint : verticalConstraint;
@@ -183,6 +196,20 @@ namespace Dispatch::UI {
 		sortSubElements(false);
 		for (const std::string& el_id : subElement_ids) elements.at(el_id)->solveLayout();
 		sortSubElements(true);
+	}
+	void Element::solveSize() {
+		auto& elements = layout->elements;
+		raylib::Vector2 origSize = orig.at("size").get<raylib::Vector2>();
+		if (origSize.x >= 0.0f && origSize.x <= 1.0f) {
+			float maxW = father_id.empty() ? GetScreenWidth() : elements.at(father_id)->subElementsRect().width;
+			size.x = std::round(maxW * origSize.x - (outterMargin.x + outterMargin.z));
+		}
+		if (origSize.y >= 0.0f && origSize.y <= 1.0f) {
+			float maxH = father_id.empty() ? GetScreenHeight() : elements.at(father_id)->subElementsRect().height;
+			size.y = std::round(maxH * origSize.y - (outterMargin.y + outterMargin.w));
+		}
+		bounds.width = size.x;
+		bounds.height = size.y;
 	}
 	void Element::sortSubElements(bool z_order) {
 		auto& elements = layout->elements;
@@ -343,6 +370,28 @@ namespace Dispatch::UI {
 			imageAnchor
 		);
 	}
+	// Button
+	void Button::handleInput() {
+		Status prevStatus = status;
+		Element::handleInput();
+		if (status != prevStatus) applyStatusChages();
+	}
+	void Button::solveSize() {
+		Element::solveSize();
+		size.x *= size_mult;
+		size.y *= size_mult;
+		bounds.width *= size_mult;
+		bounds.height *= size_mult;
+	}
+	void Button::applyStatusChages() {
+		StatusChanges& sc = statusChanges[status];
+		innerColor = sc.inner;
+		outterColor = sc.outter;
+		borderColor = sc.border;
+		textColor = sc.text;
+		size_mult = sc.size_mult;
+		if (initialized) solveLayout();
+	}
 	// RadarGraph
 	void RadarGraph::_render() {
 		raylib::Rectangle rect = subElementsRect();
@@ -499,6 +548,17 @@ namespace Dispatch::UI {
 		// font = Utils::getFont(fontName);
 		parseText();
 	}
+	void Button::to_json(nlohmann::json& j) const {
+		auto& inst = *this;
+		Text::to_json(j);
+		WRITE(statusChanges);
+	}
+	void Button::from_json(const nlohmann::json& j) {
+		auto& inst = *this;
+		Text::from_json(j);
+		READ(j, statusChanges);
+		applyStatusChages();
+	}
 	void Circle::to_json(json& j) const {
 		auto& inst = *this;
 		Element::to_json(j);
@@ -640,5 +700,19 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Group& inst) {
 		READREQ(j, values);
 		READ(j, color);
+	}
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Button::StatusChanges& inst) {
+		WRITE(inner);
+		WRITE(outter);
+		WRITE(border);
+		WRITE(text);
+		WRITE(size_mult);
+	}
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button::StatusChanges& inst) {
+		READREQ(j, inner);
+		READREQ(j, outter);
+		READREQ(j, border);
+		READREQ(j, text);
+		READREQ(j, size_mult);
 	}
 };

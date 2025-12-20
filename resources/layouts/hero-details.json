@@ -225,7 +225,7 @@
 			}
 		}
 	}, {
-		"type": "TEXTBOX",
+		"type": "BUTTON",
 		"id": "heroDetails-backButton",
 		"father_id": "heroDetails-left/middle-bottom",
 		"size": {
