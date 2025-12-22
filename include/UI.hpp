@@ -96,7 +96,8 @@ namespace Dispatch::UI {
 
 		virtual void render();
 		virtual void _render();
-		virtual void handleInput();
+		virtual void handleInput(raylib::Vector2 offset={});
+		virtual void _handleInput(raylib::Vector2 offset={});
 		virtual void solveLayout();
 		virtual void solveSize();
 		virtual void sortSubElements(bool z_order);
@@ -171,7 +172,7 @@ namespace Dispatch::UI {
 	public:
 		std::string key;
 
-		virtual void handleInput() override;
+		virtual void _handleInput(raylib::Vector2 offset={}) override;
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
@@ -238,6 +239,20 @@ namespace Dispatch::UI {
 			drawIcons = true;
 		}
 	};
+
+	class ScrollBox : public virtual Box {
+	public:
+		raylib::Vector2 contentSize, scrollOffset;
+		bool scrollX=false, scrollY=true;
+
+		virtual void render() override;
+		virtual void handleInput(raylib::Vector2 offset={}) override;
+		virtual void _handleInput(raylib::Vector2 offset={}) override;
+		virtual void solveLayout() override;
+
+		virtual void to_json(nlohmann::json& j) const override;
+		virtual void from_json(const nlohmann::json& j) override;
+	};
 }
 
 namespace nlohmann {
@@ -252,6 +267,8 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::TextBox& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Button& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadioButton& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadioButton& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Circle& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Circle& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::TextCircle& inst) { j = nlohmann::json(); inst.to_json(j); }
@@ -262,6 +279,8 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::AttrGraph& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::AttrGraph& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::ScrollBox& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::ScrollBox& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint& inst);
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst);
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst);

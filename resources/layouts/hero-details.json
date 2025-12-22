@@ -432,9 +432,10 @@
 		"text": "POWERS MUAHAHAHAHA",
 		"visible": false
 	}, {
-		"type": "TEXTBOX",
+		"type": "SCROLLBOX",
 		"id": "heroDetails-info",
 		"father_id": "heroDetails-left/middle-top",
+		"subElement_ids": [ "heroDetails-info-1", "heroDetails-info-2", "heroDetails-info-3", "heroDetails-info-4" ],
 		"size": {
 			"x": 0.38,
 			"y": 0.88
@@ -456,7 +457,6 @@
 			},
 			"offset": 32
 		},
-		"text": "BIOGRAPHY",
 		"visible": false
 	}, {
 		"type": "TEXT",
@@ -1462,5 +1462,108 @@
 				"color": "ORANGE"
 			}
 		]
+	}, {
+		"type": "BOX",
+		"id": "heroDetails-info-1",
+		"father_id": "heroDetails-info",
+		"size": {
+			"x": 0.8,
+			"y": 0.8
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"offset": 10
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "BOX",
+		"id": "heroDetails-info-2",
+		"father_id": "heroDetails-info",
+		"size": {
+			"x": 0.8,
+			"y": 0.8
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "element",
+				"element_id": "heroDetails-info-1",
+				"side": "top"
+			},
+			"offset": 10
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "BOX",
+		"id": "heroDetails-info-3",
+		"father_id": "heroDetails-info",
+		"size": {
+			"x": 0.8,
+			"y": 0.8
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "element",
+				"element_id": "heroDetails-info-2",
+				"side": "top"
+			},
+			"offset": 10
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
+	}, {
+		"type": "BOX",
+		"id": "heroDetails-info-4",
+		"father_id": "heroDetails-info",
+		"size": {
+			"x": 0.8,
+			"y": 0.8
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "element",
+				"element_id": "heroDetails-info-3",
+				"side": "top"
+			},
+			"offset": 10
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		}
 	}
 ]

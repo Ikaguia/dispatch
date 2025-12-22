@@ -22,6 +22,7 @@ namespace Dispatch::UI {
 		else if (type == "IMAGE") return std::make_unique<Image>();
 		else if (type == "RADARGRAPH") return std::make_unique<RadarGraph>();
 		else if (type == "ATTRGRAPH") return std::make_unique<AttrGraph>();
+		else if (type == "SCROLLBOX") return std::make_unique<ScrollBox>();
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
@@ -41,19 +42,23 @@ namespace Dispatch::UI {
 			if (elements.count(el->id)) throw std::runtime_error("Layout Error: Element with ID '" + el->id + "' already exists in the map.");
 			if (el->father_id.empty()) rootElements.insert(el->id);
 
-			if (elements.count(el->father_id)) {
-				const auto& father = elements[el->father_id];
-				if (!std::any_of(father->subElement_ids.begin(), father->subElement_ids.end(), [&](std::string id){ return id == el->id; })) {
-					throw std::runtime_error(std::format("Layout Error: Father/Subelements mismatch between '{}' and '{}'", el->id, el->father_id));
-				}
+			std::cout << "Read element " << el->id << std::endl;
+			elements[el->id] = std::move(el);
+		}
+
+		for (auto& [id, _] : elements) {
+			auto& el = *elements[id].get();
+			if (!el.father_id.empty() && !elements.count(el.father_id)) {
+				throw std::runtime_error(std::format("Layout Error: Father id '{}' for element '{}' is not present in the layout", el.father_id, el.id));
 			}
-			for (const auto& subElement_id : el->subElement_ids) {
-				if (elements.count(subElement_id) && elements[subElement_id]->father_id != el->id) {
-					throw std::runtime_error(std::format("Layout Error: Father/Subelements mismatch between '{}' and '{}'", el->id, subElement_id));
-				}
+			for (const auto& subElement_id : el.subElement_ids) {
+				if (elements.count(subElement_id)) {
+					if (elements[subElement_id]->father_id != el.id) {
+						throw std::runtime_error(std::format("Layout Error: Father/Subelements mismatch between '{}' and '{}'", el.id, subElement_id));
+					}
+				} else throw std::runtime_error(std::format("Layout Error: Subelement id '{}' for element '{}' is not present in the layout", subElement_id, el.id));
 			}
 
-			elements[el->id] = std::move(el);
 		}
 
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
@@ -141,11 +146,12 @@ namespace Dispatch::UI {
 			else outterRect.DrawLines(borderColor, borderThickness);
 		}
 	}
-	void Element::handleInput() {
-		auto& elements = layout->elements;
-		for (const std::string& el_id : subElement_ids) elements.at(el_id)->handleInput();
-
-		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
+	void Element::handleInput(raylib::Vector2 offset) {
+		for (const std::string& el_id : subElement_ids) layout->elements.at(el_id)->handleInput(offset);
+		_handleInput(offset);
+	}
+	void Element::_handleInput(raylib::Vector2 offset) {
+		raylib::Vector2 mousePos = raylib::Mouse::GetPosition() + offset;
 		bool wasHovered = hovered, wasPressed = pressed;
 		hovered = colidesWith(mousePos);
 		clicked = hovered && !wasPressed && raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT);
@@ -388,6 +394,7 @@ namespace Dispatch::UI {
 	}
 	void Button::changeStatus(Status st, bool force) {
 		Status oldStatus = status;
+		float oldSizeMult = size_mult;
 		Element::changeStatus(st);
 		if (force || (status != oldStatus)) {
 			StatusChanges& sc = statusChanges[status];
@@ -396,11 +403,11 @@ namespace Dispatch::UI {
 			borderColor = sc.border;
 			fontColor = sc.text;
 			size_mult = sc.size_mult;
-			if (initialized) solveLayout();
+			if (initialized && (size_mult != oldSizeMult)) solveLayout();
 		}
 	}
-	void RadioButton::handleInput() {
-		Button::handleInput();
+	void RadioButton::_handleInput(raylib::Vector2 offset) {
+		Button::_handleInput(offset);
 		if (release) layout->updateSharedData(key, id);
 	}
 	void RadioButton::onSharedDataUpdate(const std::string& k, const nlohmann::json& value) {
@@ -480,6 +487,50 @@ namespace Dispatch::UI {
 				}
 				idx++;
 			}
+		}
+	}
+	// ScrollBox
+	void ScrollBox::render() {
+		raylib::Rectangle viewport = subElementsRect();
+
+		if (!visible) return;
+		_render();
+		BeginScissorMode((int)viewport.x, (int)viewport.y, (int)viewport.width, (int)viewport.height);
+			rlPushMatrix();
+			rlTranslatef(scrollOffset.x, scrollOffset.y, 0);
+				auto& elements = layout->elements;
+				for (const std::string& el_id : subElement_ids) elements.at(el_id)->render();
+			rlPopMatrix();
+		EndScissorMode();
+	}
+	void ScrollBox::handleInput(raylib::Vector2 offset) {
+		auto& elements = layout->elements;
+		for (const std::string& el_id : subElement_ids) elements.at(el_id)->handleInput(offset + scrollOffset);
+		_handleInput(offset);
+	}
+	void ScrollBox::_handleInput(raylib::Vector2 offset) {
+		Box::handleInput();
+
+		if (hovered) {
+			raylib::Vector2 wheel = raylib::Mouse::GetWheelMoveV();
+			if (wheel != raylib::Vector2{0.0f, 0.0f}) {
+				scrollOffset.x += wheel.x * 20.0f;
+				scrollOffset.y += wheel.y * 20.0f;
+				
+				float maxScrollX = contentSize.x - subElementsRect().width;
+				scrollOffset.x = std::clamp(scrollOffset.x, -maxScrollX, 0.0f);
+				
+				float maxScrollY = contentSize.y - subElementsRect().height;
+				scrollOffset.y = std::clamp(scrollOffset.y, -maxScrollY, 0.0f);
+			}
+		}
+	}
+	void ScrollBox::solveLayout() {
+		Element::solveLayout();
+		for (std::string id : subElement_ids) {
+			Element* el = layout->elements[id].get();
+			contentSize.x = std::max(contentSize.x, el->side(Side::END));
+			contentSize.y = std::max(contentSize.y, el->side(Side::BOTTOM));
 		}
 	}
 
@@ -693,6 +744,18 @@ namespace Dispatch::UI {
 				} else throw std::runtime_error("RadarGraph group must be an object");
 			}
 		} else throw std::runtime_error("RadarGraph must contain at least one group");
+	}
+	void ScrollBox::to_json(nlohmann::json& j) const {
+		auto& inst = *this;
+		Box::to_json(j);
+		WRITE(scrollX);
+		WRITE(scrollY);
+	}
+	void ScrollBox::from_json(const nlohmann::json& j) {
+		auto& inst = *this;
+		Box::from_json(j);
+		READ(j, scrollX);
+		READ(j, scrollY);
 	}
 }
 
