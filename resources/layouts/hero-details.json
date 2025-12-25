@@ -432,7 +432,7 @@
 		"text": "POWERS MUAHAHAHAHA",
 		"visible": false
 	}, {
-		"type": "SCROLLBOX",
+		"type": "BOX",
 		"id": "heroDetails-info",
 		"father_id": "heroDetails-left/middle-top",
 		"subElement_ids": [ "heroDetails-info-list" ],
@@ -1490,6 +1490,7 @@
 				"side": "end"
 			}
 		},
-		"dataPath": "bio"
+		"dataPath": "bio",
+		"borderThickness": 0
 	}
 ]

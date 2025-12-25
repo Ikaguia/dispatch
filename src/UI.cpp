@@ -550,6 +550,7 @@ namespace Dispatch::UI {
 	}
 	void ScrollBox::solveLayout() {
 		Element::solveLayout();
+		contentSize = raylib::Vector2{};
 		for (std::string id : subElement_ids) {
 			Element* el = layout->elements[id].get();
 			contentSize.x = std::max(contentSize.x, el->side(Side::END));
