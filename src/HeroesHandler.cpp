@@ -399,6 +399,7 @@ void HeroesHandler::selectHero(int idx) {
 		const AttrMap<int>& attrs = hero.attributes();
 
 		layoutHeroDetails.updateSharedData("name", hero.name);
+		layoutHeroDetails.updateSharedData("bio", hero.bio);
 		image->texture.Load(hero.img_paths.at("full"));
 		updateLayoutStatsData(layoutHeroDetails, hero);
 	}

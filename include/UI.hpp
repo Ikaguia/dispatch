@@ -19,17 +19,20 @@ namespace Dispatch::UI {
 	class Layout {
 	public:
 		std::map<std::string, std::unique_ptr<Element>> elements;
-		std::set<std::string> rootElements, hovered, clicked, pressed, unhover, release, dataChanged;
+		std::set<std::string> rootElements, hovered, clicked, pressed, unhover, release, dataChanged, needsRebuild;
 		std::map<std::string, nlohmann::json> sharedData;
 		std::map<std::string, std::set<std::string>> sharedDataListeners;
 
 		Layout(std::string path);
 
+		void sync();
 		void render();
 		void handleInput();
 		void updateSharedData(const std::string& key, const nlohmann::json& value);
 		void deleteSharedData(const std::string& key);
 		void registerSharedDataListener(const std::string& key, const std::string& element_id);
+		void unregisterSharedDataListener(const std::string& key, const std::string& element_id);
+		void removeElement(const std::string& id, const std::string& loop="");
 	};
 
 	enum struct FillType {
@@ -87,8 +90,8 @@ namespace Dispatch::UI {
 		virtual const float side(Side side, bool inner=false) const;
 		virtual raylib::Vector2 center() const;
 		virtual raylib::Vector2 anchor(Utils::Anchor anchor = Utils::Anchor::center) const;
-		virtual const raylib::Rectangle& boundingRect() const;
-		virtual const raylib::Rectangle& subElementsRect() const;
+		virtual const raylib::Rectangle& outterRect() const;
+		virtual const raylib::Rectangle& innerRect() const;
 
 		virtual const bool colidesWith(const Element& other) const;
 		virtual const bool colidesWith(const raylib::Vector2& other) const;
@@ -103,6 +106,7 @@ namespace Dispatch::UI {
 		virtual void sortSubElements(bool z_order);
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {}
 		virtual void changeStatus(Status st, bool force=false);
+		virtual void rebuild() {};
 
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
@@ -122,8 +126,8 @@ namespace Dispatch::UI {
 	};
 
 	class Text : public virtual Element {
-		raylib::Font font = GetFontDefault();
 	public:
+		raylib::Font font = GetFontDefault();
 		int fontSize = 16;
 		float spacing = 1.0f;
 		std::string text, fontName;
@@ -253,6 +257,19 @@ namespace Dispatch::UI {
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
 	};
+
+class DataInspector : public virtual ScrollBox {
+	public:
+		std::string dataPath;
+		int labelFontSize = 14;
+		int valueFontSize = 16;
+		float itemSpacing = 10.0f;
+
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
+		virtual void rebuild() override;
+	};
 }
 
 namespace nlohmann {
@@ -281,6 +298,8 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::AttrGraph& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::ScrollBox& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::ScrollBox& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::DataInspector& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::DataInspector& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint& inst);
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst);
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst);

@@ -435,7 +435,7 @@
 		"type": "SCROLLBOX",
 		"id": "heroDetails-info",
 		"father_id": "heroDetails-left/middle-top",
-		"subElement_ids": [ "heroDetails-info-1", "heroDetails-info-2", "heroDetails-info-3", "heroDetails-info-4" ],
+		"subElement_ids": [ "heroDetails-info-list" ],
 		"size": {
 			"x": 0.38,
 			"y": 0.88
@@ -1463,19 +1463,22 @@
 			}
 		]
 	}, {
-		"type": "BOX",
-		"id": "heroDetails-info-1",
+		"type": "DATAINSPECTOR",
+		"id": "heroDetails-info-list",
 		"father_id": "heroDetails-info",
 		"size": {
-			"x": 0.8,
-			"y": 0.8
+			"x": 0.9,
+			"y": 0.9
 		},
 		"verticalConstraint": {
 			"start": {
 				"type": "father",
 				"side": "top"
 			},
-			"offset": 10
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			}
 		},
 		"horizontalConstraint": {
 			"start": {
@@ -1486,84 +1489,7 @@
 				"type": "father",
 				"side": "end"
 			}
-		}
-	}, {
-		"type": "BOX",
-		"id": "heroDetails-info-2",
-		"father_id": "heroDetails-info",
-		"size": {
-			"x": 0.8,
-			"y": 0.8
 		},
-		"verticalConstraint": {
-			"start": {
-				"type": "element",
-				"element_id": "heroDetails-info-1",
-				"side": "top"
-			},
-			"offset": 10
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		}
-	}, {
-		"type": "BOX",
-		"id": "heroDetails-info-3",
-		"father_id": "heroDetails-info",
-		"size": {
-			"x": 0.8,
-			"y": 0.8
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "element",
-				"element_id": "heroDetails-info-2",
-				"side": "top"
-			},
-			"offset": 10
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		}
-	}, {
-		"type": "BOX",
-		"id": "heroDetails-info-4",
-		"father_id": "heroDetails-info",
-		"size": {
-			"x": 0.8,
-			"y": 0.8
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "element",
-				"element_id": "heroDetails-info-3",
-				"side": "top"
-			},
-			"offset": 10
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		}
+		"dataPath": "bio"
 	}
 ]

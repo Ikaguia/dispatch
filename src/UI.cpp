@@ -23,6 +23,7 @@ namespace Dispatch::UI {
 		else if (type == "RADARGRAPH") return std::make_unique<RadarGraph>();
 		else if (type == "ATTRGRAPH") return std::make_unique<AttrGraph>();
 		else if (type == "SCROLLBOX") return std::make_unique<ScrollBox>();
+		else if (type == "DATAINSPECTOR") return std::make_unique<DataInspector>();
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
@@ -64,6 +65,11 @@ namespace Dispatch::UI {
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
 		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
 	}
+	void Layout::sync() {
+		if (needsRebuild.empty()) return;
+		for (const std::string& id : needsRebuild) if (elements.contains(id)) elements.at(id)->rebuild();
+		needsRebuild.clear();
+	}
 	void Layout::render() { for (const std::string& id : rootElements) elements.at(id)->render(); }
 	void Layout::handleInput() {
 		hovered.clear();
@@ -73,6 +79,7 @@ namespace Dispatch::UI {
 		release.clear();
 		dataChanged.clear();
 		for (const std::string& id : rootElements) elements.at(id)->handleInput();
+		sync();
 	}
 	void Layout::updateSharedData(const std::string& key, const json& value) {
 		if (value == sharedData[key]) return;
@@ -89,10 +96,26 @@ namespace Dispatch::UI {
 		Utils::println("Registering element '{}' as listener for shared data key '{}'", element_id, key);
 		sharedDataListeners[key].insert(element_id);
 	}
+	void Layout::unregisterSharedDataListener(const std::string& key, const std::string& element_id) {
+		Utils::println("Unregistering element '{}' as listener for shared data key '{}'", element_id, key);
+		sharedDataListeners[key].erase(element_id);
+	}
+	void Layout::removeElement(const std::string& id, const std::string& loop) {
+		if (loop != "sharedDataListeners") for (auto& [key, mp] : sharedDataListeners) mp.erase(id);
+		if (loop != "rootElements") rootElements.erase(id);
+		if (loop != "hovered") hovered.erase(id);
+		if (loop != "clicked") clicked.erase(id);
+		if (loop != "pressed") pressed.erase(id);
+		if (loop != "unhover") unhover.erase(id);
+		if (loop != "release") release.erase(id);
+		if (loop != "dataChanged") dataChanged.erase(id);
+		if (loop != "needsRebuild") needsRebuild.erase(id);
+		if (loop != "elements") elements.erase(id);
+	}
 
 	// Element
 	const float Element::side(Side side, bool inner) const {
-		const auto& rect = inner ? subElementsRect() : boundingRect();
+		const auto& rect = inner ? innerRect() : outterRect();
 		switch (side) {
 			case Side::TOP:
 				return rect.y;
@@ -107,18 +130,18 @@ namespace Dispatch::UI {
 		}
 	}
 	raylib::Vector2 Element::center() const { return anchor(); }
-	raylib::Vector2 Element::anchor(Utils::Anchor anchor) const { return Utils::anchorPos(boundingRect(), anchor); };
-	const raylib::Rectangle& Element::boundingRect() const {
+	raylib::Vector2 Element::anchor(Utils::Anchor anchor) const { return Utils::anchorPos(outterRect(), anchor); };
+	const raylib::Rectangle& Element::outterRect() const {
 		if (!initialized) throw std::runtime_error("Element bounding rect requested before initialization");
 		return bounds;
 	}
-	const raylib::Rectangle& Element::subElementsRect() const {
+	const raylib::Rectangle& Element::innerRect() const {
 		if (!initialized) throw std::runtime_error("Element inner bounding rect requested before initialization");
 		return innerBounds;
 	}
-	const bool Element::colidesWith(const Element& other) const { return boundingRect().CheckCollision(other.boundingRect()); }
-	const bool Element::colidesWith(const raylib::Vector2& other) const { return boundingRect().CheckCollision(other); }
-	const bool Element::colidesWith(const raylib::Rectangle& other) const { return boundingRect().CheckCollision(other); }
+	const bool Element::colidesWith(const Element& other) const { return outterRect().CheckCollision(other.outterRect()); }
+	const bool Element::colidesWith(const raylib::Vector2& other) const { return outterRect().CheckCollision(other); }
+	const bool Element::colidesWith(const raylib::Rectangle& other) const { return outterRect().CheckCollision(other); }
 	void Element::render() {
 		if (!visible) return;
 		_render();
@@ -126,8 +149,8 @@ namespace Dispatch::UI {
 		for (const std::string& el_id : subElement_ids) elements.at(el_id)->render();
 	}
 	void Element::_render() {
-		raylib::Rectangle outterRect = boundingRect();
-		raylib::Rectangle innerRect = subElementsRect();
+		raylib::Rectangle outterRect = this->outterRect();
+		raylib::Rectangle innerRect = this->innerRect();
 		
 		if ((shadowOffset.x != 0 || shadowOffset.y != 0) && shadowColor.a != 0) {
 			raylib::Rectangle shadowRect{outterRect.GetPosition() + shadowOffset, outterRect.GetSize()};
@@ -214,11 +237,11 @@ namespace Dispatch::UI {
 		auto& elements = layout->elements;
 		raylib::Vector2 origSize = orig.at("size").get<raylib::Vector2>();
 		if (origSize.x >= 0.0f && origSize.x <= 1.0f) {
-			float maxW = father_id.empty() ? GetScreenWidth() : elements.at(father_id)->subElementsRect().width;
+			float maxW = father_id.empty() ? GetScreenWidth() : elements.at(father_id)->innerRect().width;
 			size.x = std::round(maxW * origSize.x - (outterMargin.x + outterMargin.z));
 		}
 		if (origSize.y >= 0.0f && origSize.y <= 1.0f) {
-			float maxH = father_id.empty() ? GetScreenHeight() : elements.at(father_id)->subElementsRect().height;
+			float maxH = father_id.empty() ? GetScreenHeight() : elements.at(father_id)->innerRect().height;
 			size.y = std::round(maxH * origSize.y - (outterMargin.y + outterMargin.w));
 		}
 		bounds.width = size.x;
@@ -312,7 +335,7 @@ namespace Dispatch::UI {
 	// Text
 	void Text::_render() {
 		Element::_render();
-		raylib::Rectangle rect = boundingRect();
+		raylib::Rectangle rect = innerRect();
 		Utils::drawTextAnchored(
 			text,
 			rect,
@@ -378,7 +401,7 @@ namespace Dispatch::UI {
 	void Image::_render() {
 		Utils::drawTextureAnchored(
 			texture,
-			boundingRect(),
+			outterRect(),
 			tintColor,
 			fillType,
 			imageAnchor
@@ -418,7 +441,7 @@ namespace Dispatch::UI {
 	}
 	// RadarGraph
 	void RadarGraph::_render() {
-		raylib::Rectangle rect = subElementsRect();
+		raylib::Rectangle rect = innerRect();
 		raylib::Vector2 center = this->center();
 		float sideLength = std::min(rect.width, rect.height) / 2.0f;
 		if (drawIcons) sideLength *= 0.8f;
@@ -491,7 +514,7 @@ namespace Dispatch::UI {
 	}
 	// ScrollBox
 	void ScrollBox::render() {
-		raylib::Rectangle viewport = subElementsRect();
+		raylib::Rectangle viewport = innerRect();
 
 		if (!visible) return;
 		_render();
@@ -509,7 +532,7 @@ namespace Dispatch::UI {
 		_handleInput(offset);
 	}
 	void ScrollBox::_handleInput(raylib::Vector2 offset) {
-		Box::handleInput();
+		Box::_handleInput();
 
 		if (hovered) {
 			raylib::Vector2 wheel = raylib::Mouse::GetWheelMoveV();
@@ -517,10 +540,10 @@ namespace Dispatch::UI {
 				scrollOffset.x += wheel.x * 20.0f;
 				scrollOffset.y += wheel.y * 20.0f;
 				
-				float maxScrollX = contentSize.x - subElementsRect().width;
+				float maxScrollX = contentSize.x - innerRect().width;
 				scrollOffset.x = std::clamp(scrollOffset.x, -maxScrollX, 0.0f);
 				
-				float maxScrollY = contentSize.y - subElementsRect().height;
+				float maxScrollY = contentSize.y - innerRect().height;
 				scrollOffset.y = std::clamp(scrollOffset.y, -maxScrollY, 0.0f);
 			}
 		}
@@ -532,6 +555,74 @@ namespace Dispatch::UI {
 			contentSize.x = std::max(contentSize.x, el->side(Side::END));
 			contentSize.y = std::max(contentSize.y, el->side(Side::BOTTOM));
 		}
+	}
+	// DataInspector
+	void DataInspector::onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {
+		if (key == dataPath) layout->needsRebuild.insert(id);
+	}
+	void DataInspector::rebuild() {
+		json& data = layout->sharedData[dataPath];
+
+		for (const std::string& child_id : subElement_ids) layout->removeElement(child_id, "needsRebuild");
+		subElement_ids.clear();
+
+		if (!data.is_object()) return;
+
+		std::string last_id = "";
+
+		for (auto& [key, value] : data.items()) {
+			std::string row_id = id + "_row_" + key;
+
+			raylib::Vector4 innerMargin{5, 2, 5, 2};
+			json tb_json = {
+				{"type", "TEXTBOX"},
+				{"id", row_id},
+				{"father_id", id},
+				{"text", std::format("{}: {}", key, value.is_string() ? value.get<std::string>() : value.dump())},
+				{"fontSize", valueFontSize},
+				{"innerMargin", innerMargin},
+				{"size", {1.0, 0.0}},
+				{"horizontalConstraint", {
+					{"start", {{"type", "father"}, {"side", "start"}}},
+					{"end", {{"type", "father"}, {"side", "end"}}}
+				}},
+				{"verticalConstraint", {
+					{"offset", itemSpacing}
+				}},
+				{"textAnchor", "left"}
+			};
+
+			if (last_id.empty()) {
+				tb_json["verticalConstraint"]["start"] = {{"type", "father"}, {"side", "top"}};
+			} else {
+				tb_json["verticalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "bottom"}};
+			}
+
+			float availableWidth = this->innerRect().width - (innerMargin.x + innerMargin.z);
+
+			raylib::Rectangle textBounds = Utils::positionTextAnchored(
+				tb_json["text"], 
+				raylib::Rectangle(0, 0, availableWidth, 1000),
+				Utils::Anchor::topLeft,
+				defaultFont,
+				tb_json["fontSize"].get<float>(),
+				1.0f,
+				{0, 0},
+				availableWidth
+			);
+
+			tb_json["size"][1] = textBounds.height + (innerMargin.y + innerMargin.w);
+
+			auto tb = std::make_unique<TextBox>();
+			tb->layout = layout;
+			tb_json.get_to(*tb);
+
+			layout->elements[row_id] = std::move(tb);
+			subElement_ids.push_back(row_id);
+			last_id = row_id;
+		}
+
+		solveLayout();
 	}
 
 	// JSON Serialization Macros
@@ -756,6 +847,25 @@ namespace Dispatch::UI {
 		Box::from_json(j);
 		READ(j, scrollX);
 		READ(j, scrollY);
+	}
+	void DataInspector::from_json(const nlohmann::json& j) {
+		auto& inst = *this;
+		ScrollBox::from_json(j);
+		READREQ(j, dataPath);
+		READ(j, labelFontSize);
+		READ(j, valueFontSize);
+		READ(j, itemSpacing);
+
+		layout->registerSharedDataListener(dataPath, id);
+		if (layout->sharedData.contains(dataPath)) rebuild();
+	}
+	void DataInspector::to_json(nlohmann::json& j) const {
+		auto& inst = *this;
+		ScrollBox::to_json(j);
+		WRITE(dataPath);
+		WRITE(labelFontSize);
+		WRITE(valueFontSize);
+		WRITE(itemSpacing);
 	}
 }
 
