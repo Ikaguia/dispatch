@@ -63,7 +63,8 @@ namespace Dispatch::UI {
 		std::vector<std::string> subElement_ids;
 		raylib::Vector2 size, shadowOffset;
 		raylib::Vector4 outterMargin, innerMargin;
-		raylib::Color innerColor{0,0,0,0}, outterColor{0,0,0,0}, borderColor{0,0,0,0}, shadowColor = ColorAlpha(BLACK, 0.3f);
+		std::vector<raylib::Color> innerColors, outterColors;
+		raylib::Color borderColor, shadowColor = shadow;
 		struct Constraint {
 			float offset = 0.0f, ratio = 0.5f;
 			struct ConstraintPart {
@@ -116,8 +117,8 @@ namespace Dispatch::UI {
 	public:
 		Box() {
 			borderThickness = 1.0f;
-			innerColor = bgLgt;
-			outterColor = bgMed;
+			innerColors = {bgLgt, bgLgt, bgMed, bgLgt};
+			outterColors = {bgMed};
 			borderColor = BLACK;
 		}
 	};
@@ -145,9 +146,10 @@ namespace Dispatch::UI {
 	class Button : public virtual TextBox {
 	public:
 		struct StatusChanges {
-			raylib::Color inner, outter, border, text;
+			std::vector<raylib::Color> inner, outter;
+			raylib::Color border, text;
 			float size_mult;
-			StatusChanges(raylib::Color i, raylib::Color o, raylib::Color b, raylib::Color t, float s) : inner{i}, outter{o}, border{b}, text{t}, size_mult{s} {}
+			StatusChanges(std::vector<raylib::Color> i, std::vector<raylib::Color> o, raylib::Color b, raylib::Color t, float s) : inner{i}, outter{o}, border{b}, text{t}, size_mult{s} {}
 			StatusChanges() = default;
 		};
 		std::map<Status, StatusChanges> statusChanges;
@@ -155,11 +157,11 @@ namespace Dispatch::UI {
 
 		Button() : TextBox() {
 			statusChanges = std::map<Status, StatusChanges>{
-				{Status::REGULAR, {bgLgt, bgMed, BLACK, textColor, 1.0f}},
-				{Status::HOVERED, {SKYBLUE, BLUE, BLACK, textColor, 1.1f}},
-				{Status::PRESSED, {BLUE, DARKBLUE, BLACK, textColor, 1.1f}},
-				{Status::SELECTED, {ORANGE, BROWN, BLACK, WHITE, 1.0f}},
-				{Status::DISABLED, {bgDrk, DARKGRAY, BLACK, LIGHTGRAY, 1.0f}}
+				{Status::REGULAR, {{bgLgt}, {bgMed}, {BLACK}, textColor, 1.0f}},
+				{Status::HOVERED, {{SKYBLUE}, {BLUE}, {BLACK}, textColor, 1.1f}},
+				{Status::PRESSED, {{BLUE}, {DARKBLUE}, {BLACK}, textColor, 1.1f}},
+				{Status::SELECTED, {{ORANGE}, {BROWN}, {BLACK}, WHITE, 1.0f}},
+				{Status::DISABLED, {{bgDrk}, {DARKGRAY}, {BLACK}, LIGHTGRAY, 1.0f}}
 			};
 		}
 
@@ -235,7 +237,7 @@ namespace Dispatch::UI {
 	public:
 		AttrGraph() : Element(), RadarGraph() {
 			for (const Attribute attr : Attribute::Values) segments.push_back({std::string(attr.toString()), std::string(attr.toIcon())});
-			innerColor = BLACK;
+			innerColors = {BLACK};
 			borderColor = WHITE;
 			drawIcons = true;
 		}

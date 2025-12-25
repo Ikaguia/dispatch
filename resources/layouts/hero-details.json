@@ -108,8 +108,8 @@
 		"text": "UPGRADES",
 		"statusChanges": {
 			"regular": {
-				"inner": "DARKGREEN",
-				"outter": "GREEN"
+				"inner": ["DARKGREEN"],
+				"outter": ["GREEN"]
 			}
 		},
 		"key": "tab",
@@ -147,8 +147,8 @@
 		"text": "POWERS",
 		"statusChanges": {
 			"regular": {
-				"inner": "DARKGREEN",
-				"outter": "GREEN"
+				"inner": ["DARKGREEN"],
+				"outter": ["GREEN"]
 			}
 		},
 		"key": "tab"
@@ -183,8 +183,8 @@
 		"text": "INFO",
 		"statusChanges": {
 			"regular": {
-				"inner": "DARKGREEN",
-				"outter": "GREEN"
+				"inner": ["DARKGREEN"],
+				"outter": ["GREEN"]
 			}
 		},
 		"key": "tab"
@@ -402,9 +402,9 @@
 		"dataPath": "tags",
 		"orientation": "horizontal",
 		"borderThickness": 0,
-		"innerColor": [0,0,0,0],
-		"outterColor": [0,0,0,0],
-		"borderColor": [0,0,0,0]
+		"innerColor": "BLANK",
+		"outterColor": "BLANK",
+		"borderColor": "BLANK"
 	}, {
 		"type": "BOX",
 		"id": "heroDetails-stats",

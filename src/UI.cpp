@@ -154,18 +154,24 @@ namespace Dispatch::UI {
 		
 		if ((shadowOffset.x != 0 || shadowOffset.y != 0) && shadowColor.a != 0) {
 			raylib::Rectangle shadowRect{outterRect.GetPosition() + shadowOffset, outterRect.GetSize()};
-			if (roundnessSegments > 0) shadowRect.DrawRounded(roundness, roundnessSegments, shadowColor);
+			if (roundnessSegments > 0 && roundness != 1.0f) shadowRect.DrawRounded(roundness, roundnessSegments, shadowColor);
 			else shadowRect.Draw(shadowColor);
 		}
-		if (roundnessSegments > 0) {
-			outterRect.DrawRounded(roundness, roundnessSegments, outterColor);
-			innerRect.DrawRounded(roundness, roundnessSegments, innerColor);
+		if (roundnessSegments > 0 && roundness != 1.0f) {
+			outterRect.DrawRounded(roundness, roundnessSegments, outterColors[0]);
+			innerRect.DrawRounded(roundness, roundnessSegments, innerColors[0]);
 		} else {
-			outterRect.Draw(outterColor);
-			innerRect.Draw(innerColor);
+			int outterColorsSize = (int)outterColors.size();
+			int innerColorsSize = (int)innerColors.size();
+			if (outterColorsSize == 1) outterRect.Draw(outterColors[0]);
+			else if (outterColorsSize == 2) outterRect.DrawGradientH(outterColors[0], outterColors[1]);
+			else if (outterColorsSize == 4) outterRect.DrawGradient(outterColors[0], outterColors[1], outterColors[2], outterColors[3]);
+			if (innerColorsSize == 1) innerRect.Draw(innerColors[0]);
+			else if (innerColorsSize == 2) innerRect.DrawGradientH(innerColors[0], innerColors[1]);
+			else if (innerColorsSize == 4) innerRect.DrawGradient(innerColors[0], innerColors[1], innerColors[2], innerColors[3]);
 		}
 		if (borderThickness > 0.0f) {
-			if (roundnessSegments > 0) outterRect.DrawRoundedLines(roundness, roundnessSegments, borderThickness, borderColor);
+			if (roundnessSegments > 0 && roundness != 1.0f) outterRect.DrawRoundedLines(roundness, roundnessSegments, borderThickness, borderColor);
 			else outterRect.DrawLines(borderColor, borderThickness);
 		}
 	}
@@ -421,8 +427,8 @@ namespace Dispatch::UI {
 		Element::changeStatus(st);
 		if (force || (status != oldStatus)) {
 			StatusChanges& sc = statusChanges[status];
-			innerColor = sc.inner;
-			outterColor = sc.outter;
+			innerColors = sc.inner;
+			outterColors = sc.outter;
 			borderColor = sc.border;
 			fontColor = sc.text;
 			size_mult = sc.size_mult;
@@ -448,14 +454,15 @@ namespace Dispatch::UI {
 
 		const int sides = segments.size();
 		float baseRotation = 90.0f + 180.0f / sides;
-		DrawPoly(center, sides, sideLength+1, baseRotation, innerColor);
+		DrawPoly(center, sides, sideLength+1, baseRotation, innerColors[0]);
 		DrawPolyLines(center, sides, sideLength-1, baseRotation, borderColor);
 		for (int i = 1; i < 5; i++) DrawPolyLines(center, sides, i * sideLength / 5, baseRotation, bgLines);
 		for (int i = 0; i < sides; i++) center.DrawLine(center + raylib::Vector2{0, -sideLength}.Rotate(i * 2.0f * PI / sides), bgLines);
 		if (drawIcons) for (int i = 0; i < sides; i++) {
 			std::string icon = segments[i].icon;
-			auto pos = center + raylib::Vector2{0, -(sideLength * 1.33f)}.Rotate(i * 2.0f * PI / sides);
-			pos.DrawCircle(18, innerColor);
+			auto pos = center + raylib::Vector2{0.0f, -(sideLength * 1.33f)}.Rotate(i * 2.0f * PI / sides);
+			if ((int)innerColors.size() == sides) pos.DrawCircle(18, innerColors[i]);
+			else pos.DrawCircle(18, innerColors[0]);
 			DrawCircleLines(pos.x, pos.y, 16, borderColor);
 			Utils::drawTextCenteredShadow(icon, pos, emojiFont, 26);
 		}
@@ -721,8 +728,8 @@ namespace Dispatch::UI {
 		WRITE(shadowOffset);
 		WRITE(outterMargin);
 		WRITE(innerMargin);
-		WRITE(innerColor);
-		WRITE(outterColor);
+		WRITE(innerColors);
+		WRITE(outterColors);
 		WRITE(borderColor);
 		WRITE(shadowColor);
 		WRITE(verticalConstraint);
@@ -743,8 +750,16 @@ namespace Dispatch::UI {
 		READ(j, shadowOffset);
 		READ(j, outterMargin);
 		READ(j, innerMargin);
-		READ(j, innerColor);
-		READ(j, outterColor);
+		READ(j, innerColors);
+		READ(j, outterColors);
+		if (j.contains("innerColor")) {
+			raylib::Color innerColor = j["innerColor"].get<raylib::Color>();
+			innerColors = {innerColor};
+		}
+		if (j.contains("outterColor")) {
+			raylib::Color outterColor = j["outterColor"].get<raylib::Color>();
+			outterColors = {outterColor};
+		}
 		READ(j, borderColor);
 		READ(j, shadowColor);
 		READREQ(j, verticalConstraint);

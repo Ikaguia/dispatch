@@ -10,6 +10,7 @@
 #include <raylib-cpp.hpp>
 #include <nlohmann/json.hpp>
 #include <Attribute.hpp>
+#include <Common.hpp>
 
 namespace Utils {
 	enum struct Anchor { topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
@@ -252,6 +253,11 @@ namespace nlohmann {
 				else if (colorS == "BLANK") color = BLANK;
 				else if (colorS == "MAGENTA") color = MAGENTA;
 				else if (colorS == "RAYWHITE") color = RAYWHITE;
+				else if (colorS == "BGLGT") color = Dispatch::UI::bgLgt;
+				else if (colorS == "BGMED") color = Dispatch::UI::bgMed;
+				else if (colorS == "BGDRK") color = Dispatch::UI::bgDrk;
+				else if (colorS == "TEXTCOLOR") color = Dispatch::UI::textColor;
+				else if (colorS == "SHADOW") color = Dispatch::UI::shadow;
 				else throw std::runtime_error("Invalid color name: " + colorS);
 			} else throw std::runtime_error("Invalid color format");
 		}
