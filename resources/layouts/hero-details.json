@@ -192,7 +192,7 @@
 		"type": "BOX",
 		"id": "heroDetails-left/middle-top",
 		"father_id": "heroDetails-left/middle",
-		"subElement_ids": [ "heroDetails-image", "heroDetails-mask", "heroDetails-name", "heroDetails-stats", "heroDetails-powers", "heroDetails-info" ],
+		"subElement_ids": [ "heroDetails-image", "heroDetails-mask", "heroDetails-name", "heroDetails-tags", "heroDetails-stats", "heroDetails-powers", "heroDetails-info" ],
 		"size": {
 			"x": 1.0,
 			"y": 0.88
@@ -354,7 +354,7 @@
 				"type": "father",
 				"side": "bottom"
 			},
-			"ratio": 0.8
+			"ratio": 0.77
 		},
 		"horizontalConstraint": {
 			"start": {
@@ -369,6 +369,42 @@
 		},
 		"text": "{@name}",
 		"textAnchor": "left"
+	}, {
+		"type": "DATAINSPECTOR",
+		"id": "heroDetails-tags",
+		"father_id": "heroDetails-left/middle-top",
+		"size": {
+			"x": 0.9,
+			"y": 0.108
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "top"
+			},
+			"end": {
+				"type": "father",
+				"side": "bottom"
+			},
+			"ratio": 0.88
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			},
+			"ratio": 0.2
+		},
+		"dataPath": "tags",
+		"orientation": "horizontal",
+		"borderThickness": 0,
+		"innerColor": [0,0,0,0],
+		"outterColor": [0,0,0,0],
+		"borderColor": [0,0,0,0]
 	}, {
 		"type": "BOX",
 		"id": "heroDetails-stats",

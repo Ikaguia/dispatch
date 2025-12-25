@@ -400,6 +400,7 @@ void HeroesHandler::selectHero(int idx) {
 
 		layoutHeroDetails.updateSharedData("name", hero.name);
 		layoutHeroDetails.updateSharedData("bio", hero.bio);
+		layoutHeroDetails.updateSharedData("tags", hero.tags);
 		image->texture.Load(hero.img_paths.at("full"));
 		updateLayoutStatsData(layoutHeroDetails, hero);
 	}

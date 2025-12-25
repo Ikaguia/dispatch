@@ -35,14 +35,6 @@ namespace Dispatch::UI {
 		void removeElement(const std::string& id, const std::string& loop="");
 	};
 
-	enum struct FillType {
-		NONE,
-		FULL,
-		GRADIENT,
-		GRADIENT_H,
-		GRADIENT_V,
-	};
-
 	enum struct Side {
 		TOP,
 		BOTTOM,
@@ -51,6 +43,11 @@ namespace Dispatch::UI {
 		LEFT = START,
 		RIGHT = END,
 		INVALID = -1
+	};
+
+	enum struct Orientation {
+		VERTICAL,
+		HORIZONTAL
 	};
 
 	class Element {
@@ -264,6 +261,7 @@ class DataInspector : public virtual ScrollBox {
 		int labelFontSize = 14;
 		int valueFontSize = 16;
 		float itemSpacing = 10.0f;
+		Orientation orientation=Orientation::VERTICAL;
 
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 		virtual void from_json(const nlohmann::json& j) override;
@@ -319,6 +317,11 @@ namespace nlohmann {
 		{Dispatch::UI::Side::END, "end"},
 		{Dispatch::UI::Side::LEFT, "left"},
 		{Dispatch::UI::Side::RIGHT, "right"},
+	});
+
+	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Orientation, {
+		{Dispatch::UI::Orientation::VERTICAL, "vertical"},
+		{Dispatch::UI::Orientation::HORIZONTAL, "horizontal"},
 	});
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType, {
