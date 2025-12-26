@@ -392,6 +392,7 @@ void HeroesHandler::update(float deltaTime) { for (auto& hero : active_heroes) h
 void HeroesHandler::selectHero(int idx) {
 	selectedHeroIndex = idx;
 	Dispatch::UI::Image* image = dynamic_cast<Dispatch::UI::Image*>(layoutHeroDetails.elements.at("heroDetails-image").get());
+	Dispatch::UI::Image* mugshot = dynamic_cast<Dispatch::UI::Image*>(layoutHeroDetails.elements.at("heroDetails-info-mugshot").get());
 	if (!image) throw std::runtime_error("Hero details layout is missing 'heroDetails-image' element or it is of the wrong type.");
 
 	if (idx != -1) {
@@ -402,6 +403,7 @@ void HeroesHandler::selectHero(int idx) {
 		layoutHeroDetails.updateSharedData("bio", hero.bio);
 		layoutHeroDetails.updateSharedData("tags", hero.tags);
 		image->texture.Load(hero.img_paths.at("full"));
+		mugshot->texture.Load(hero.img_paths.at("mugshot"));
 		updateLayoutStatsData(layoutHeroDetails, hero);
 	}
 }

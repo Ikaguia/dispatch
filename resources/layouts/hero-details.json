@@ -471,7 +471,7 @@
 		"type": "BOX",
 		"id": "heroDetails-info",
 		"father_id": "heroDetails-left/middle-top",
-		"subElement_ids": [ "heroDetails-info-list" ],
+		"subElement_ids": [ "heroDetails-info-mugshot", "heroDetails-info-list" ],
 		"size": {
 			"x": 0.38,
 			"y": 0.88
@@ -1499,17 +1499,45 @@
 			}
 		]
 	}, {
-		"type": "DATAINSPECTOR",
-		"id": "heroDetails-info-list",
+		"type": "IMAGE",
+		"id": "heroDetails-info-mugshot",
 		"father_id": "heroDetails-info",
 		"size": {
 			"x": 0.9,
-			"y": 0.9
+			"y": 0.3
 		},
 		"verticalConstraint": {
 			"start": {
 				"type": "father",
 				"side": "top"
+			}
+		},
+		"horizontalConstraint": {
+			"start": {
+				"type": "father",
+				"side": "start"
+			},
+			"end": {
+				"type": "father",
+				"side": "end"
+			}
+		},
+		"path": "resources/images/heroes/Crumple/mugshot.jpg",
+		"fillType": "fill",
+		"imageAnchor": "top"
+	}, {
+		"type": "DATAINSPECTOR",
+		"id": "heroDetails-info-list",
+		"father_id": "heroDetails-info",
+		"size": {
+			"x": 0.9,
+			"y": 0.65
+		},
+		"verticalConstraint": {
+			"start": {
+				"type": "element",
+				"element_id": "heroDetails-info-mugshot",
+				"side": "bottom"
 			},
 			"end": {
 				"type": "father",

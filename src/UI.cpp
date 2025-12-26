@@ -546,11 +546,11 @@ namespace Dispatch::UI {
 			if (wheel != raylib::Vector2{0.0f, 0.0f}) {
 				if (scrollX) scrollOffset.x += wheel.x * 20.0f;
 				if (scrollY) scrollOffset.y += wheel.y * 20.0f;
-				
+
 				float maxScrollX = contentSize.x - innerRect().width;
 				scrollOffset.x = std::clamp(scrollOffset.x, -maxScrollX, 0.0f);
-				
-				float maxScrollY = contentSize.y - innerRect().height;
+
+				float maxScrollY = contentSize.y - (innerRect().height * 1.5f);
 				scrollOffset.y = std::clamp(scrollOffset.y, -maxScrollY, 0.0f);
 			}
 		}
@@ -576,75 +576,21 @@ namespace Dispatch::UI {
 
 		std::string last_id = "";
 
-		if (data.is_object()) {
+		if (data.is_object() || data.is_array()) {
 			for (auto& [key, value] : data.items()) {
-				std::string row_id = id + "_row_" + key;
-
-				raylib::Vector4 innerMargin{5, 2, 5, 2};
-				json tb_json = {
-					{"type", "TEXTBOX"},
-					{"id", row_id},
-					{"father_id", id},
-					{"text", std::format("{}: {}", key, value.is_string() ? value.get<std::string>() : value.dump())},
-					{"fontSize", valueFontSize},
-					{"innerMargin", innerMargin},
-					{"size", {1.0, 1.0}},
-					{"textAnchor", "left"}
-				};
-
-				float availableWidth = this->innerRect().width - (innerMargin.x + innerMargin.z);
-
-				raylib::Rectangle textBounds = Utils::positionTextAnchored(
-					tb_json["text"], 
-					raylib::Rectangle(0, 0, availableWidth, 1000),
-					Utils::Anchor::topLeft,
-					defaultFont,
-					tb_json["fontSize"].get<float>(),
-					1.0f,
-					{0, 0},
-					availableWidth
-				);
-
-				if (orientation == Orientation::VERTICAL) {
-					tb_json["horizontalConstraint"] = {
-						{"start", {{"type", "father"}, {"side", "start"}}},
-						{"end", {{"type", "father"}, {"side", "end"}}}
-					};
-					tb_json["verticalConstraint"] = {{"offset", itemSpacing}};
-					if (last_id.empty()) tb_json["verticalConstraint"]["start"] = {{"type", "father"}, {"side", "top"}};
-					else tb_json["verticalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "bottom"}};
-
-					tb_json["size"][1] = textBounds.height + (innerMargin.y + innerMargin.w);
+				std::string row_id = std::format("{}_row_{}", id, key), text;
+				if (data.is_object()) {
+					text = std::format("{}: {}", key, value.is_string() ? value.get<std::string>() : value.dump());
 				} else {
-					tb_json["verticalConstraint"] = {
-						{"start", {{"type", "father"}, {"side", "top"}}},
-						{"end", {{"type", "father"}, {"side", "bottom"}}}
-					};
-					tb_json["horizontalConstraint"] = {{"offset", itemSpacing}};
-					if (last_id.empty()) tb_json["horizontalConstraint"]["start"] = {{"type", "father"}, {"side", "start"}};
-					else tb_json["horizontalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "end"}};
-
-					tb_json["size"][0] = textBounds.width + (innerMargin.x + innerMargin.z);
+					text = std::format("{}", value.is_string() ? value.get<std::string>() : value.dump());
 				}
 
-				auto tb = std::make_unique<TextBox>();
-				tb->layout = layout;
-				tb_json.get_to(*tb);
-
-				layout->elements[row_id] = std::move(tb);
-				subElement_ids.push_back(row_id);
-				last_id = row_id;
-			}
-		} else if (data.is_array()) {
-			for (const auto& [idx, value] : Utils::enumerate(data)) {
-				std::string row_id = std::format("{}_row_{}", id, idx);
-
 				raylib::Vector4 innerMargin{5, 2, 5, 2};
 				json tb_json = {
 					{"type", "TEXTBOX"},
 					{"id", row_id},
 					{"father_id", id},
-					{"text", value.is_string() ? value.get<std::string>() : value.dump()},
+					{"text", text},
 					{"fontSize", valueFontSize},
 					{"innerMargin", innerMargin},
 					{"size", {1.0, 1.0}},
