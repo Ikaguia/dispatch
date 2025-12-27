@@ -14,11 +14,12 @@
 #include <Common.hpp>
 
 namespace Dispatch::UI {
-	class Element;
+	class Element; class Style;
 
 	class Layout {
 	public:
 		std::map<std::string, std::unique_ptr<Element>> elements;
+		std::map<std::string, std::unique_ptr<Style>> styles;
 		std::set<std::string> rootElements, hovered, clicked, pressed, unhover, release, dataChanged, needsRebuild;
 		std::map<std::string, nlohmann::json> sharedData;
 		std::map<std::string, std::set<std::string>> sharedDataListeners;
@@ -50,6 +51,15 @@ namespace Dispatch::UI {
 		HORIZONTAL
 	};
 
+	class Style {
+	public:
+		std::string id, father_id;
+		nlohmann::json orig;
+
+		void to_json(nlohmann::json& j) const;
+		void from_json(const nlohmann::json& j);
+	};
+
 	class Element {
 	protected:
 		nlohmann::json orig;
@@ -60,7 +70,7 @@ namespace Dispatch::UI {
 		int z_order = -1, roundnessSegments = 0;
 		float borderThickness = 0.0f, roundness = 0.0f;
 		std::string id, father_id;
-		std::vector<std::string> subElement_ids;
+		std::vector<std::string> subElement_ids, style_ids;
 		raylib::Vector2 size, shadowOffset;
 		raylib::Vector4 outterMargin, innerMargin;
 		std::vector<raylib::Color> innerColors, outterColors;
@@ -105,6 +115,9 @@ namespace Dispatch::UI {
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {}
 		virtual void changeStatus(Status st, bool force=false);
 		virtual void rebuild() {};
+		virtual void applyStyles(bool force=false);
+		virtual void applyStyle(const std::string& st_id, bool force=false);
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value);
 
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
@@ -136,6 +149,7 @@ namespace Dispatch::UI {
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
 
 		void parseText();
 		void updateText();
@@ -167,6 +181,7 @@ namespace Dispatch::UI {
 
 		virtual void solveSize() override;
 		virtual void changeStatus(Status st, bool force=false) override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
 	};
@@ -207,6 +222,7 @@ namespace Dispatch::UI {
 		raylib::Color tintColor = WHITE;
 
 		virtual void _render() override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 	};
@@ -228,6 +244,7 @@ namespace Dispatch::UI {
 		bool drawLabels=true, drawIcons=false, drawOverlap=true;
 
 		virtual void _render() override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
@@ -252,6 +269,7 @@ namespace Dispatch::UI {
 		virtual void handleInput(raylib::Vector2 offset={}) override;
 		virtual void _handleInput(raylib::Vector2 offset={}) override;
 		virtual void solveLayout() override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
 
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
@@ -266,6 +284,7 @@ class DataInspector : public virtual ScrollBox {
 		Orientation orientation=Orientation::VERTICAL;
 
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void rebuild() override;
@@ -274,6 +293,8 @@ class DataInspector : public virtual ScrollBox {
 
 namespace nlohmann {
 	// JSON Serialization
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::Style& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::Style& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Box& inst) { j = nlohmann::json(); inst.to_json(j); }

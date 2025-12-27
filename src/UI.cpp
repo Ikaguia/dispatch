@@ -36,6 +36,19 @@ namespace Dispatch::UI {
 
 		for (const auto& data : data_array) {
 			std::string type = data.at("type").get<std::string>();
+			if (type != "STYLE") continue;
+			auto style = std::make_unique<Style>();
+			try { data.get_to(*style); }
+			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize style. {}", e.what())); }
+			if (styles.count(style->id)) throw std::runtime_error("Layout Error: Style with ID '" + style->id + "' already exists in the map.");
+
+			std::cout << "Read style " << style->id << std::endl;
+			styles[style->id] = std::move(style);
+		}
+
+		for (const auto& data : data_array) {
+			std::string type = data.at("type").get<std::string>();
+			if (type == "STYLE") continue;
 			auto el = elementFactory(type);
 			el->layout = this;
 			try { data.get_to(*el); }
@@ -338,6 +351,52 @@ namespace Dispatch::UI {
 		subElement_ids = std::move(sortedIds);
 	}
 	void Element::changeStatus(Status st, bool force) { status = st; }
+	void Element::applyStyles(bool force) {
+		for (const std::string& style_id : style_ids) applyStyle(style_id, force);
+	}
+	void Element::applyStyle(const std::string& st_id, bool force) {
+		if (st_id.empty()) return;
+		if (!layout->styles.contains(st_id)) return;
+		Style* style = layout->styles.at(st_id).get();
+		if (!style->father_id.empty()) applyStyle(style->father_id, force);
+		for (auto& [key, value] : style->orig.items()) {
+			if (!force && orig.contains(key)) continue;
+			applyStylePart(key, value);
+		}
+	}
+	bool Element::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (key == "borderThickness") borderThickness = value.get<decltype(borderThickness)>();
+		else if (key == "roundness") roundness = value.get<decltype(roundness)>();
+		else if (key == "size") size = value.get<decltype(size)>();
+		else if (key == "shadowOffset") shadowOffset = value.get<decltype(shadowOffset)>();
+		else if (key == "outterMargin") outterMargin = value.get<decltype(outterMargin)>();
+		else if (key == "innerMargin") innerMargin = value.get<decltype(innerMargin)>();
+		else if (key == "innerColors") innerColors = value.get<decltype(innerColors)>();
+		else if (key == "outterColors") outterColors = value.get<decltype(outterColors)>();
+		else if (key == "borderColor") borderColor = value.get<decltype(borderColor)>();
+		else if (key == "shadowColor") shadowColor = value.get<decltype(shadowColor)>();
+		else if (key == "shadow") shadow = value.get<decltype(shadow)>();
+		else if (key == "verticalConstraint") verticalConstraint = value.get<decltype(verticalConstraint)>();
+		else if (key == "verticalConstraint.offset") verticalConstraint.offset = value.get<decltype(verticalConstraint.offset)>();
+		else if (key == "verticalConstraint.ratio") verticalConstraint.ratio = value.get<decltype(verticalConstraint.ratio)>();
+		else if (key == "verticalConstraint.start") verticalConstraint.start = value.get<decltype(verticalConstraint.start)>();
+		else if (key == "verticalConstraint.start.type") verticalConstraint.start.type = value.get<decltype(verticalConstraint.start.type)>();
+		else if (key == "verticalConstraint.start.side") verticalConstraint.start.side = value.get<decltype(verticalConstraint.start.side)>();
+		else if (key == "verticalConstraint.end") verticalConstraint.end = value.get<decltype(verticalConstraint.end)>();
+		else if (key == "verticalConstraint.end.type") verticalConstraint.end.type = value.get<decltype(verticalConstraint.end.type)>();
+		else if (key == "verticalConstraint.end.side") verticalConstraint.end.side = value.get<decltype(verticalConstraint.end.side)>();
+		else if (key == "horizontalConstraint") horizontalConstraint = value.get<decltype(horizontalConstraint)>();
+		else if (key == "horizontalConstraint.offset") horizontalConstraint.offset = value.get<decltype(horizontalConstraint.offset)>();
+		else if (key == "horizontalConstraint.ratio") horizontalConstraint.ratio = value.get<decltype(horizontalConstraint.ratio)>();
+		else if (key == "horizontalConstraint.start") horizontalConstraint.start = value.get<decltype(horizontalConstraint.start)>();
+		else if (key == "horizontalConstraint.start.type") horizontalConstraint.start.type = value.get<decltype(horizontalConstraint.start.type)>();
+		else if (key == "horizontalConstraint.start.side") horizontalConstraint.start.side = value.get<decltype(horizontalConstraint.start.side)>();
+		else if (key == "horizontalConstraint.end") horizontalConstraint.end = value.get<decltype(horizontalConstraint.end)>();
+		else if (key == "horizontalConstraint.end.type") horizontalConstraint.end.type = value.get<decltype(horizontalConstraint.end.type)>();
+		else if (key == "horizontalConstraint.end.side") horizontalConstraint.end.side = value.get<decltype(horizontalConstraint.end.side)>();
+		else return false;
+		return true;
+	}
 	// Text
 	void Text::_render() {
 		Element::_render();
@@ -355,6 +414,17 @@ namespace Dispatch::UI {
 		);
 	}
 	void Text::onSharedDataUpdate(const std::string& key, const json& value) { updateText(); }
+	bool Text::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (Element::applyStylePart(key, value)) ;
+		else if (key == "fontSize") fontSize = value.get<decltype(fontSize)>();
+		else if (key == "spacing") spacing = value.get<decltype(spacing)>();
+		else if (key == "text") text = value.get<decltype(text)>();
+		else if (key == "fontName") fontName = value.get<decltype(fontName)>();
+		else if (key == "fontColor") fontColor = value.get<decltype(fontColor)>();
+		else if (key == "textAnchor") textAnchor = value.get<decltype(textAnchor)>();
+		else return false;
+		return true;
+	}
 	void Text::parseText() {
 		static const std::regex pattern{R"(\{@(\w+)\})"};
 		std::string origText = orig.at("text").get<std::string>();
@@ -413,6 +483,15 @@ namespace Dispatch::UI {
 			imageAnchor
 		);
 	}
+	bool Image::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (Element::applyStylePart(key, value)) ;
+		else if (key == "path") path = value.get<decltype(path)>();
+		else if (key == "fillType") fillType = value.get<decltype(fillType)>();
+		else if (key == "imageAnchor") imageAnchor = value.get<decltype(imageAnchor)>();
+		else if (key == "tintColor") tintColor = value.get<decltype(tintColor)>();
+		else return false;
+		return true;
+	}
 	// Button
 	void Button::solveSize() {
 		Element::solveSize();
@@ -435,6 +514,37 @@ namespace Dispatch::UI {
 			if (initialized && (size_mult != oldSizeMult)) solveLayout();
 		}
 	}
+	bool Button::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (TextBox::applyStylePart(key, value)) ;
+		else if (key == "statusChanges") statusChanges = value.get<decltype(statusChanges)>();
+		else if (key == "size_mult") size_mult = value.get<decltype(size_mult)>();
+		else {
+			for (Status st : statuses) {
+				if (key == std::format("statusChanges.{}", json{st}.dump())) {
+					statusChanges[st] = value.get<decltype(statusChanges[st])>();
+					return true;
+				} else if (key == std::format("statusChanges.{}.inner", json{st}.dump())) {
+					statusChanges[st].inner = value.get<decltype(statusChanges[st].inner)>();
+					return true;
+				} else if (key == std::format("statusChanges.{}.outter", json{st}.dump())) {
+					statusChanges[st].outter = value.get<decltype(statusChanges[st].outter)>();
+					return true;
+				} else if (key == std::format("statusChanges.{}.border", json{st}.dump())) {
+					statusChanges[st].border = value.get<decltype(statusChanges[st].border)>();
+					return true;
+				} else if (key == std::format("statusChanges.{}.text", json{st}.dump())) {
+					statusChanges[st].text = value.get<decltype(statusChanges[st].text)>();
+					return true;
+				} else if (key == std::format("statusChanges.{}.size_mult", json{st}.dump())) {
+					statusChanges[st].size_mult = value.get<decltype(statusChanges[st].size_mult)>();
+					return true;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+	// RadioButton
 	void RadioButton::_handleInput(raylib::Vector2 offset) {
 		Button::_handleInput(offset);
 		if (release) layout->updateSharedData(key, id);
@@ -519,6 +629,22 @@ namespace Dispatch::UI {
 			}
 		}
 	}
+	bool RadarGraph::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (Element::applyStylePart(key, value)) ;
+		else if (key == "segments") segments = value.get<decltype(segments)>();
+		else if (key == "groups") groups = value.get<decltype(groups)>();
+		else if (key == "maxValue") maxValue = value.get<decltype(maxValue)>();
+		else if (key == "fontSize") fontSize = value.get<decltype(fontSize)>();
+		else if (key == "precision") precision = value.get<decltype(precision)>();
+		else if (key == "fontColor") fontColor = value.get<decltype(fontColor)>();
+		else if (key == "overlapColor") overlapColor = value.get<decltype(overlapColor)>();
+		else if (key == "bgLines") bgLines = value.get<decltype(bgLines)>();
+		else if (key == "drawLabels") drawLabels = value.get<decltype(drawLabels)>();
+		else if (key == "drawIcons") drawIcons = value.get<decltype(drawIcons)>();
+		else if (key == "drawOverlap") drawOverlap = value.get<decltype(drawOverlap)>();
+		else return false;
+		return true;
+	}
 	// ScrollBox
 	void ScrollBox::render() {
 		raylib::Rectangle viewport = innerRect();
@@ -563,6 +689,15 @@ namespace Dispatch::UI {
 			contentSize.x = std::max(contentSize.x, el->side(Side::END));
 			contentSize.y = std::max(contentSize.y, el->side(Side::BOTTOM));
 		}
+	}
+	bool ScrollBox::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (Box::applyStylePart(key, value)) ;
+		else if (key == "contentSize") contentSize = value.get<decltype(contentSize)>();
+		else if (key == "scrollOffset") scrollOffset = value.get<decltype(scrollOffset)>();
+		else if (key == "scrollX") scrollX = value.get<decltype(scrollX)>();
+		else if (key == "scrollY") scrollY = value.get<decltype(scrollY)>();
+		else return false;
+		return true;
 	}
 	// DataInspector
 	void DataInspector::onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {
@@ -660,8 +795,17 @@ namespace Dispatch::UI {
 	#define WRITE2(var, key)	j[#key] = inst.var;
 
 	// JSON Serialization
+	void Style::to_json(json& j) const {
+		j = orig;
+	}
+	void Style::from_json(const json& j) {
+		orig = j;
+		auto& inst = *this;
+		READ(j, id);
+	}
 	void Element::to_json(json& j) const {
 		auto& inst = *this;
+		WRITE(style_ids);
 		WRITE(visible);
 		WRITE(z_order);
 		WRITE(roundnessSegments);
@@ -710,6 +854,8 @@ namespace Dispatch::UI {
 		READ(j, shadowColor);
 		READREQ(j, verticalConstraint);
 		READREQ(j, horizontalConstraint);
+		READ(j, style_ids);
+		applyStyles();
 	}
 	void Text::to_json(json& j) const {
 		auto& inst = *this;
