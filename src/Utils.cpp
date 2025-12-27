@@ -6,6 +6,7 @@
 #include <format>
 #include <fstream>
 #include <map>
+#include <random>
 
 #include <Utils.hpp>
 #include <Common.hpp>
@@ -23,7 +24,11 @@ namespace Utils {
 		return str;
 	}
 
-	int randInt(int low, int high) { return rand()%(high-low+1) + low; }
+	int randInt(int low, int high) {
+		static std::mt19937 gen(std::random_device{}());
+		std::uniform_int_distribution<> dist(low, high);
+		return dist(gen);
+	}
 
 	std::vector<int> range(int start, int end, int step) {
 		if (step == 0) throw std::invalid_argument("Step cannot be zero");
@@ -182,7 +187,6 @@ namespace Utils {
 		DrawTexturePro(tex, src, dest, {0,0}, rotation, color);
 	}
 
-
 	void drawTextCentered(const std::string& text, raylib::Vector2 center, int size, raylib::Color color, int spacing, bool shadow, raylib::Color shadowColor, float shadowSpacing) {
 		drawTextCentered(text, center, {}, size, color, spacing, shadow, shadowColor, shadowSpacing);
 	}
@@ -337,8 +341,6 @@ namespace Utils {
 		EndScissorMode();
 	}
 
-
-
 	std::string addLineBreaks(const std::string_view& text, float maxWidth, const raylib::Font& font, float fontSize, float spacing, const std::string& dividers) {
 		std::string out;
 		std::string cur(text);
@@ -385,7 +387,6 @@ namespace Utils {
 
 		return out;
 	}
-
 
 	raylib::Vector2 center(const raylib::Rectangle& rect) {
 		return rect.GetPosition() + rect.GetSize()/2;

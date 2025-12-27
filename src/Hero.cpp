@@ -41,7 +41,7 @@ bool Hero::canFly() const {
 	return false;
 }
 
-int Hero::maxExp() const { return 1000 * (1 + ((level-1) * (level-1) / 10)); }
+int Hero::maxExp() const { return 700 + 300 * level + expOffset; }
 
 void Hero::update(float deltaTime) {
 	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
@@ -267,21 +267,22 @@ void Hero::to_json(nlohmann::json& j, const Hero& hero) {
 		{"bio", hero.bio},
 		{"images", hero.img_paths},
 		{"attributes", hero.real_attributes},
-		{"unconfirmed_attributes", hero.unconfirmed_attributes},
+		// {"unconfirmed_attributes", hero.unconfirmed_attributes},
 		{"powers", hero.powers},
-		{"status", hero.status},
+		// {"status", hero.status},
 		{"health", hero.health},
 		{"travelSpeedMult", hero.travelSpeedMult},
-		{"elapsedTime", hero.elapsedTime},
+		// {"elapsedTime", hero.elapsedTime},
 		{"finishTime", hero.finishTime},
 		{"restingTime", hero.restingTime},
 		{"flies", hero.flies},
 		{"level", hero.level},
 		{"exp", hero.exp},
+		{"expOffset", hero.expOffset},
 		{"skillPoints", hero.skillPoints},
-		{"mission", hero.mission.lock()->name},
-		{"pos", hero.pos},
-		{"path", hero.path},
+		// {"mission", hero.mission.lock()->name},
+		// {"pos", hero.pos},
+		// {"path", hero.path},
 	};
 }
 void Hero::from_json(const nlohmann::json& j, Hero& hero) {
@@ -307,19 +308,20 @@ void Hero::from_json(const nlohmann::json& j, Hero& hero) {
 	hero.imgs["mugshot"] = raylib::Texture(hero.img_paths["mugshot"]);
 
 	READREQ2(j, real_attributes, attributes);
-	READ(j, unconfirmed_attributes);
+	// READ(j, unconfirmed_attributes);
 	READ(j, powers);
-	READ(j, status);
+	// READ(j, status);
 	READ(j, health);
 	READ(j, travelSpeedMult);
-	READ(j, elapsedTime);
+	// READ(j, elapsedTime);
 	READ(j, finishTime);
 	READ(j, restingTime);
 	READ(j, flies);
 	READ(j, level);
 	READ(j, exp);
+	READ(j, expOffset);
 	READ(j, skillPoints);
-	// READ(j, mission); TODO
-	READ(j, pos);
-	READ(j, path);
+	// READ(j, mission);
+	// READ(j, pos);
+	// READ(j, path);
 }

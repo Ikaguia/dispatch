@@ -676,7 +676,7 @@ namespace Dispatch::UI {
 				float maxScrollX = contentSize.x - innerRect().width;
 				scrollOffset.x = std::clamp(scrollOffset.x, -maxScrollX, 0.0f);
 
-				float maxScrollY = contentSize.y - (innerRect().height * 1.5f);
+				float maxScrollY = contentSize.y - innerRect().height;
 				scrollOffset.y = std::clamp(scrollOffset.y, -maxScrollY, 0.0f);
 			}
 		}
@@ -692,8 +692,6 @@ namespace Dispatch::UI {
 	}
 	bool ScrollBox::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (Box::applyStylePart(key, value)) ;
-		else if (key == "contentSize") value.get_to(contentSize);
-		else if (key == "scrollOffset") value.get_to(scrollOffset);
 		else if (key == "scrollX") value.get_to(scrollX);
 		else if (key == "scrollY") value.get_to(scrollY);
 		else return false;
@@ -706,10 +704,24 @@ namespace Dispatch::UI {
 	void DataInspector::rebuild() {
 		json& data = layout->sharedData[dataPath];
 
-		for (const std::string& child_id : subElement_ids) layout->removeElement(child_id, "needsRebuild");
-		subElement_ids.clear();
+		for (const std::string& child_id : subElement_ids) {
+			if (!fixedChilds.contains(child_id)) {
+				layout->removeElement(child_id, "needsRebuild");
+			}
+		}
+		subElement_ids.assign(fixedChilds.begin(), fixedChilds.end());
 
 		std::string last_id = "";
+		float bottom = -1;
+
+		for (const std::string& child_id : subElement_ids) {
+			Element* child = layout->elements.at(child_id).get();
+			float c_bottom = child->side(Side::BOTTOM);
+			if (last_id.empty() || c_bottom > bottom) {
+				last_id = child_id;
+				bottom = c_bottom;
+			}
+		}
 
 		if (data.is_object() || data.is_array()) {
 			for (auto& [key, value] : data.items()) {
@@ -778,6 +790,15 @@ namespace Dispatch::UI {
 		} else return;
 
 		solveLayout();
+	}
+	bool DataInspector::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (ScrollBox::applyStylePart(key, value)) ;
+		else if (key == "labelFontSize") value.get_to(labelFontSize);
+		else if (key == "valueFontSize") value.get_to(valueFontSize);
+		else if (key == "itemSpacing") value.get_to(itemSpacing);
+		else if (key == "orientation") value.get_to(orientation);
+		else return false;
+		return true;
 	}
 
 	// JSON Serialization Macros
@@ -1035,6 +1056,8 @@ namespace Dispatch::UI {
 		}
 		ScrollBox::from_json(j);
 
+		fixedChilds.clear();
+		fixedChilds = std::set<std::string>{subElement_ids.begin(), subElement_ids.end()};
 		layout->registerSharedDataListener(dataPath, id);
 		if (layout->sharedData.contains(dataPath)) rebuild();
 	}

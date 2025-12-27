@@ -471,7 +471,7 @@
 		"type": "BOX",
 		"id": "heroDetails-info",
 		"father_id": "heroDetails-left/middle-top",
-		"subElement_ids": [ "heroDetails-info-mugshot", "heroDetails-info-list" ],
+		"subElement_ids": [ "heroDetails-info-list" ],
 		"size": {
 			"x": 0.38,
 			"y": 0.88
@@ -1501,10 +1501,10 @@
 	}, {
 		"type": "IMAGE",
 		"id": "heroDetails-info-mugshot",
-		"father_id": "heroDetails-info",
+		"father_id": "heroDetails-info-list",
 		"size": {
-			"x": 0.9,
-			"y": 0.3
+			"x": 1.0,
+			"y": 0.4
 		},
 		"verticalConstraint": {
 			"start": {
@@ -1529,15 +1529,15 @@
 		"type": "DATAINSPECTOR",
 		"id": "heroDetails-info-list",
 		"father_id": "heroDetails-info",
+		"subElement_ids": ["heroDetails-info-mugshot"],
 		"size": {
-			"x": 0.9,
-			"y": 0.65
+			"x": 0.95,
+			"y": 0.95
 		},
 		"verticalConstraint": {
 			"start": {
-				"type": "element",
-				"element_id": "heroDetails-info-mugshot",
-				"side": "bottom"
+				"type": "father",
+				"side": "top"
 			},
 			"end": {
 				"type": "father",

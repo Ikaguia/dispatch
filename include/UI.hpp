@@ -278,6 +278,7 @@ namespace Dispatch::UI {
 class DataInspector : public virtual ScrollBox {
 	public:
 		std::string dataPath;
+		std::set<std::string> fixedChilds;
 		int labelFontSize = 14;
 		int valueFontSize = 16;
 		float itemSpacing = 10.0f;

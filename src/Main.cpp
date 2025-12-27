@@ -17,7 +17,6 @@ int main() {
 	AttachConsole();
 	try {
 		SetTargetFPS(60);
-		srand(time(nullptr));
 
 		raylib::RenderTexture2D target{window.GetWidth(), window.GetHeight()};
 		raylib::Texture background{"resources/images/background.png"}; bgScale = 1.0f * window.GetWidth() / background.GetWidth();
