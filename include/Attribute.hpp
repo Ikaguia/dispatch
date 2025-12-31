@@ -82,6 +82,8 @@ struct AttrHash {
 template <typename ValueType>
 class AttrMap : public std::unordered_map<Attribute::Value, ValueType, AttrHash> {
 public:
+	AttrMap() { for (auto attr : Attribute::Values) (*this)[attr] = ValueType{}; }
+
 	ValueType& operator[](int idx) {
 		if (idx < 0 || idx >= Attribute::COUNT) throw std::out_of_range("Invalid Attribute index");
 		return std::unordered_map<Attribute::Value, ValueType, AttrHash>::operator[](Attribute::Values[idx]);

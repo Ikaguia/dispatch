@@ -38,6 +38,15 @@ namespace Utils {
 	constexpr bool equals(std::string_view a, std::string_view b, Args... args) { return ((equals(a, b) || ... || equals(a, args))); }
 
 	template <typename T>
+	std::string join(const T& container, const std::string& delim) {
+		std::ostringstream oss;
+		auto it = container.begin();
+		if (it != container.end()) oss << *it++;
+		while (it != container.end()) oss << delim << *it++;
+		return oss.str();
+	}
+
+	template <typename T>
 	T clamp(T val, T mn, T mx) { return val < mn ? mn : val > mx ? mx : val; }
 
 	template <typename T>
@@ -213,11 +222,25 @@ namespace nlohmann {
 		}; }
 		static void from_json(const json& j, raylib::Color& color) {
 			if (j.is_object()) {
-				color.r = j.at("r").get<unsigned char>();
-				color.g = j.at("g").get<unsigned char>();
-				color.b = j.at("b").get<unsigned char>();
-				if (j.contains("a")) color.a = j.at("a").get<unsigned char>();
-				else color.a = 255;
+				if (j.contains("func")) {
+					std::string func = j["func"].get<std::string>();
+					const json& args = j["args"];
+					if (func == "lerp") {
+						if (args.is_array() && args.size() == 3 && args[2].is_number_float()) {
+							color = ColorLerp(args[0].get<raylib::Color>(), args[1].get<raylib::Color>(), args[2].get<float>());
+						} else throw std::runtime_error("Invalid arguments for ColorLerp function: " + j.dump());
+					} else if (func == "alpha") {
+						if (args.is_array() && args.size() == 2 && args[1].is_number_float()) {
+							color = ColorAlpha(args[0].get<raylib::Color>(), args[1].get<float>());
+						} else throw std::runtime_error("Invalid arguments for ColorLerp function: " + j.dump());
+					} else throw std::runtime_error("Invalid color function: " + j.dump());
+				} else {
+					color.r = j.at("r").get<unsigned char>();
+					color.g = j.at("g").get<unsigned char>();
+					color.b = j.at("b").get<unsigned char>();
+					if (j.contains("a")) color.a = j.at("a").get<unsigned char>();
+					else color.a = 255;
+				}
 			} else if (j.is_array()) {
 				const auto& jA = j.get<std::vector<unsigned char>>();
 				if (jA.size() != 4) throw std::runtime_error("Invalid number of elements for Color");

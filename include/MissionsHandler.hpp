@@ -11,6 +11,7 @@ class MissionsHandler {
 private:
 	MissionsHandler();
 public:
+	Dispatch::UI::Layout layoutMissionDetails{"resources/layouts/mission-details.json"};
 	std::map<std::string, std::shared_ptr<Mission>> trigger_missions;
 	std::map<std::string, std::shared_ptr<Mission>> loaded_missions;
 	std::set<std::shared_ptr<Mission>> active_missions;

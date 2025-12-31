@@ -118,6 +118,7 @@ bool MissionsHandler::paused() const { return !selectedMission.expired(); }
 void MissionsHandler::selectMission(std::weak_ptr<Mission> ms) {
 	if (!active_missions.count(ms.lock())) return;
 	selectedMission = ms;
+	ms.lock()->setupLayout(layoutMissionDetails);
 }
 
 void MissionsHandler::unselectMission() { selectedMission.reset(); }
@@ -135,12 +136,13 @@ void MissionsHandler::addMissionToQueue(std::weak_ptr<Mission> mission, float ti
 
 void MissionsHandler::renderUI() {
 	for (auto& mission : active_missions) mission->renderUI(false);
-	if (!selectedMission.expired()) selectedMission.lock()->renderUI(true);
+	if (!selectedMission.expired()) layoutMissionDetails.render();
 }
 
 void MissionsHandler::handleInput() {
 	if (!selectedMission.expired())	{
 		Mission& mission = *selectedMission.lock();
+		layoutMissionDetails.handleInput();
 		mission.handleInput();
 		if (!mission.isMenuOpen()) unselectMission();
 	} else for (auto& mission : active_missions) {

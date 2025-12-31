@@ -23,8 +23,12 @@ namespace Dispatch::UI {
 		std::set<std::string> rootElements, hovered, clicked, pressed, unhover, release, dataChanged, needsRebuild;
 		std::map<std::string, nlohmann::json> sharedData;
 		std::map<std::string, std::set<std::string>> sharedDataListeners;
+		std::string path;
 
-		Layout(std::string path);
+		Layout(const std::string& path);
+		void load(nlohmann::json& data);
+		void reload(const std::string& path);
+		void reload(nlohmann::json& data);
 
 		void sync();
 		void render();
@@ -43,6 +47,8 @@ namespace Dispatch::UI {
 		END,
 		LEFT = START,
 		RIGHT = END,
+		CENTER_H,
+		CENTER_V,
 		INVALID = -1
 	};
 
@@ -171,7 +177,7 @@ namespace Dispatch::UI {
 
 		Button() : TextBox() {
 			statusChanges = std::map<Status, StatusChanges>{
-				{Status::REGULAR, {{bgLgt}, {bgMed}, {BLACK}, textColor, 1.0f}},
+				{Status::REGULAR, {{bgLgt, bgLgt, bgMed, bgLgt}, {bgMed}, {BLACK}, textColor, 1.0f}},
 				{Status::HOVERED, {{SKYBLUE}, {BLUE}, {BLACK}, textColor, 1.1f}},
 				{Status::PRESSED, {{BLUE}, {DARKBLUE}, {BLACK}, textColor, 1.1f}},
 				{Status::SELECTED, {{ORANGE}, {BROWN}, {BLACK}, WHITE, 1.0f}},
@@ -341,6 +347,8 @@ namespace nlohmann {
 		{Dispatch::UI::Side::END, "end"},
 		{Dispatch::UI::Side::LEFT, "left"},
 		{Dispatch::UI::Side::RIGHT, "right"},
+		{Dispatch::UI::Side::CENTER_H, "center_h"},
+		{Dispatch::UI::Side::CENTER_V, "center_v"},
 	});
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Orientation, {

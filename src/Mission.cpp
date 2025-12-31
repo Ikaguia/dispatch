@@ -96,6 +96,8 @@ void Mission::assignHero(std::shared_ptr<Hero> hero) {
 		assignedHeroes.insert(hero);
 		hero->changeStatus(Hero::ASSIGNED, weak_from_this());
 	}
+	auto& layout = MissionsHandler::inst().layoutMissionDetails;
+	updateLayout(layout, "assignedHeroes");
 }
 
 void Mission::unassignHero(std::shared_ptr<Hero> hero) {
@@ -103,6 +105,8 @@ void Mission::unassignHero(std::shared_ptr<Hero> hero) {
 		assignedHeroes.erase(hero);
 		hero->changeStatus(Hero::AVAILABLE, {}, 0.0f);
 	}
+	auto& layout = MissionsHandler::inst().layoutMissionDetails;
+	updateLayout(layout, "assignedHeroes");
 }
 
 void Mission::changeStatus(Status newStatus) {
@@ -156,6 +160,9 @@ void Mission::changeStatus(Status newStatus) {
 		Utils::println("Invalid mission status change, from {} to {}", statusToString(oldStatus), statusToString(newStatus));
 		throw std::invalid_argument(std::format("Invalid mission status change, from {} to {}", statusToString(oldStatus), statusToString(newStatus)));
 	}
+
+	auto& layout = MissionsHandler::inst().layoutMissionDetails;
+	updateLayout(layout, "status");
 }
 
 void Mission::update(float deltaTime) {
@@ -547,13 +554,8 @@ void Mission::handleInput() {
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 		if (status == Mission::PENDING) {
 			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::SELECTED);
-		} else if (status == Mission::SELECTED) {
-			if (mousePos.CheckCollision(btnCancel)) changeStatus(Mission::PENDING);
-			else if (mousePos.CheckCollision(btnStart) && !assignedHeroes.empty()) changeStatus(Mission::TRAVELLING);
 		} else if (status == Mission::AWAITING_REVIEW) {
 			if (mousePos.CheckCollision(position, 28)) changeStatus(isSuccessful() ? Mission::REVIEWING_SUCESS : Mission::REVIEWING_FAILURE);
-		} else if (status == Mission::REVIEWING_SUCESS || status == Mission::REVIEWING_FAILURE) {
-			if (mousePos.CheckCollision(btnCancel)) changeStatus(Mission::DONE);
 		} else if (status == Mission::DISRUPTION) {
 			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::DISRUPTION_MENU);
 		} else if (status == Mission::DISRUPTION_MENU) {
@@ -565,7 +567,30 @@ void Mission::handleInput() {
 					auto& button = disruption.optionButtons[idx];
 					if (!option.disabled && mousePos.CheckCollision(button)) disruption.selected_option = idx;
 				}
-			} else if (mousePos.CheckCollision(btnCancel)) {
+			// } else if (mousePos.CheckCollision(btnCancel)) {
+			// 	disrupted |= !isDisruptionSuccessful();
+			// 	if (++curDisruption == (int)disruptions.size()) changeStatus(Mission::DONE);
+			}
+		}
+	}
+	if (isMenuOpen()) {
+		auto& layout = MissionsHandler::inst().layoutMissionDetails;
+
+		if (status == Mission::SELECTED) {
+			if (layout.clicked.contains("close")) changeStatus(Mission::PENDING);
+			else if (layout.clicked.contains("dispatch") && !assignedHeroes.empty()) changeStatus(Mission::TRAVELLING);
+		} else if (status == Mission::REVIEWING_SUCESS || status == Mission::REVIEWING_FAILURE) {
+			if (layout.clicked.contains("close")) changeStatus(Mission::DONE);
+		} else if (status == Mission::DISRUPTION_MENU) {
+			auto& disruption = disruptions[curDisruption];
+			if (disruption.selected_option == -1) {
+				// int sz = static_cast<int>(disruption.options.size());
+				// for (int idx = 0; idx < sz; idx++) {
+				// 	auto& option = disruption.options[idx];
+				// 	auto& button = disruption.optionButtons[idx];
+				// 	if (!option.disabled && mousePos.CheckCollision(button)) disruption.selected_option = idx;
+				// }
+			} else if (layout.clicked.contains("close")) {
 				disrupted |= !isDisruptionSuccessful();
 				if (++curDisruption == (int)disruptions.size()) changeStatus(Mission::DONE);
 			}
@@ -573,8 +598,37 @@ void Mission::handleInput() {
 	}
 }
 
+void Mission::setupLayout(Dispatch::UI::Layout& layout) {
+	layout.updateSharedData("type", type);
+	layout.updateSharedData("caller", caller);
+	layout.updateSharedData("description", description);
+	layout.updateSharedData("name", name);
+	// layout.updateSharedData("attributes", requiredAttributes);
+	layout.updateSharedData("attributes", getTotalAttributes());
+	layout.updateSharedData("requirements", Utils::join(requirements, "\n"));
+	Dispatch::UI::Button* dispatch = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("dispatch").get());
+	if (!dispatch) throw std::runtime_error("Mission details layout is missing 'dispatch' element or it is of the wrong type.");
+	dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);
+}
+void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& changed) {
+	if (changed == "assignedHeroes") {
+		// update assigned heroes
+
+		layout.updateSharedData("attributes", getTotalAttributes());
+
+		Dispatch::UI::Button* dispatch = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("dispatch").get());
+		if (!dispatch) throw std::runtime_error("Mission details layout is missing 'dispatch' element or it is of the wrong type.");
+		bool isDisabled = dispatch->status == Dispatch::UI::Element::Status::DISABLED;
+		if (assignedHeroes.empty() && !isDisabled) dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);
+		if (!assignedHeroes.empty() && isDisabled) dispatch->changeStatus(Dispatch::UI::Element::Status::REGULAR);
+	} else if (changed == "status") {
+		// ??
+	} else throw std::runtime_error("Invalid updateLayout argument '" + changed + "'");
+}
+
+
 AttrMap<int> Mission::getTotalAttributes() const {
-	AttrMap<int> totalAttributes{};
+	AttrMap<int> totalAttributes;
 	for (const auto& hero : assignedHeroes) for (const auto& [attr, value] : hero->attributes()) totalAttributes[attr] += value;
 	return totalAttributes;
 }

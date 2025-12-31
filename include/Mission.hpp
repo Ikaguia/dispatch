@@ -13,6 +13,7 @@ class Mission;
 #include <raylib-cpp.hpp>
 #include <Attribute.hpp>
 #include <Hero.hpp>
+#include <UI.hpp>
 
 class Disruption {
 public:
@@ -79,6 +80,9 @@ public:
 
 	void renderUI(bool full=false);
 	void handleInput();
+
+	void setupLayout(Dispatch::UI::Layout& layout);
+	void updateLayout(Dispatch::UI::Layout& layout, const std::string& changed);
 
 	AttrMap<int> getTotalAttributes() const;
 	int getTotalAttribute(Attribute attr) const;

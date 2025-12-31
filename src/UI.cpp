@@ -28,37 +28,10 @@ namespace Dispatch::UI {
 	}
 
 	// Layout
-	Layout::Layout(std::string path) {
+	Layout::Layout(const std::string& path) : path{path} {
 		json data_array = Utils::readJsonFile(path);
 		Utils::println("Reading layout '{}'", path);
-
-		if (!data_array.is_array()) throw std::runtime_error("Layout Error: Top-level JSON must be an array of elements.");
-
-		for (const auto& data : data_array) {
-			std::string type = data.at("type").get<std::string>();
-			if (type != "STYLE") continue;
-			auto style = std::make_unique<Style>();
-			try { data.get_to(*style); }
-			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize style. {}", e.what())); }
-			if (styles.count(style->id)) throw std::runtime_error("Layout Error: Style with ID '" + style->id + "' already exists in the map.");
-
-			std::cout << "Read style " << style->id << std::endl;
-			styles[style->id] = std::move(style);
-		}
-
-		for (const auto& data : data_array) {
-			std::string type = data.at("type").get<std::string>();
-			if (type == "STYLE") continue;
-			auto el = elementFactory(type);
-			el->layout = this;
-			try { data.get_to(*el); }
-			catch (const std::exception& e) { throw std::runtime_error("Layout Error: Failed to deserialize element of type '" + type + "'. " + e.what()); }
-			if (elements.count(el->id)) throw std::runtime_error("Layout Error: Element with ID '" + el->id + "' already exists in the map.");
-			if (el->father_id.empty()) rootElements.insert(el->id);
-
-			std::cout << "Read element " << el->id << std::endl;
-			elements[el->id] = std::move(el);
-		}
+		load(data_array);
 
 		for (auto& [id, _] : elements) {
 			auto& el = *elements[id].get();
@@ -78,6 +51,101 @@ namespace Dispatch::UI {
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
 		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
 	}
+
+	void Layout::load(nlohmann::json& data_array) {
+		if (!data_array.is_array()) throw std::runtime_error("Layout Error: Top-level JSON must be an array of elements.");
+
+		for (const auto& data : data_array) {
+			std::string type = data.at("type").get<std::string>();
+			if (type != "STYLE") continue;
+			// std::cerr << "Reading style " << data["id"] << std::endl;
+			auto style = std::make_unique<Style>();
+			try { data.get_to(*style); }
+			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize style. {}", e.what())); }
+			if (styles.count(style->id)) throw std::runtime_error("Layout Error: Style with ID '" + style->id + "' already exists in the map.");
+
+			styles[style->id] = std::move(style);
+		}
+
+		for (auto& data : data_array) {
+			std::string type = data.at("type").get<std::string>();
+			if (type == "STYLE") continue;
+			// std::cerr << "Reading element " << data["id"] << std::endl;
+			auto el = elementFactory(type);
+			el->layout = this;
+			if (data.contains("subElements")) {
+				for (json& s_data : data.at("subElements")) {
+					data["subElement_ids"].push_back(s_data.at("id"));
+					s_data["father_id"] = data.at("id");
+				}
+				load(data.at("subElements"));
+			}
+			try { data.get_to(*el); }
+			catch (const std::exception& e) { throw std::runtime_error("Layout Error: Failed to deserialize element of type '" + type + "'. " + e.what()); }
+			if (elements.count(el->id)) throw std::runtime_error("Layout Error: Element with ID '" + el->id + "' already exists in the map.");
+			if (el->father_id.empty()) rootElements.insert(el->id);
+
+			elements[el->id] = std::move(el);
+		}
+	}
+	void Layout::reload(const std::string& path) {
+		json data_array = Utils::readJsonFile(path);
+		Utils::println("Reloading layout '{}'", path);
+		rootElements.clear();
+		reload(data_array);
+
+		for (auto& [id, _] : elements) {
+			auto& el = *elements[id].get();
+			if (!el.father_id.empty() && !elements.count(el.father_id)) {
+				throw std::runtime_error(std::format("Layout Error: Father id '{}' for element '{}' is not present in the layout", el.father_id, el.id));
+			}
+			for (const auto& subElement_id : el.subElement_ids) {
+				if (elements.count(subElement_id)) {
+					if (elements[subElement_id]->father_id != el.id) {
+						throw std::runtime_error(std::format("Layout Error: Father/Subelements mismatch between '{}' and '{}'", el.id, subElement_id));
+					}
+				} else throw std::runtime_error(std::format("Layout Error: Subelement id '{}' for element '{}' is not present in the layout", subElement_id, el.id));
+			}
+
+		}
+
+		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
+		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
+		
+		Utils::println("Layout '{}' reloaded successfully.", path);
+	}
+	void Layout::reload(json& data_array) {
+		if (!data_array.is_array()) throw std::runtime_error("Layout Reload Error: Top-level JSON must be an array of elements.");
+
+		for (const auto& data : data_array) {
+			std::string id = data.at("id").get<std::string>();
+			if (data.at("type").get<std::string>() != "STYLE") continue;
+			if (!styles.count(id)) throw std::runtime_error("Layout Reload Error: New styles cannot be added via hot reload.");
+			std::cerr << "Reloading style " << id << std::endl;
+			auto& style = *(styles.at(id).get());
+			try { data.get_to(style); }
+			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Reload Error: Failed to deserialize style. {}", e.what())); }
+		}
+
+		for (auto& data : data_array) {
+			std::string id = data.at("id").get<std::string>();
+			std::string type = data.at("type").get<std::string>();
+			if (type == "STYLE") continue;
+			if (!elements.count(id)) throw std::runtime_error("Layout Reload Error: New elements cannot be added via hot reload.");
+			std::cerr << "Reloading style " << id << std::endl;
+			auto& el = *(elements.at(id).get());
+			if (data.contains("subElements")) {
+				for (json& s_data : data.at("subElements")) {
+					data["subElement_ids"].push_back(s_data.at("id"));
+					s_data["father_id"] = id;
+				}
+				reload(data.at("subElements"));
+			}
+			try { data.get_to(el); }
+			catch (const std::exception& e) { throw std::runtime_error("Layout Reload Error: Failed to deserialize element of type '" + type + "'. " + e.what()); }
+			if (el.father_id.empty()) rootElements.insert(id);
+		}
+	}
 	void Layout::sync() {
 		if (needsRebuild.empty()) return;
 		for (const std::string& id : needsRebuild) if (elements.contains(id)) elements.at(id)->rebuild();
@@ -85,6 +153,7 @@ namespace Dispatch::UI {
 	}
 	void Layout::render() { for (const std::string& id : rootElements) elements.at(id)->render(); }
 	void Layout::handleInput() {
+		if (raylib::Keyboard::IsKeyPressed(KEY_R)) reload(path);
 		hovered.clear();
 		clicked.clear();
 		pressed.clear();
@@ -138,8 +207,12 @@ namespace Dispatch::UI {
 				return rect.x;
 			case Side::END:
 				return rect.x + rect.width;
+			case Side::CENTER_H:
+				return rect.x + rect.width / 2.0f;
+			case Side::CENTER_V:
+				return rect.y + rect.height / 2.0f;
 			default:
-				throw std::invalid_argument("Invalid side");
+				throw std::invalid_argument(std::format("Invalid side '{}' for element '{}'", (int)side, id));
 		}
 	}
 	raylib::Vector2 Element::center() const { return anchor(); }
@@ -255,11 +328,11 @@ namespace Dispatch::UI {
 	void Element::solveSize() {
 		auto& elements = layout->elements;
 		raylib::Vector2 origSize = orig.at("size").get<raylib::Vector2>();
-		if (origSize.x >= 0.0f && origSize.x <= 1.0f) {
+		if ((orig["size"].is_object() && orig["size"]["x"].is_number_float()) || (orig["size"].is_array() && orig["size"][0].is_number_float())) {
 			float maxW = father_id.empty() ? GetScreenWidth() : elements.at(father_id)->innerRect().width;
 			size.x = std::round(maxW * origSize.x - (outterMargin.x + outterMargin.z));
 		}
-		if (origSize.y >= 0.0f && origSize.y <= 1.0f) {
+		if ((orig["size"].is_object() && orig["size"]["y"].is_number_float()) || (orig["size"].is_array() && orig["size"][1].is_number_float())) {
 			float maxH = father_id.empty() ? GetScreenHeight() : elements.at(father_id)->innerRect().height;
 			size.y = std::round(maxH * origSize.y - (outterMargin.y + outterMargin.w));
 		}
@@ -356,7 +429,7 @@ namespace Dispatch::UI {
 	}
 	void Element::applyStyle(const std::string& st_id, bool force) {
 		if (st_id.empty()) return;
-		if (!layout->styles.contains(st_id)) return;
+		if (!layout->styles.contains(st_id)) throw std::runtime_error(std::format("Style Error: unknown style '{}'", st_id));
 		Style* style = layout->styles.at(st_id).get();
 		if (!style->father_id.empty()) applyStyle(style->father_id, force);
 		for (auto& [key, value] : style->orig.items()) {
@@ -373,6 +446,8 @@ namespace Dispatch::UI {
 		else if (key == "innerMargin") value.get_to(innerMargin);
 		else if (key == "innerColors") value.get_to(innerColors);
 		else if (key == "outterColors") value.get_to(outterColors);
+		else if (key == "innerColor") innerColors = std::vector<raylib::Color>{value.get<raylib::Color>()};
+		else if (key == "outterColor") outterColors = std::vector<raylib::Color>{value.get<raylib::Color>()};
 		else if (key == "borderColor") value.get_to(borderColor);
 		else if (key == "shadowColor") value.get_to(shadowColor);
 		else if (key == "shadow") value.get_to(shadow);
@@ -766,7 +841,7 @@ namespace Dispatch::UI {
 					if (last_id.empty()) tb_json["verticalConstraint"]["start"] = {{"type", "father"}, {"side", "top"}};
 					else tb_json["verticalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "bottom"}};
 
-					tb_json["size"][1] = textBounds.height + (innerMargin.y + innerMargin.w);
+					tb_json["size"][1] = (int)std::ceil(textBounds.height + (innerMargin.y + innerMargin.w));
 				} else {
 					tb_json["verticalConstraint"] = {
 						{"start", {{"type", "father"}, {"side", "top"}}},
@@ -776,7 +851,7 @@ namespace Dispatch::UI {
 					if (last_id.empty()) tb_json["horizontalConstraint"]["start"] = {{"type", "father"}, {"side", "start"}};
 					else tb_json["horizontalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "end"}};
 
-					tb_json["size"][0] = textBounds.width + (innerMargin.x + innerMargin.z);
+					tb_json["size"][0] = (int)std::ceil(textBounds.width + (innerMargin.x + innerMargin.z));
 				}
 
 				auto tb = std::make_unique<TextBox>();
