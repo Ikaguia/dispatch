@@ -398,10 +398,18 @@ void HeroesHandler::selectHero(int idx) {
 	if (idx != -1) {
 		const Hero& hero = *active_heroes[selectedHeroIndex];
 		const AttrMap<int>& attrs = hero.attributes();
+		std::vector<std::string> powerNames;
+		for (const auto& power : hero.powers) powerNames.push_back(power.name);
+		for (const auto& power : hero.powers) {
+			layoutHeroDetails.updateSharedData("powers." + power.name + ".name", power.unlocked ? power.name : "???");
+			layoutHeroDetails.updateSharedData("powers." + power.name + ".description", power.unlocked ? power.description : "???");
+		}
 
 		layoutHeroDetails.updateSharedData("name", hero.name);
 		layoutHeroDetails.updateSharedData("bio", hero.bio);
 		layoutHeroDetails.updateSharedData("tags", hero.tags);
+		layoutHeroDetails.updateSharedData("powers", hero.powers);
+		layoutHeroDetails.updateSharedData("powerNames", powerNames);
 		image->texture.Load(hero.img_paths.at("full"));
 		mugshot->texture.Load(hero.img_paths.at("mugshot"));
 		updateLayoutStatsData(layoutHeroDetails, hero);

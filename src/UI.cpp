@@ -1,6 +1,7 @@
 #include <UI.hpp>
 
 #include <algorithm>
+#include <iterator>
 #include <map>
 #include <queue>
 #include <set>
@@ -24,6 +25,7 @@ namespace Dispatch::UI {
 		else if (type == "ATTRGRAPH") return std::make_unique<AttrGraph>();
 		else if (type == "SCROLLBOX") return std::make_unique<ScrollBox>();
 		else if (type == "DATAINSPECTOR") return std::make_unique<DataInspector>();
+		else if (type == "DATAARRAY") return std::make_unique<DataArray>();
 		else throw std::invalid_argument("Invalid type in JSON layout");
 	}
 
@@ -343,7 +345,7 @@ namespace Dispatch::UI {
 		auto& elements = layout->elements;
 		// Sort based on the z_order member
 		if (z_order) {
-			std::sort(subElement_ids.begin(), subElement_ids.end(), [&](const auto& lhs, const auto& rhs) { return elements.at(lhs)->z_order < elements.at(rhs)->z_order; });
+			std::sort(BEGEND(subElement_ids), [&](const auto& lhs, const auto& rhs) { return elements.at(lhs)->z_order < elements.at(rhs)->z_order; });
 			return;
 		}
 
@@ -501,9 +503,9 @@ namespace Dispatch::UI {
 		return true;
 	}
 	void Text::parseText() {
-		static const std::regex pattern{R"(\{@(\w+)\})"};
+		static const std::regex pattern{R"(\{@([^}]+)\})"};
 		std::string origText = orig.at("text").get<std::string>();
-		std::sregex_token_iterator iter(origText.begin(), origText.end(), pattern, 1);
+		std::sregex_token_iterator iter(BEGEND(origText), pattern, 1);
 		std::sregex_token_iterator end;
 
 		if (iter == end) return;
@@ -515,13 +517,13 @@ namespace Dispatch::UI {
 	void Text::updateText() {
 		if (!dynamic_vars.count("text")) return;
 
-		static const std::regex pattern{R"(\{@(\w+)\})"};
+		static const std::regex pattern{R"(\{@([^}]+)\})"};
 		std::string origText = orig.at("text").get<std::string>();
 
 		std::string result;
 		result.reserve(origText.size());
 
-		auto it = std::sregex_iterator(origText.begin(), origText.end(), pattern);
+		auto it = std::sregex_iterator(BEGEND(origText), pattern);
 		auto end = std::sregex_iterator();
 		
 		size_t lastPos = 0;
@@ -664,9 +666,9 @@ namespace Dispatch::UI {
 			points.back().DrawLine(points.front(), color);
 			points.push_back(points.front());
 			points.push_back(center);
-			std::reverse(points.begin(), points.end());
+			std::reverse(BEGEND(points));
 			DrawTriangleFan(points.data(), points.size(), color.Fade(0.5f));
-			std::reverse(points.begin(), points.end());
+			std::reverse(BEGEND(points));
 			for (int idx = 0; idx < sides; idx++) {
 				float value = values[idx];
 				auto point = points[idx];
@@ -784,7 +786,7 @@ namespace Dispatch::UI {
 				layout->removeElement(child_id, "needsRebuild");
 			}
 		}
-		subElement_ids.assign(fixedChilds.begin(), fixedChilds.end());
+		subElement_ids.assign(BEGEND(fixedChilds));
 
 		std::string last_id = "";
 		float bottom = -1;
@@ -874,6 +876,70 @@ namespace Dispatch::UI {
 		else if (key == "orientation") value.get_to(orientation);
 		else return false;
 		return true;
+	}
+	// DataArray
+	void DataArray::onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {
+		if (key == dataPath) layout->needsRebuild.insert(id);
+	}
+	void DataArray::rebuild() {
+		json& data = layout->sharedData[dataPath];
+		std::vector<std::string> children = data.get<std::vector<std::string>>();
+
+		if (children == curChildren) return;
+
+		for (const std::string& child : curChildren) layout->removeElement(std::format("{}.children.{}", id, child), "needsRebuild");
+		subElement_ids.clear(); subElement_ids.reserve(children.size());
+
+		std::string last_id = "";
+
+		const std::string type = childTemplate.at("type").get<std::string>();
+		const std::string origText = childTemplate.dump();
+		for (const std::string& child : children) {
+			const std::string& child_id = std::format("{}.children.{}", id, child);
+
+			std::string text = origText;
+			Utils::replaceAll(text, "{$" + id + "}", child);
+			json child_json = json::parse(text);
+
+			child_json["id"] = child_id;
+			child_json["father_id"] = id;
+			for (const std::string con : {"verticalConstraint", "horizontalConstraint"}) {
+				for (const std::string se : {"start", "end"}) {
+					if (child_json.at(con).contains(se)) {
+						auto& cjd = child_json[con][se];
+						if (cjd.at("type").get<std::string>() == "element") {
+							if (last_id.empty()) {
+								cjd["type"] = "father";
+								if (con == "verticalConstraint") {
+									if (cjd["side"] == "top") cjd["side"] = "bottom";
+									else if (cjd["side"] == "bottom") cjd["side"] = "top";
+								} else {
+									if (cjd["side"] == "start") cjd["side"] = "end";
+									else if (cjd["side"] == "end") cjd["side"] = "start";
+									else if (cjd["side"] == "left") cjd["side"] = "right";
+									else if (cjd["side"] == "right") cjd["side"] = "left";
+								}
+								cjd.erase("element_id");
+							} else {
+								cjd["element_id"] = last_id;
+							}
+						}
+					}
+				}
+			}
+
+			Utils::println("{}, {}: {}", child, child_id, child_json.dump(4));
+
+			json ja = json::array({child_json});
+			layout->load(ja);
+
+			subElement_ids.push_back(child_id);
+			last_id = child_id;
+		}
+
+		curChildren = children;
+
+		solveLayout();
 	}
 
 	// JSON Serialization Macros
@@ -1094,7 +1160,7 @@ namespace Dispatch::UI {
 							group.values = j_group["values"].get<std::vector<float>>();
 						} else if (j_group["values"].is_string()) {
 							std::string vals = j_group["values"].get<std::string>();
-							static const std::regex pattern{R"(^\{@(\w+)\}$)"};
+							static const std::regex pattern{R"(^\{@([^}]+)\}$)"};
 							std::smatch match;
 							if (!std::regex_match(vals, match, pattern)) throw std::runtime_error("RadarGraph group values dynamic string has invalid format");
 							dynamic_vars.insert("groups");
@@ -1132,7 +1198,7 @@ namespace Dispatch::UI {
 		ScrollBox::from_json(j);
 
 		fixedChilds.clear();
-		fixedChilds = std::set<std::string>{subElement_ids.begin(), subElement_ids.end()};
+		fixedChilds = std::set<std::string>{BEGEND(subElement_ids)};
 		layout->registerSharedDataListener(dataPath, id);
 		if (layout->sharedData.contains(dataPath)) rebuild();
 	}
@@ -1144,6 +1210,21 @@ namespace Dispatch::UI {
 		WRITE(valueFontSize);
 		WRITE(itemSpacing);
 		WRITE(orientation);
+	}
+	void DataArray::from_json(const nlohmann::json& j) {
+		auto& inst = *this;
+		READREQ(j, dataPath);
+		READREQ(j, childTemplate);
+		ScrollBox::from_json(j);
+
+		layout->registerSharedDataListener(dataPath, id);
+		if (layout->sharedData.contains(dataPath)) rebuild();
+	}
+	void DataArray::to_json(nlohmann::json& j) const {
+		auto& inst = *this;
+		ScrollBox::to_json(j);
+		WRITE(dataPath);
+		WRITE(childTemplate);
 	}
 }
 

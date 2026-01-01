@@ -24,6 +24,15 @@ namespace Utils {
 		return str;
 	}
 
+	void replaceAll(std::string& target, const std::string& toReplace, const std::string& replacement) {
+		size_t pos = target.find(toReplace);
+		
+		while (pos != std::string::npos) {
+			target.replace(pos, toReplace.length(), replacement);
+			pos = target.find(toReplace, pos + replacement.length());
+		}
+	}
+
 	int randInt(int low, int high) {
 		static std::mt19937 gen(std::random_device{}());
 		std::uniform_int_distribution<> dist(low, high);

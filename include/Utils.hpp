@@ -13,12 +13,16 @@
 #include <Common.hpp>
 
 namespace Utils {
+	#define BEGEND(i) (i).begin(), (i).end()
+
 	enum struct Anchor { topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
 	enum struct AnchorType { automatic, topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
 	enum struct FillType { stretch, tile, tileX, tileY, fit, fill };
 
 	std::string toUpper(std::string str);
 	std::string toLower(std::string str);
+
+	void replaceAll(std::string& target, const std::string& toReplace, const std::string& replacement);
 
 	int randInt(int low, int high);
 	std::vector<int> range(int start, int end, int step=1);

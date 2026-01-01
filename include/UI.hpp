@@ -281,20 +281,32 @@ namespace Dispatch::UI {
 		virtual void from_json(const nlohmann::json& j) override;
 	};
 
-class DataInspector : public virtual ScrollBox {
-	public:
-		std::string dataPath;
-		std::set<std::string> fixedChilds;
-		int labelFontSize = 14;
-		int valueFontSize = 16;
-		float itemSpacing = 10.0f;
-		Orientation orientation=Orientation::VERTICAL;
+	class DataInspector : public virtual ScrollBox {
+		public:
+			std::string dataPath;
+			std::set<std::string> fixedChilds;
+			int labelFontSize = 14;
+			int valueFontSize = 16;
+			float itemSpacing = 10.0f;
+			Orientation orientation=Orientation::VERTICAL;
 
-		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
-		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
-		virtual void from_json(const nlohmann::json& j) override;
-		virtual void to_json(nlohmann::json& j) const override;
-		virtual void rebuild() override;
+			virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+			virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+			virtual void from_json(const nlohmann::json& j) override;
+			virtual void to_json(nlohmann::json& j) const override;
+			virtual void rebuild() override;
+	};
+
+	class DataArray : public virtual ScrollBox {
+			std::vector<std::string> curChildren;
+		public:
+			std::string dataPath;
+			nlohmann::json childTemplate;
+
+			virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+			virtual void from_json(const nlohmann::json& j) override;
+			virtual void to_json(nlohmann::json& j) const override;
+			virtual void rebuild() override;
 	};
 }
 
@@ -328,6 +340,8 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::ScrollBox& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::DataInspector& inst) { j = nlohmann::json(); inst.to_json(j); }
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::DataInspector& inst) { inst.from_json(j); }
+	inline void to_json(nlohmann::json& j, const Dispatch::UI::DataArray& inst) { j = nlohmann::json(); inst.to_json(j); }
+	inline void from_json(const nlohmann::json& j, Dispatch::UI::DataArray& inst) { inst.from_json(j); }
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint& inst);
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst);
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst);
