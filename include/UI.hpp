@@ -169,7 +169,8 @@ namespace Dispatch::UI {
 			std::vector<raylib::Color> inner, outter;
 			raylib::Color border, text;
 			float size_mult;
-			StatusChanges(std::vector<raylib::Color> i, std::vector<raylib::Color> o, raylib::Color b, raylib::Color t, float s) : inner{i}, outter{o}, border{b}, text{t}, size_mult{s} {}
+			int z_order_offset;
+			StatusChanges(std::vector<raylib::Color> i, std::vector<raylib::Color> o, raylib::Color b, raylib::Color t, float s, int z) : inner{i}, outter{o}, border{b}, text{t}, size_mult{s}, z_order_offset{z} {}
 			StatusChanges() = default;
 		};
 		std::map<Status, StatusChanges> statusChanges;
@@ -177,11 +178,11 @@ namespace Dispatch::UI {
 
 		Button() : TextBox() {
 			statusChanges = std::map<Status, StatusChanges>{
-				{Status::REGULAR, {{bgLgt, bgLgt, bgMed, bgLgt}, {bgMed}, {BLACK}, textColor, 1.0f}},
-				{Status::HOVERED, {{SKYBLUE}, {BLUE}, {BLACK}, textColor, 1.1f}},
-				{Status::PRESSED, {{BLUE}, {DARKBLUE}, {BLACK}, textColor, 1.1f}},
-				{Status::SELECTED, {{ORANGE}, {BROWN}, {BLACK}, WHITE, 1.0f}},
-				{Status::DISABLED, {{bgDrk}, {DARKGRAY}, {BLACK}, LIGHTGRAY, 1.0f}}
+				{Status::REGULAR, {{bgLgt, bgLgt, bgMed, bgLgt}, {bgMed}, {BLACK}, textColor, 1.0f, 0}},
+				{Status::HOVERED, {{SKYBLUE}, {BLUE}, {BLACK}, textColor, 1.1f, 30}},
+				{Status::PRESSED, {{BLUE}, {DARKBLUE}, {BLACK}, textColor, 1.1f, 20}},
+				{Status::SELECTED, {{ORANGE}, {BROWN}, {BLACK}, WHITE, 1.0f, 10}},
+				{Status::DISABLED, {{bgDrk}, {DARKGRAY}, {BLACK}, LIGHTGRAY, 1.0f, -10}}
 			};
 		}
 

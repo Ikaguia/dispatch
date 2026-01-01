@@ -113,7 +113,7 @@ namespace Dispatch::UI {
 
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
 		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
-		
+
 		Utils::println("Layout '{}' reloaded successfully.", path);
 	}
 	void Layout::reload(json& data_array) {
@@ -185,6 +185,10 @@ namespace Dispatch::UI {
 		sharedDataListeners[key].erase(element_id);
 	}
 	void Layout::removeElement(const std::string& id, const std::string& loop) {
+		if (elements.count(id)) {
+			auto& element = *(elements[id].get());
+			for (const std::string& child_id : element.subElement_ids) removeElement(child_id, loop);
+		}
 		if (loop != "sharedDataListeners") for (auto& [key, mp] : sharedDataListeners) mp.erase(id);
 		if (loop != "rootElements") rootElements.erase(id);
 		if (loop != "hovered") hovered.erase(id);
@@ -582,12 +586,15 @@ namespace Dispatch::UI {
 		float oldSizeMult = size_mult;
 		Element::changeStatus(st);
 		if (force || (status != oldStatus)) {
+			StatusChanges& oldSc = statusChanges[oldStatus];
 			StatusChanges& sc = statusChanges[status];
 			innerColors = sc.inner;
 			outterColors = sc.outter;
 			borderColor = sc.border;
 			fontColor = sc.text;
 			size_mult = sc.size_mult;
+			z_order -= oldSc.z_order_offset;
+			z_order += sc.z_order_offset;
 			if (initialized && (size_mult != oldSizeMult)) solveLayout();
 		}
 	}
@@ -614,6 +621,9 @@ namespace Dispatch::UI {
 					return true;
 				} else if (key == std::format("statusChanges.{}.size_mult", json{st}.dump())) {
 					value.get_to(statusChanges[st].size_mult);
+					return true;
+				} else if (key == std::format("statusChanges.{}.z_order_offset", json{st}.dump())) {
+					value.get_to(statusChanges[st].z_order_offset);
 					return true;
 				}
 			}
@@ -766,6 +776,8 @@ namespace Dispatch::UI {
 			contentSize.x = std::max(contentSize.x, el->side(Side::END));
 			contentSize.y = std::max(contentSize.y, el->side(Side::BOTTOM));
 		}
+		contentSize.x -= side(Side::START, true);
+		contentSize.y -= side(Side::TOP, true);
 	}
 	bool ScrollBox::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (Box::applyStylePart(key, value)) ;
@@ -821,7 +833,7 @@ namespace Dispatch::UI {
 					{"textAnchor", "left"}
 				};
 
-				float availableWidth = this->innerRect().width - (innerMargin.x + innerMargin.z);
+				float availableWidth = this->innerRect().width;
 
 				raylib::Rectangle textBounds = Utils::positionTextAnchored(
 					tb_json["text"], 
@@ -843,7 +855,7 @@ namespace Dispatch::UI {
 					if (last_id.empty()) tb_json["verticalConstraint"]["start"] = {{"type", "father"}, {"side", "top"}};
 					else tb_json["verticalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "bottom"}};
 
-					tb_json["size"][1] = (int)std::ceil(textBounds.height + (innerMargin.y + innerMargin.w));
+					tb_json["size"][1] = (int)std::ceil(textBounds.height);
 				} else {
 					tb_json["verticalConstraint"] = {
 						{"start", {{"type", "father"}, {"side", "top"}}},
@@ -853,7 +865,7 @@ namespace Dispatch::UI {
 					if (last_id.empty()) tb_json["horizontalConstraint"]["start"] = {{"type", "father"}, {"side", "start"}};
 					else tb_json["horizontalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "end"}};
 
-					tb_json["size"][0] = (int)std::ceil(textBounds.width + (innerMargin.x + innerMargin.z));
+					tb_json["size"][0] = (int)std::ceil(textBounds.width);
 				}
 
 				auto tb = std::make_unique<TextBox>();
@@ -887,13 +899,17 @@ namespace Dispatch::UI {
 
 		if (children == curChildren) return;
 
-		for (const std::string& child : curChildren) layout->removeElement(std::format("{}.children.{}", id, child), "needsRebuild");
+		for (const std::string& child : curChildren) {
+			const std::string& child_id = std::format("{}.children.{}", id, child);
+			layout->removeElement(child_id, "needsRebuild");
+		}
 		subElement_ids.clear(); subElement_ids.reserve(children.size());
 
 		std::string last_id = "";
 
 		const std::string type = childTemplate.at("type").get<std::string>();
 		const std::string origText = childTemplate.dump();
+		json ja = json::array();
 		for (const std::string& child : children) {
 			const std::string& child_id = std::format("{}.children.{}", id, child);
 
@@ -928,17 +944,13 @@ namespace Dispatch::UI {
 				}
 			}
 
-			Utils::println("{}, {}: {}", child, child_id, child_json.dump(4));
-
-			json ja = json::array({child_json});
-			layout->load(ja);
+			ja.push_back(child_json);
 
 			subElement_ids.push_back(child_id);
 			last_id = child_id;
 		}
-
+		layout->load(ja);
 		curChildren = children;
-
 		solveLayout();
 	}
 
@@ -1273,6 +1285,7 @@ namespace nlohmann {
 		WRITE(border);
 		WRITE(text);
 		WRITE(size_mult);
+		WRITE(z_order_offset);
 	}
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button::StatusChanges& inst) {
 		READ(j, inner);
@@ -1280,5 +1293,6 @@ namespace nlohmann {
 		READ(j, border);
 		READ(j, text);
 		READ(j, size_mult);
+		READ(j, z_order_offset);
 	}
 };

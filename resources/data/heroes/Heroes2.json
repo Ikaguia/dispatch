@@ -26,7 +26,8 @@
 		"powers": [
 			{
 				"name": "Bass Drop",
-				"description": "If placed in the first slot of a multi-hero call, Feedback grants +1 Combat to all other heroes in the squad."
+				"description": "If placed in the first slot of a multi-hero call, Feedback grants +1 Combat to all other heroes in the squad.",
+				"unlocked": true
 			},
 			{
 				"name": "Remix",
@@ -65,7 +66,8 @@
 		"powers": [
 			{
 				"name": "Calculated Angle",
-				"description": "Ricochet grants a buff based on his position: +1 Intellect if placed in the first slot, or +1 Mobility if placed in the last slot."
+				"description": "Ricochet grants a buff based on his position: +1 Intellect if placed in the first slot, or +1 Mobility if placed in the last slot.",
+				"unlocked": true
 			},
 			{
 				"name": "Running the Table",
@@ -108,7 +110,8 @@
 		"powers": [
 			{
 				"name": "The Downline",
-				"description": "Miasma gains +1 Charisma for every unique hero she has been dispatched with this shift."
+				"description": "Miasma gains +1 Charisma for every unique hero she has been dispatched with this shift.",
+				"unlocked": true
 			},
 			{
 				"name": "Detoxify",
@@ -147,7 +150,8 @@
 		"powers": [
 			{
 				"name": "Algorithm",
-				"description": "Zero gains +1 Intellect after every successful dispatch. This effect stacks up to +3 but resets if he fails a call or gets injured."
+				"description": "Zero gains +1 Intellect after every successful dispatch. This effect stacks up to +3 but resets if he fails a call or gets injured.",
+				"unlocked": true
 			},
 			{
 				"name": "DDoS",
@@ -190,7 +194,8 @@
 		"powers": [
 			{
 				"name": "Scrap Shield",
-				"description": "Crumple is unaffected by 'Injuries'. If he successfully completes a call while Injured, he gains a stacking +1 to that call's highest required stat."
+				"description": "Crumple is unaffected by 'Injuries'. If he successfully completes a call while Injured, he gains a stacking +1 to that call's highest required stat.",
+				"unlocked": true
 			},
 			{
 				"name": "Heavy Load",
@@ -229,7 +234,8 @@
 		"powers": [
 			{
 				"name": "Blue Steel",
-				"description": "Vogue gains +1 Charisma. If placed in the middle slot of a 3-slot call, he gains +2 Charisma instead."
+				"description": "Vogue gains +1 Charisma. If placed in the middle slot of a 3-slot call, he gains +2 Charisma instead.",
+				"unlocked": true
 			},
 			{
 				"name": "Pose",
@@ -272,7 +278,8 @@
 		"powers": [
 			{
 				"name": "Nitro",
-				"description": "Joyride gains +1 Mobility. If placed in Slot 1, she also reduces Travel Time by 25%."
+				"description": "Joyride gains +1 Mobility. If placed in Slot 1, she also reduces Travel Time by 25%.",
+				"unlocked": true
 			},
 			{
 				"name": "Getaway",
@@ -315,7 +322,8 @@
 		"powers": [
 			{
 				"name": "Mycelium Network",
-				"description": "While Spore is 'Resting', all other Resting heroes recover 25% faster."
+				"description": "While Spore is 'Resting', all other Resting heroes recover 25% faster.",
+				"unlocked": true
 			},
 			{
 				"name": "Mitosis",

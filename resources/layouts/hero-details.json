@@ -444,34 +444,16 @@
 		"type": "DATAARRAY",
 		"id": "heroDetails-powers",
 		"father_id": "heroDetails-left/middle-top",
-		"size": {
-			"x": 0.38,
-			"y": 0.88
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"offset": 32
-		},
+		"size": { "x": 0.44, "y": 0.88 },
+		"verticalConstraint": { "start": { "type": "father", "side": "top" }, "end": { "type": "father", "side": "bottom" } },
+		"horizontalConstraint": { "end": { "type": "father", "side": "end" }, "offset": 32 },
 		"dataPath": "powerNames",
 		"childTemplate": {
 			"type": "BOX",
 			"size": { "x": 1.0, "y": 0.25 },
-			"verticalConstraint": { "start": { "type": "element", "side": "bottom", "offset": 4 } },
+			"verticalConstraint": { "start": { "type": "element", "side": "bottom" } },
 			"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" } },
-			"innerMargin": [4, 4, 4, 4],
+			"innerMargin": [ 4, 4, 4, 4 ],
 			"subElements": [
 				{
 					"type": "TEXT",
@@ -480,15 +462,17 @@
 					"verticalConstraint": { "start": { "type": "father", "side": "top" } },
 					"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" } },
 					"text": "{@powers.{$heroDetails-powers}.name}",
-					"textAnchor": "top"
+					"textAnchor": "top",
+					"fontSize": 14
 				}, {
 					"type": "TEXT",
 					"id": "power-description-{$heroDetails-powers}",
-					"size": { "x": 1.0, "y": 0.8 },
-					"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "power-name-{$heroDetails-powers}", "offset": 2 } },
+					"size": { "x": 1.0, "y": 0.79 },
+					"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "power-name-{$heroDetails-powers}", "offset": 8 } },
 					"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" } },
 					"text": "{@powers.{$heroDetails-powers}.description}",
-					"textAnchor": "topLeft"
+					"textAnchor": "topLeft",
+					"fontSize": 10
 				}
 			]
 		},
