@@ -373,32 +373,9 @@
 		"type": "DATAINSPECTOR",
 		"id": "heroDetails-tags",
 		"father_id": "heroDetails-left/middle-top",
-		"size": {
-			"x": 0.9,
-			"y": 0.108
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			},
-			"ratio": 0.88
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.2
-		},
+		"size": { "x": 0.9, "y": 0.108 },
+		"verticalConstraint": { "start": { "type": "father", "side": "top" }, "end": { "type": "father", "side": "bottom" }, "ratio": 0.88 },
+		"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" }, "ratio": 0.2 },
 		"dataPath": "tags",
 		"orientation": "horizontal",
 		"borderThickness": 0,
@@ -444,16 +421,17 @@
 		"type": "DATAARRAY",
 		"id": "heroDetails-powers",
 		"father_id": "heroDetails-left/middle-top",
-		"size": { "x": 0.44, "y": 0.88 },
+		"size": { "x": 0.48, "y": 0.88 },
 		"verticalConstraint": { "start": { "type": "father", "side": "top" }, "end": { "type": "father", "side": "bottom" } },
 		"horizontalConstraint": { "end": { "type": "father", "side": "end" }, "offset": 32 },
 		"dataPath": "powerNames",
 		"childTemplate": {
 			"type": "BOX",
-			"size": { "x": 1.0, "y": 0.25 },
+			"size": { "x": 1.0, "y": 0.249 },
 			"verticalConstraint": { "start": { "type": "element", "side": "bottom" } },
 			"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" } },
-			"innerMargin": [ 4, 4, 4, 4 ],
+			"outterMargin": [ 0, 2, 0, 2 ],
+			"innerMargin": [ 3, 3, 3, 3 ],
 			"subElements": [
 				{
 					"type": "TEXT",
@@ -476,6 +454,9 @@
 				}
 			]
 		},
+		"innerColor": "BLANK",
+		"outterColor": "BLANK",
+		"borderColor": "BLANK",
 		"visible": false
 	}, {
 		"type": "BOX",

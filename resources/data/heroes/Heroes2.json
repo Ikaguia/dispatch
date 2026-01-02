@@ -194,7 +194,7 @@
 		"powers": [
 			{
 				"name": "Scrap Shield",
-				"description": "Crumple is unaffected by 'Injuries'. If he successfully completes a call while Injured, he gains a stacking +1 to that call's highest required stat.",
+				"description": "Crumple is unaffected by Injuries. If he succeds on a call while Injured, he gains a stacking +1 to that call's highest required stat.",
 				"unlocked": true
 			},
 			{

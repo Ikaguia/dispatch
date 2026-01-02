@@ -202,8 +202,8 @@ namespace Dispatch::UI {
 	}
 
 	// Element
-	const float Element::side(Side side, bool inner) const {
-		const auto& rect = inner ? innerRect() : outterRect();
+	const float Element::side(Side side, Bound bound) const {
+		const auto& rect = this->rect(bound);
 		switch (side) {
 			case Side::TOP:
 				return rect.y;
@@ -222,49 +222,46 @@ namespace Dispatch::UI {
 		}
 	}
 	raylib::Vector2 Element::center() const { return anchor(); }
-	raylib::Vector2 Element::anchor(Utils::Anchor anchor) const { return Utils::anchorPos(outterRect(), anchor); };
-	const raylib::Rectangle& Element::outterRect() const {
+	raylib::Vector2 Element::anchor(Utils::Anchor anchor) const { return Utils::anchorPos(rect(), anchor); };
+	const raylib::Rectangle& Element::rect(Bound bound) const {
 		if (!initialized) throw std::runtime_error("Element bounding rect requested before initialization");
-		return bounds;
+		return boundsMap.at(bound);
 	}
-	const raylib::Rectangle& Element::innerRect() const {
-		if (!initialized) throw std::runtime_error("Element inner bounding rect requested before initialization");
-		return innerBounds;
-	}
-	const bool Element::colidesWith(const Element& other) const { return outterRect().CheckCollision(other.outterRect()); }
-	const bool Element::colidesWith(const raylib::Vector2& other) const { return outterRect().CheckCollision(other); }
-	const bool Element::colidesWith(const raylib::Rectangle& other) const { return outterRect().CheckCollision(other); }
+	const bool Element::colidesWith(const Element& other) const { return rect().CheckCollision(other.rect()); }
+	const bool Element::colidesWith(const raylib::Vector2& other) const { return rect().CheckCollision(other); }
+	const bool Element::colidesWith(const raylib::Rectangle& other) const { return rect().CheckCollision(other); }
 	void Element::render() {
 		if (!visible) return;
+		if (resortSub) sortSubElements(true);
 		_render();
 		auto& elements = layout->elements;
 		for (const std::string& el_id : subElement_ids) elements.at(el_id)->render();
 	}
 	void Element::_render() {
-		raylib::Rectangle outterRect = this->outterRect();
+		raylib::Rectangle rect = this->rect();
 		raylib::Rectangle innerRect = this->innerRect();
 		
 		if ((shadowOffset.x != 0 || shadowOffset.y != 0) && shadowColor.a != 0) {
-			raylib::Rectangle shadowRect{outterRect.GetPosition() + shadowOffset, outterRect.GetSize()};
+			raylib::Rectangle shadowRect{rect.GetPosition() + shadowOffset, rect.GetSize()};
 			if (roundnessSegments > 0 && roundness != 1.0f) shadowRect.DrawRounded(roundness, roundnessSegments, shadowColor);
 			else shadowRect.Draw(shadowColor);
 		}
 		if (roundnessSegments > 0 && roundness != 1.0f) {
-			outterRect.DrawRounded(roundness, roundnessSegments, outterColors[0]);
+			rect.DrawRounded(roundness, roundnessSegments, outterColors[0]);
 			innerRect.DrawRounded(roundness, roundnessSegments, innerColors[0]);
 		} else {
 			int outterColorsSize = (int)outterColors.size();
 			int innerColorsSize = (int)innerColors.size();
-			if (outterColorsSize == 1) outterRect.Draw(outterColors[0]);
-			else if (outterColorsSize == 2) outterRect.DrawGradientH(outterColors[0], outterColors[1]);
-			else if (outterColorsSize == 4) outterRect.DrawGradient(outterColors[0], outterColors[1], outterColors[2], outterColors[3]);
+			if (outterColorsSize == 1) rect.Draw(outterColors[0]);
+			else if (outterColorsSize == 2) rect.DrawGradientH(outterColors[0], outterColors[1]);
+			else if (outterColorsSize == 4) rect.DrawGradient(outterColors[0], outterColors[1], outterColors[2], outterColors[3]);
 			if (innerColorsSize == 1) innerRect.Draw(innerColors[0]);
 			else if (innerColorsSize == 2) innerRect.DrawGradientH(innerColors[0], innerColors[1]);
 			else if (innerColorsSize == 4) innerRect.DrawGradient(innerColors[0], innerColors[1], innerColors[2], innerColors[3]);
 		}
 		if (borderThickness > 0.0f) {
-			if (roundnessSegments > 0 && roundness != 1.0f) outterRect.DrawRoundedLines(roundness, roundnessSegments, borderThickness, borderColor);
-			else outterRect.DrawLines(borderColor, borderThickness);
+			if (roundnessSegments > 0 && roundness != 1.0f) rect.DrawRoundedLines(roundness, roundnessSegments, borderThickness, borderColor);
+			else rect.DrawLines(borderColor, borderThickness);
 		}
 	}
 	void Element::handleInput(raylib::Vector2 offset) {
@@ -295,7 +292,7 @@ namespace Dispatch::UI {
 		auto& elements = layout->elements;
 		solveSize();
 		for (int i = 0; i < 2; i++) {
-			float& dest = i==0 ? bounds.x : bounds.y;
+			float& dest = i==0 ? boundsMap[Bound::REGULAR].x : boundsMap[Bound::REGULAR].y;
 			const auto& constraint = i==0 ? horizontalConstraint : verticalConstraint;
 			float startMargin = i==0 ? outterMargin.x : outterMargin.y;
 			float endMargin = i==0 ? outterMargin.z : outterMargin.w;
@@ -304,14 +301,16 @@ namespace Dispatch::UI {
 
 			float startPos, endPos;
 			if (constraint.start.type == Constraint::ConstraintPart::UNATTACHED) startPos = nanf("");
-			else if (constraint.start.type == Constraint::ConstraintPart::FATHER) startPos = elements.at(father_id)->side(constraint.start.side, true);
-			else if (constraint.start.type == Constraint::ConstraintPart::ELEMENT) startPos = elements.at(constraint.start.element_id)->side(constraint.start.side, true);
+			else if (constraint.start.type == Constraint::ConstraintPart::FATHER) startPos = elements.at(father_id)->side(constraint.start.side, Bound::INNER);
+			else if (constraint.start.type == Constraint::ConstraintPart::ELEMENT) startPos = elements.at(constraint.start.element_id)->side(constraint.start.side, Bound::OUTTER);
 			else if (constraint.start.type == Constraint::ConstraintPart::SCREEN) startPos = 0.0f;
+			else throw std::runtime_error(std::format("Constraint error: Invalid constraint start type '{}' for element '{}", (int)constraint.start.type, id));
 
 			if (constraint.end.type == Constraint::ConstraintPart::UNATTACHED) endPos = nanf("");
-			else if (constraint.end.type == Constraint::ConstraintPart::FATHER) endPos = elements.at(father_id)->side(constraint.end.side, true);
-			else if (constraint.end.type == Constraint::ConstraintPart::ELEMENT) endPos = elements.at(constraint.end.element_id)->side(constraint.end.side, true);
+			else if (constraint.end.type == Constraint::ConstraintPart::FATHER) endPos = elements.at(father_id)->side(constraint.end.side, Bound::INNER);
+			else if (constraint.end.type == Constraint::ConstraintPart::ELEMENT) endPos = elements.at(constraint.end.element_id)->side(constraint.end.side, Bound::OUTTER);
 			else if (constraint.end.type == Constraint::ConstraintPart::SCREEN) endPos = screen;
+			else throw std::runtime_error(std::format("Constraint error: Invalid constraint end type '{}' for element '{}", (int)constraint.end.type, id));
 
 			bool startAttached = constraint.start.type != Constraint::ConstraintPart::UNATTACHED;
 			bool endAttached = constraint.end.type != Constraint::ConstraintPart::UNATTACHED;
@@ -324,7 +323,8 @@ namespace Dispatch::UI {
 				dest = endPos - endMargin - constraint.offset - sz;
 			} else throw std::runtime_error("Element '" + id + "' missing constraint");
 		}
-		innerBounds = raylib::Rectangle{ bounds.x + innerMargin.x, bounds.y + innerMargin.y, bounds.width - innerMargin.x - innerMargin.z, bounds.height - innerMargin.y - innerMargin.w };
+		boundsMap[Bound::INNER] = raylib::Rectangle{ boundsMap[Bound::REGULAR].x + innerMargin.x, boundsMap[Bound::REGULAR].y + innerMargin.y, boundsMap[Bound::REGULAR].width - innerMargin.x - innerMargin.z, boundsMap[Bound::REGULAR].height - innerMargin.y - innerMargin.w };
+		boundsMap[Bound::OUTTER] = raylib::Rectangle{ boundsMap[Bound::REGULAR].x - outterMargin.x, boundsMap[Bound::REGULAR].y - outterMargin.y, boundsMap[Bound::REGULAR].width + outterMargin.x + outterMargin.z, boundsMap[Bound::REGULAR].height + outterMargin.y + outterMargin.w };
 
 		initialized = true;
 		sortSubElements(false);
@@ -342,10 +342,13 @@ namespace Dispatch::UI {
 			float maxH = father_id.empty() ? GetScreenHeight() : elements.at(father_id)->innerRect().height;
 			size.y = std::round(maxH * origSize.y - (outterMargin.y + outterMargin.w));
 		}
-		bounds.width = size.x;
-		bounds.height = size.y;
+		boundsMap[Bound::REGULAR] = boundsMap[Bound::OUTTER] = boundsMap[Bound::INNER] = raylib::Rectangle{};
+		boundsMap[Bound::REGULAR].width = size.x;
+		boundsMap[Bound::REGULAR].height = size.y;
 	}
 	void Element::sortSubElements(bool z_order) {
+		resortSub = false;
+
 		auto& elements = layout->elements;
 		// Sort based on the z_order member
 		if (z_order) {
@@ -558,7 +561,7 @@ namespace Dispatch::UI {
 	void Image::_render() {
 		Utils::drawTextureAnchored(
 			texture,
-			outterRect(),
+			rect(),
 			tintColor,
 			fillType,
 			imageAnchor
@@ -578,8 +581,8 @@ namespace Dispatch::UI {
 		Element::solveSize();
 		size.x *= size_mult;
 		size.y *= size_mult;
-		bounds.width *= size_mult;
-		bounds.height *= size_mult;
+		boundsMap[Bound::REGULAR].width *= size_mult;
+		boundsMap[Bound::REGULAR].height *= size_mult;
 	}
 	void Button::changeStatus(Status st, bool force) {
 		Status oldStatus = status;
@@ -593,8 +596,11 @@ namespace Dispatch::UI {
 			borderColor = sc.border;
 			fontColor = sc.text;
 			size_mult = sc.size_mult;
-			z_order -= oldSc.z_order_offset;
-			z_order += sc.z_order_offset;
+			if (oldSc.z_order_offset != sc.z_order_offset) {
+				z_order -= oldSc.z_order_offset;
+				z_order += sc.z_order_offset;
+				if (!father_id.empty()) layout->elements.at(father_id)->resortSub = true;
+			}
 			if (initialized && (size_mult != oldSizeMult)) solveLayout();
 		}
 	}
@@ -773,11 +779,11 @@ namespace Dispatch::UI {
 		contentSize = raylib::Vector2{};
 		for (std::string id : subElement_ids) {
 			Element* el = layout->elements[id].get();
-			contentSize.x = std::max(contentSize.x, el->side(Side::END));
-			contentSize.y = std::max(contentSize.y, el->side(Side::BOTTOM));
+			contentSize.x = std::max(contentSize.x, el->side(Side::END, Bound::OUTTER));
+			contentSize.y = std::max(contentSize.y, el->side(Side::BOTTOM, Bound::OUTTER));
 		}
-		contentSize.x -= side(Side::START, true);
-		contentSize.y -= side(Side::TOP, true);
+		contentSize.x -= side(Side::START, Bound::INNER);
+		contentSize.y -= side(Side::TOP, Bound::INNER);
 	}
 	bool ScrollBox::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (Box::applyStylePart(key, value)) ;
@@ -805,7 +811,7 @@ namespace Dispatch::UI {
 
 		for (const std::string& child_id : subElement_ids) {
 			Element* child = layout->elements.at(child_id).get();
-			float c_bottom = child->side(Side::BOTTOM);
+			float c_bottom = child->side(Side::BOTTOM, Bound::OUTTER);
 			if (last_id.empty() || c_bottom > bottom) {
 				last_id = child_id;
 				bottom = c_bottom;
@@ -821,26 +827,26 @@ namespace Dispatch::UI {
 					text = std::format("{}", value.is_string() ? value.get<std::string>() : value.dump());
 				}
 
-				raylib::Vector4 innerMargin{5, 2, 5, 2};
+				raylib::Vector4 childInnerMargin{5, 2, 5, 2};
 				json tb_json = {
 					{"type", "TEXTBOX"},
 					{"id", row_id},
 					{"father_id", id},
 					{"text", text},
 					{"fontSize", valueFontSize},
-					{"innerMargin", innerMargin},
+					{"innerMargin", childInnerMargin},
 					{"size", {1.0, 1.0}},
-					{"textAnchor", "left"}
+					{"textAnchor", "center"}
 				};
 
-				float availableWidth = this->innerRect().width;
+				float availableWidth = this->innerRect().width - childInnerMargin.x - childInnerMargin.z;
 
 				raylib::Rectangle textBounds = Utils::positionTextAnchored(
-					tb_json["text"], 
-					raylib::Rectangle(0, 0, availableWidth, 1000),
-					Utils::Anchor::topLeft,
+					text,
+					raylib::Rectangle(0, 0, 2 * availableWidth, 1000),
+					Utils::Anchor::center,
 					defaultFont,
-					tb_json["fontSize"].get<float>(),
+					valueFontSize,
 					1.0f,
 					{0, 0},
 					availableWidth
@@ -855,7 +861,7 @@ namespace Dispatch::UI {
 					if (last_id.empty()) tb_json["verticalConstraint"]["start"] = {{"type", "father"}, {"side", "top"}};
 					else tb_json["verticalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "bottom"}};
 
-					tb_json["size"][1] = (int)std::ceil(textBounds.height);
+					tb_json["size"][1] = (int)std::ceil(textBounds.height + childInnerMargin.y + childInnerMargin.z + 4);
 				} else {
 					tb_json["verticalConstraint"] = {
 						{"start", {{"type", "father"}, {"side", "top"}}},
@@ -865,7 +871,7 @@ namespace Dispatch::UI {
 					if (last_id.empty()) tb_json["horizontalConstraint"]["start"] = {{"type", "father"}, {"side", "start"}};
 					else tb_json["horizontalConstraint"]["start"] = {{"type", "element"}, {"element_id", last_id}, {"side", "end"}};
 
-					tb_json["size"][0] = (int)std::ceil(textBounds.width);
+					tb_json["size"][0] = (int)std::ceil(textBounds.width + childInnerMargin.x + childInnerMargin.w + 4);
 				}
 
 				auto tb = std::make_unique<TextBox>();

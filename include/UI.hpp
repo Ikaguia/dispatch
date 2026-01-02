@@ -57,6 +57,12 @@ namespace Dispatch::UI {
 		HORIZONTAL
 	};
 
+	enum struct Bound {
+		REGULAR,
+		OUTTER,
+		INNER
+	};
+
 	class Style {
 	public:
 		std::string id, father_id;
@@ -71,20 +77,20 @@ namespace Dispatch::UI {
 		nlohmann::json orig;
 		std::set<std::string> dynamic_vars;
 	public:
-		Layout* layout = nullptr;
-		bool visible = true, hovered = false, clicked = false, pressed = false, unhover = false, release = false;
-		int z_order = -1, roundnessSegments = 0;
-		float borderThickness = 0.0f, roundness = 0.0f;
+		Layout* layout=nullptr;
+		bool visible=true, hovered=false, clicked=false, pressed=false, unhover=false, release=false, resortSub=false;
+		int z_order=-1, roundnessSegments=0;
+		float borderThickness=0.0f, roundness=0.0f;
 		std::string id, father_id;
 		std::vector<std::string> subElement_ids, style_ids;
 		raylib::Vector2 size, shadowOffset;
 		raylib::Vector4 outterMargin, innerMargin;
 		std::vector<raylib::Color> innerColors, outterColors;
-		raylib::Color borderColor, shadowColor = shadow;
+		raylib::Color borderColor, shadowColor=shadow;
 		struct Constraint {
-			float offset = 0.0f, ratio = 0.5f;
+			float offset=0.0f, ratio=0.5f;
 			struct ConstraintPart {
-				enum ConstraintType { UNATTACHED, FATHER, ELEMENT, SCREEN } type = UNATTACHED;
+				enum ConstraintType { UNATTACHED, FATHER, ELEMENT, SCREEN } type=UNATTACHED;
 				std::string element_id;
 				Side side;
 			} start, end;
@@ -101,11 +107,12 @@ namespace Dispatch::UI {
 
 		virtual ~Element() = default;
 
-		virtual const float side(Side side, bool inner=false) const;
+		virtual const float side(Side side, Bound bound = Bound::REGULAR) const;
 		virtual raylib::Vector2 center() const;
 		virtual raylib::Vector2 anchor(Utils::Anchor anchor = Utils::Anchor::center) const;
-		virtual const raylib::Rectangle& outterRect() const;
-		virtual const raylib::Rectangle& innerRect() const;
+		virtual const raylib::Rectangle& rect(Bound bound = Bound::REGULAR) const;
+		virtual const raylib::Rectangle& outterRect() const { return rect(Bound::OUTTER); }
+		virtual const raylib::Rectangle& innerRect() const { return rect(Bound::INNER); }
 
 		virtual const bool colidesWith(const Element& other) const;
 		virtual const bool colidesWith(const raylib::Vector2& other) const;
@@ -128,7 +135,7 @@ namespace Dispatch::UI {
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
 	protected:
-		raylib::Rectangle bounds, innerBounds;
+		std::unordered_map<Bound, raylib::Rectangle> boundsMap;
 		bool initialized = false;
 	};
 
@@ -369,6 +376,12 @@ namespace nlohmann {
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Orientation, {
 		{Dispatch::UI::Orientation::VERTICAL, "vertical"},
 		{Dispatch::UI::Orientation::HORIZONTAL, "horizontal"},
+	});
+
+	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Bound, {
+		{Dispatch::UI::Bound::REGULAR, "regular"},
+		{Dispatch::UI::Bound::OUTTER, "outter"},
+		{Dispatch::UI::Bound::INNER, "inner"}
 	});
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType, {
