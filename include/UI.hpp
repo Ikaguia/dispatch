@@ -134,6 +134,9 @@ namespace Dispatch::UI {
 
 		virtual void to_json(nlohmann::json& j) const;
 		virtual void from_json(const nlohmann::json& j);
+
+		void parseString(const std::string& orig);
+		std::string updateString(const std::string& orig);
 	protected:
 		std::unordered_map<Bound, raylib::Rectangle> boundsMap;
 		bool initialized = false;
@@ -163,9 +166,6 @@ namespace Dispatch::UI {
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
-
-		void parseText();
-		void updateText();
 	};
 
 	class TextBox : public virtual Box, public virtual Text {};
@@ -230,13 +230,14 @@ namespace Dispatch::UI {
 	class Image : public virtual Element {
 	public:
 		raylib::Texture texture;
-		std::string path;
+		std::string path, placeholder;
 		Utils::FillType fillType = Utils::FillType::fill;
 		Utils::Anchor imageAnchor = Utils::Anchor::center;
 		raylib::Color tintColor = WHITE;
 
 		virtual void _render() override;
 		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 	};
@@ -362,7 +363,7 @@ namespace nlohmann {
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Group& inst);
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Side, {
-		{Dispatch::UI::Side::INVALID, nullptr},
+		{Dispatch::UI::Side::INVALID, "invalid"},
 		{Dispatch::UI::Side::TOP, "top"},
 		{Dispatch::UI::Side::BOTTOM, "bottom"},
 		{Dispatch::UI::Side::START, "start"},
@@ -385,7 +386,7 @@ namespace nlohmann {
 	});
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType, {
-		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::UNATTACHED, nullptr },
+		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::UNATTACHED, "unattached" },
 		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::FATHER, "father" },
 		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::ELEMENT, "element" },
 		{ Dispatch::UI::Element::Constraint::ConstraintPart::ConstraintType::SCREEN, "screen" },

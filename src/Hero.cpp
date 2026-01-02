@@ -36,7 +36,7 @@ bool Hero::canFly() const {
 	if (flies) return true;
 	if (!mission.expired()) {
 		auto heroes = mission.lock()->assignedHeroes;
-		for (auto& hero : heroes) if (hero->name == "Sonar") return true;
+		for (auto& hero : heroes) if (hero.lock()->name == "Sonar") return true;
 	}
 	return false;
 }

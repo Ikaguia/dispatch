@@ -57,6 +57,7 @@ Mission::Mission(
 		Attribute attribute = Attribute::fromString(attrName);
 		requiredAttributes[attribute] = value;
 	}
+	assignedSlots.resize(slots);
 };
 
 Mission::Mission(const json& data) { from_json(data, *this); validate(); }
@@ -85,15 +86,21 @@ void Mission::validate() const {
 
 
 void Mission::toggleHero(std::shared_ptr<Hero> hero) {
-	bool assigned = assignedHeroes.count(hero);
+	bool assigned = assignedHeroes.contains(hero);
 	if (assigned) unassignHero(hero);
 	else assignHero(hero);
 }
 
 void Mission::assignHero(std::shared_ptr<Hero> hero) {
-	int cnt = static_cast<int>(assignedHeroes.size());
+	int cnt = (int)(assignedHeroes.size());
 	if (cnt < slots && hero->status == Hero::AVAILABLE) {
 		assignedHeroes.insert(hero);
+		for (int i = 0; i < slots; i++) {
+			if (assignedSlots[i].expired()) {
+				assignedSlots[i] = hero;
+				break;
+			}
+		}
 		hero->changeStatus(Hero::ASSIGNED, weak_from_this());
 	}
 	auto& layout = MissionsHandler::inst().layoutMissionDetails;
@@ -101,8 +108,14 @@ void Mission::assignHero(std::shared_ptr<Hero> hero) {
 }
 
 void Mission::unassignHero(std::shared_ptr<Hero> hero) {
-	if (assignedHeroes.count(hero)) {
+	if (assignedHeroes.contains(hero)) {
 		assignedHeroes.erase(hero);
+		for (int i = 0; i < slots; i++) {
+			if (!assignedSlots[i].expired() && assignedSlots[i].lock() == hero) {
+				assignedSlots[i].reset();
+				break;
+			}
+		}
 		hero->changeStatus(Hero::AVAILABLE, {}, 0.0f);
 	}
 	auto& layout = MissionsHandler::inst().layoutMissionDetails;
@@ -118,6 +131,7 @@ void Mission::changeStatus(Status newStatus) {
 	else if (oldStatus == Mission::SELECTED && newStatus == Mission::PENDING) {
 		for (auto hero : assignedHeroes) hero->changeStatus(Hero::AVAILABLE, {}, 0.0f);
 		assignedHeroes.clear();
+		for (auto slot : assignedSlots) if (!slot.expired()) slot.reset();
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) for (auto hero : assignedHeroes) hero->changeStatus(Hero::TRAVELLING);
 	else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {}
 	else if (oldStatus == Mission::PROGRESS && newStatus == Mission::DISRUPTION) {
@@ -603,16 +617,26 @@ void Mission::setupLayout(Dispatch::UI::Layout& layout) {
 	layout.updateSharedData("caller", caller);
 	layout.updateSharedData("description", description);
 	layout.updateSharedData("name", name);
-	// layout.updateSharedData("attributes", requiredAttributes);
-	layout.updateSharedData("attributes", getTotalAttributes());
 	layout.updateSharedData("requirements", Utils::join(requirements, "\n"));
 	Dispatch::UI::Button* dispatch = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("dispatch").get());
 	if (!dispatch) throw std::runtime_error("Mission details layout is missing 'dispatch' element or it is of the wrong type.");
 	dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);
+	updateLayout(layout, "");
 }
 void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& changed) {
-	if (changed == "assignedHeroes") {
-		// update assigned heroes
+	if (changed == "assignedHeroes" || changed == "") {
+		std::vector<std::string> slotNames;
+		for (int i = 0; i < slots; i++) {
+			if (assignedSlots[i].expired()) {
+				slotNames.push_back(std::format("{}-empty", i));
+				layout.deleteSharedData(std::format("{}-empty-texture", i));
+			} else {
+				auto& hero = *(assignedSlots[i].lock());
+				slotNames.push_back(std::format("{}-{}", i, hero.name));
+				layout.updateSharedData(std::format("{}-{}-image", i, hero.name), hero.img_paths["portrait"]);
+			}
+		}
+		layout.updateSharedData("slot-names", slotNames);
 
 		layout.updateSharedData("attributes", getTotalAttributes());
 
@@ -621,11 +645,11 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 		bool isDisabled = dispatch->status == Dispatch::UI::Element::Status::DISABLED;
 		if (assignedHeroes.empty() && !isDisabled) dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);
 		if (!assignedHeroes.empty() && isDisabled) dispatch->changeStatus(Dispatch::UI::Element::Status::REGULAR);
-	} else if (changed == "status") {
+	}
+	if (changed == "status" || changed == "") {
 		// ??
-	} else throw std::runtime_error("Invalid updateLayout argument '" + changed + "'");
+	}
 }
-
 
 AttrMap<int> Mission::getTotalAttributes() const {
 	AttrMap<int> totalAttributes;
@@ -772,6 +796,8 @@ void Mission::from_json(const nlohmann::json& j, Mission& inst) {
 	READ2(fail, failureMsg, message);
 	READ2(fail, failureMissionTime, delay);
 	READ2(fail, failureMission, mission);
+
+	inst.assignedSlots.resize(inst.slots);
 }
 
 void Disruption::to_json(nlohmann::json& j, const Disruption& inst) {

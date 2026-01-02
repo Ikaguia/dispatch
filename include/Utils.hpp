@@ -22,6 +22,9 @@ namespace Utils {
 	std::string toUpper(std::string str);
 	std::string toLower(std::string str);
 
+	std::string escapeRegex(const std::string &text);
+	std::vector<std::string> split(const std::string& str, const std::string& sep);
+
 	void replaceAll(std::string& target, const std::string& toReplace, const std::string& replacement);
 
 	int randInt(int low, int high);

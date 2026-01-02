@@ -7,6 +7,7 @@
 #include <fstream>
 #include <map>
 #include <random>
+#include <regex>
 
 #include <Utils.hpp>
 #include <Common.hpp>
@@ -22,6 +23,22 @@ namespace Utils {
 	std::string toLower(std::string str) {
 		std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c){ return static_cast<char>(std::tolower(c)); });
 		return str;
+	}
+
+	std::string escapeRegex(const std::string& text) {
+		static const std::regex specialChars(R"([-[\]{}()*+?.,\^$|#\s])");
+		return std::regex_replace(text, specialChars, R"(\$&)");
+	}
+
+	std::vector<std::string> split(const std::string& str, const std::string& sep) {
+		std::vector<std::string> tokens;
+		size_t start = 0, end = 0;
+		while ((end = str.find(sep, start)) != std::string::npos) {
+			tokens.push_back(str.substr(start, end - start));
+			start = end + 1;
+		}
+		tokens.push_back(str.substr(start));
+		return tokens;
 	}
 
 	void replaceAll(std::string& target, const std::string& toReplace, const std::string& replacement) {

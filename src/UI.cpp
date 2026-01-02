@@ -58,18 +58,20 @@ namespace Dispatch::UI {
 		if (!data_array.is_array()) throw std::runtime_error("Layout Error: Top-level JSON must be an array of elements.");
 
 		for (const auto& data : data_array) {
+			std::string id = data.at("id").get<std::string>();
 			std::string type = data.at("type").get<std::string>();
 			if (type != "STYLE") continue;
 			// std::cerr << "Reading style " << data["id"] << std::endl;
 			auto style = std::make_unique<Style>();
 			try { data.get_to(*style); }
-			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize style. {}", e.what())); }
-			if (styles.count(style->id)) throw std::runtime_error("Layout Error: Style with ID '" + style->id + "' already exists in the map.");
+			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize style '{}'. {}", id, e.what())); }
+			if (styles.count(id)) throw std::runtime_error("Layout Error: Style with ID '" + id + "' already exists in the map.");
 
-			styles[style->id] = std::move(style);
+			styles[id] = std::move(style);
 		}
 
 		for (auto& data : data_array) {
+			std::string id = data.at("id").get<std::string>();
 			std::string type = data.at("type").get<std::string>();
 			if (type == "STYLE") continue;
 			// std::cerr << "Reading element " << data["id"] << std::endl;
@@ -77,17 +79,18 @@ namespace Dispatch::UI {
 			el->layout = this;
 			if (data.contains("subElements")) {
 				for (json& s_data : data.at("subElements")) {
-					data["subElement_ids"].push_back(s_data.at("id"));
-					s_data["father_id"] = data.at("id");
+					std::string s_id = s_data.at("id").get<std::string>();
+					data["subElement_ids"].push_back(s_id);
+					s_data["father_id"] = id;
 				}
 				load(data.at("subElements"));
 			}
 			try { data.get_to(*el); }
-			catch (const std::exception& e) { throw std::runtime_error("Layout Error: Failed to deserialize element of type '" + type + "'. " + e.what()); }
-			if (elements.count(el->id)) throw std::runtime_error("Layout Error: Element with ID '" + el->id + "' already exists in the map.");
-			if (el->father_id.empty()) rootElements.insert(el->id);
+			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize element '{}' of type '{}'. {}", id, type, e.what())); }
+			if (elements.count(id)) throw std::runtime_error("Layout Error: Element with ID '" + id + "' already exists in the map.");
+			if (el->father_id.empty()) rootElements.insert(id);
 
-			elements[el->id] = std::move(el);
+			elements[id] = std::move(el);
 		}
 	}
 	void Layout::reload(const std::string& path) {
@@ -126,7 +129,7 @@ namespace Dispatch::UI {
 			std::cerr << "Reloading style " << id << std::endl;
 			auto& style = *(styles.at(id).get());
 			try { data.get_to(style); }
-			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Reload Error: Failed to deserialize style. {}", e.what())); }
+			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Reload Error: Failed to deserialize style '{}'. {}", id, e.what())); }
 		}
 
 		for (auto& data : data_array) {
@@ -144,7 +147,7 @@ namespace Dispatch::UI {
 				reload(data.at("subElements"));
 			}
 			try { data.get_to(el); }
-			catch (const std::exception& e) { throw std::runtime_error("Layout Reload Error: Failed to deserialize element of type '" + type + "'. " + e.what()); }
+			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Reload Error: Failed to deserialize element '{}' of type '{}'. {}", id, type, e.what())); }
 			if (el.father_id.empty()) rootElements.insert(id);
 		}
 	}
@@ -321,7 +324,9 @@ namespace Dispatch::UI {
 				dest = startPos + startMargin + constraint.offset;
 			} else if (endAttached) {
 				dest = endPos - endMargin - constraint.offset - sz;
-			} else throw std::runtime_error("Element '" + id + "' missing constraint");
+			} else {
+				throw std::runtime_error("Element '" + id + "' missing constraint");
+			}
 		}
 		boundsMap[Bound::INNER] = raylib::Rectangle{ boundsMap[Bound::REGULAR].x + innerMargin.x, boundsMap[Bound::REGULAR].y + innerMargin.y, boundsMap[Bound::REGULAR].width - innerMargin.x - innerMargin.z, boundsMap[Bound::REGULAR].height - innerMargin.y - innerMargin.w };
 		boundsMap[Bound::OUTTER] = raylib::Rectangle{ boundsMap[Bound::REGULAR].x - outterMargin.x, boundsMap[Bound::REGULAR].y - outterMargin.y, boundsMap[Bound::REGULAR].width + outterMargin.x + outterMargin.z, boundsMap[Bound::REGULAR].height + outterMargin.y + outterMargin.w };
@@ -481,6 +486,47 @@ namespace Dispatch::UI {
 		else return false;
 		return true;
 	}
+	void Element::parseString(const std::string& orig) {
+		static const std::regex pattern{R"(\{@([^}]+)\})"};
+		std::sregex_token_iterator iter(BEGEND(orig), pattern, 1);
+		std::sregex_token_iterator end;
+
+		if (iter == end) return;
+		for (; iter != end; ++iter) layout->registerSharedDataListener(*iter, id);
+	}
+	std::string Element::updateString(const std::string& orig) {
+		static const std::regex pattern{R"(\{@([^}]+)\})"};
+
+		std::string result;
+		result.reserve(orig.size());
+
+		auto it = std::sregex_iterator(BEGEND(orig), pattern);
+		auto end = std::sregex_iterator();
+		
+		size_t lastPos = 0;
+
+		for (; it != end; ++it) {
+			const std::smatch& match = *it;
+			
+			// 1. Append the text between the last match and this one
+			result.append(orig, lastPos, match.position(0) - lastPos);
+			
+			// 2. Lookup the replacement
+			std::string key = match[1].str();
+			auto dataIt = layout->sharedData.find(key);
+			
+			if (dataIt != layout->sharedData.end()) result.append(dataIt->second.get<std::string>());
+			else result.append("???");
+
+			// 3. Move the cursor forward
+			lastPos = match.position(0) + match.length(0);
+		}
+
+		// 4. Append any remaining text after the last match
+		result.append(orig, lastPos, std::string::npos);
+		
+		return result;
+	}
 	// Text
 	void Text::_render() {
 		Element::_render();
@@ -497,7 +543,7 @@ namespace Dispatch::UI {
 			rect.width
 		);
 	}
-	void Text::onSharedDataUpdate(const std::string& key, const json& value) { updateText(); }
+	void Text::onSharedDataUpdate(const std::string& key, const json& value) { text = updateString(orig.at("text").get<std::string>()); }
 	bool Text::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (Element::applyStylePart(key, value)) ;
 		else if (key == "fontSize") value.get_to(fontSize);
@@ -509,72 +555,34 @@ namespace Dispatch::UI {
 		else return false;
 		return true;
 	}
-	void Text::parseText() {
-		static const std::regex pattern{R"(\{@([^}]+)\})"};
-		std::string origText = orig.at("text").get<std::string>();
-		std::sregex_token_iterator iter(BEGEND(origText), pattern, 1);
-		std::sregex_token_iterator end;
-
-		if (iter == end) return;
-		dynamic_vars.insert("text");
-
-		for (; iter != end; ++iter) layout->registerSharedDataListener(*iter, id);
-		updateText();
-	}
-	void Text::updateText() {
-		if (!dynamic_vars.count("text")) return;
-
-		static const std::regex pattern{R"(\{@([^}]+)\})"};
-		std::string origText = orig.at("text").get<std::string>();
-
-		std::string result;
-		result.reserve(origText.size());
-
-		auto it = std::sregex_iterator(BEGEND(origText), pattern);
-		auto end = std::sregex_iterator();
-		
-		size_t lastPos = 0;
-
-		for (; it != end; ++it) {
-			const std::smatch& match = *it;
-			
-			// 1. Append the text between the last match and this one
-			result.append(origText, lastPos, match.position(0) - lastPos);
-			
-			// 2. Lookup the replacement
-			std::string key = match[1].str();
-			auto dataIt = layout->sharedData.find(key);
-			
-			if (dataIt != layout->sharedData.end()) result.append(dataIt->second.get<std::string>());
-			else result.append("???");
-
-			// 3. Move the cursor forward
-			lastPos = match.position(0) + match.length(0);
-		}
-
-		// 4. Append any remaining text after the last match
-		result.append(origText, lastPos, std::string::npos);
-		
-		text = std::move(result);
-	}
 	// Image
 	void Image::_render() {
-		Utils::drawTextureAnchored(
-			texture,
-			rect(),
-			tintColor,
-			fillType,
-			imageAnchor
-		);
+		Element::_render();
+		if (texture.IsValid()) {
+			Utils::drawTextureAnchored(
+				texture,
+				rect(),
+				tintColor,
+				fillType,
+				imageAnchor
+			);
+		}
 	}
 	bool Image::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (Element::applyStylePart(key, value)) ;
 		else if (key == "path") value.get_to(path);
+		else if (key == "placeholder") value.get_to(placeholder);
 		else if (key == "fillType") value.get_to(fillType);
 		else if (key == "imageAnchor") value.get_to(imageAnchor);
 		else if (key == "tintColor") value.get_to(tintColor);
 		else return false;
 		return true;
+	}
+	void Image::onSharedDataUpdate(const std::string& key, const json& value) {
+		path = updateString(orig.at("path").get<std::string>());
+		if (path != "???") texture.Load(path);
+		else if (!placeholder.empty()) texture.Load(placeholder);
+		else texture.Unload();
 	}
 	// Button
 	void Button::solveSize() {
@@ -915,20 +923,37 @@ namespace Dispatch::UI {
 
 		const std::string type = childTemplate.at("type").get<std::string>();
 		const std::string origText = childTemplate.dump();
+		const std::string escapedID = Utils::escapeRegex(id);
+		std::regex pattern_split(R"((?:"|')\{\$)" + escapedID + R"(\|split(?:\|([\d.]+))?\}(?:"|'))");
+		std::regex pattern_spread(R"((?:"|')\{\$)" + escapedID + R"(\|spread\}(?:"|'))");
+		std::smatch match;
 		json ja = json::array();
+		int idx = 0;
 		for (const std::string& child : children) {
 			const std::string& child_id = std::format("{}.children.{}", id, child);
 
 			std::string text = origText;
 			Utils::replaceAll(text, "{$" + id + "}", child);
+			while (std::regex_search(text, match, pattern_split)) {
+				float val = match[1].matched ? std::stof(match[1].str()) : 1.0;
+				float calculated = val / children.size();
+				std::stringstream ss; ss << std::fixed << std::setprecision(2) << calculated;
+				text.replace(match.position(0), match.length(0), ss.str());
+			}
+			while (std::regex_search(text, match, pattern_spread)) {
+				float calculated = idx * (1.0 / ((int)children.size() - 1));
+				std::stringstream ss; ss << std::fixed << std::setprecision(2) << calculated;
+				text.replace(match.position(0), match.length(0), ss.str());
+			}
 			json child_json = json::parse(text);
-
 			child_json["id"] = child_id;
 			child_json["father_id"] = id;
 			for (const std::string con : {"verticalConstraint", "horizontalConstraint"}) {
+				if (!child_json.at(con).is_object()) child_json[con] = json{child_json[con].get<Constraint>()};
 				for (const std::string se : {"start", "end"}) {
 					if (child_json.at(con).contains(se)) {
 						auto& cjd = child_json[con][se];
+						if (!cjd.is_object()) cjd = json{cjd.get<Constraint::ConstraintPart>()}[0];
 						if (cjd.at("type").get<std::string>() == "element") {
 							if (last_id.empty()) {
 								cjd["type"] = "father";
@@ -954,6 +979,7 @@ namespace Dispatch::UI {
 
 			subElement_ids.push_back(child_id);
 			last_id = child_id;
+			idx++;
 		}
 		layout->load(ja);
 		curChildren = children;
@@ -1036,6 +1062,19 @@ namespace Dispatch::UI {
 		READREQ(j, horizontalConstraint);
 		READ(j, style_ids);
 		applyStyles();
+
+		if (j.contains("verticalConstraint")) {
+			auto& vc = j["verticalConstraint"];
+			if (!vc.is_object()) orig["verticalConstraint"] = json{verticalConstraint};
+			if (vc.contains("start") && !vc["start"].is_object()) orig["verticalConstraint"]["start"] = json{verticalConstraint.start};
+			if (vc.contains("end") && !vc["end"].is_object()) orig["verticalConstraint"]["end"] = json{verticalConstraint.end};
+		}
+		if (j.contains("horizontalConstraint")) {
+			auto& hc = j["horizontalConstraint"];
+			if (!hc.is_object()) orig["horizontalConstraint"] = json{horizontalConstraint};
+			if (hc.contains("start") && !hc["start"].is_object()) orig["horizontalConstraint"]["start"] = json{horizontalConstraint.start};
+			if (hc.contains("end") && !hc["end"].is_object()) orig["horizontalConstraint"]["end"] = json{horizontalConstraint.end};
+		}
 	}
 	void Text::to_json(json& j) const {
 		auto& inst = *this;
@@ -1057,7 +1096,8 @@ namespace Dispatch::UI {
 		READ(j, fontColor);
 		READ(j, textAnchor);
 		// font = Utils::getFont(fontName);
-		parseText();
+		parseString(text);
+		text = updateString(text);
 	}
 	void Button::to_json(nlohmann::json& j) const {
 		auto& inst = *this;
@@ -1125,6 +1165,7 @@ namespace Dispatch::UI {
 		auto& inst = *this;
 		Element::to_json(j);
 		WRITE(path);
+		WRITE(placeholder);
 		WRITE(fillType);
 		WRITE(imageAnchor);
 		WRITE(tintColor);
@@ -1133,10 +1174,12 @@ namespace Dispatch::UI {
 		auto& inst = *this;
 		Element::from_json(j);
 		READREQ(j, path);
+		READ(j, placeholder);
 		READ(j, fillType);
 		READ(j, imageAnchor);
 		READ(j, tintColor);
-		texture.Load(path);
+		parseString(path);
+		onSharedDataUpdate("", {});
 	}
 	void RadarGraph::to_json(json& j) const {
 		auto& inst = *this;
@@ -1254,10 +1297,29 @@ namespace nlohmann {
 		WRITE(end);
 	};
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst) {
-		READ(j, offset);
-		READ(j, ratio);
-		READ(j, start);
-		READ(j, end);
+		if (j.is_object()) {
+			READ(j, offset);
+			READ(j, ratio);
+			READ(j, start);
+			READ(j, end);
+		} else if (j.is_string()) {
+			std::string js = j.get<std::string>();
+			auto jsv = Utils::split(js, "-");
+			if ((int)jsv.size() == 2) {
+				json s, e;
+				if (jsv[0] != "father" && jsv[0] != "screen") throw std::runtime_error("Invalid string for Element Constraint");
+				if (jsv[1] == "h" || jsv[1] == "horizontal") {
+					s = jsv[0] + "-start";
+					e = jsv[0] + "-end";
+				} else if (jsv[1] == "v" || jsv[1] == "vertical") {
+					s = jsv[0] + "-top";
+					e = jsv[0] + "-bottom";
+				} else throw std::runtime_error("Invalid string substrings for Element Constraint: " + js);
+				s.get_to(inst.start);
+				e.get_to(inst.end);
+			} else throw std::runtime_error("Invalid string split for Element Constraint: " + js);
+		} else if (j.is_array() && (int)j.size() == 1) j[0].get_to(inst);
+		else throw std::runtime_error("Invalid type for Element Constraint");
 	}
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
 		WRITE(type);
@@ -1265,9 +1327,27 @@ namespace nlohmann {
 		WRITE(side);
 	}
 	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
-		READREQ(j, type);
-		READ(j, element_id);
-		READREQ(j, side);
+		if (j.is_object()) {
+			READREQ(j, type);
+			READ(j, element_id);
+			READREQ(j, side);
+		} else if (j.is_string()) {
+			std::string js = j.get<std::string>();
+			auto jsv = Utils::split(js, "-");
+			if ((int)jsv.size() == 2) {
+				json t, s;
+				if (jsv[0] == "father" || jsv[0] == "screen") {
+					t = jsv[0];
+					s = jsv[1];
+				} else if (jsv[1] == "father" || jsv[1] == "screen") {
+					t = jsv[1];
+					s = jsv[0];
+				} else throw std::runtime_error("Invalid string substrings for Element Constraint Part: " + js);
+				t.get_to(inst.type);
+				s.get_to(inst.side);
+			} else throw std::runtime_error("Invalid string split for Element Constraint Part: " + js);
+		} else if (j.is_array() && (int)j.size() == 1) j[0].get_to(inst);
+		else throw std::runtime_error("Invalid type for Element Constraint Part");
 	}
 	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Segment& inst) {
 		WRITE(label);
