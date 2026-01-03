@@ -34,16 +34,16 @@ void HeroesHandler::loadHeroes(const std::string& filePath, bool activate) {
 		auto hero = std::make_unique<Hero>(hero_data);
 		// Utils::println("Loaded hero '{}'", hero->name);
 		if (activate) roster.push_back(hero->name);
-		loaded[hero->name] = std::move(hero);
+		missions[hero->name] = std::move(hero);
 	}
 }
 
 
 const Hero& HeroesHandler::operator[](const std::string& name) const {
-	return *loaded.at(name).get();
+	return *(missions.at(name).get());
 }
 Hero& HeroesHandler::operator[](const std::string& name) {
-	return *loaded.at(name).get();
+	return *(missions.at(name).get());
 }
 
 bool HeroesHandler::paused() const { return !selected.empty(); }

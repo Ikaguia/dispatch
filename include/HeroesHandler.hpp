@@ -12,7 +12,7 @@ class HeroesHandler {
 private:
 	HeroesHandler();
 	raylib::Rectangle detailsTabButton{895, 166, 30, 32};
-	std::map<std::string, std::unique_ptr<Hero>> loaded;
+	std::map<std::string, std::unique_ptr<Hero>> missions;
 public:
 	std::vector<std::string> roster;
 	std::string selected;
