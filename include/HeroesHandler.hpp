@@ -11,35 +11,30 @@
 class HeroesHandler {
 private:
 	HeroesHandler();
-public:
-	std::vector<std::shared_ptr<Hero>> loaded_heroes;
-	std::vector<std::shared_ptr<Hero>> active_heroes;
-	std::vector<std::shared_ptr<Hero>> previous_heroes;
 	raylib::Rectangle detailsTabButton{895, 166, 30, 32};
-	int selectedHeroIndex = -1;
-	enum Tabs {
+	std::map<std::string, std::unique_ptr<Hero>> loaded;
+public:
+	std::vector<std::string> roster;
+	std::string selected;
+	Dispatch::UI::Layout layoutHeroDetails{"resources/layouts/hero-details.json"};
+	enum Tab {
 		UPGRADE,
 		POWERS,
 		INFO
-	};
-	Tabs tab = UPGRADE;
-	std::map<std::string, raylib::Rectangle> btns;
-	Dispatch::UI::Layout layoutHeroDetails{"resources/layouts/hero-details.json"};
+	} tab = UPGRADE;
 
 	static HeroesHandler& inst();
 	void loadHeroes(const std::string& filePath, bool activate=false);
 
-	std::weak_ptr<const Hero> operator[](const std::string& name) const;
-	std::weak_ptr<Hero> operator[](const std::string& name);
+	const Hero& operator[](const std::string& name) const;
+	Hero& operator[](const std::string& name);
 
 	bool paused() const;
-	bool isHeroSelected(const std::weak_ptr<Hero> hero) const;
+	bool isHeroSelected(const Hero& hero) const;
 
 	void renderUI();
 	bool handleInput();
 	void update(float deltaTime);
-	void selectHero(int idx);
-	void changeTab(Tabs newTab);
-
-	std::string tabToString(Tabs t);
+	void selectHero(const std::string& name);
+	void changeTab(Tab newTab);
 };

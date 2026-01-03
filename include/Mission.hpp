@@ -62,8 +62,8 @@ public:
 	int slots, difficulty=1, curDisruption=-1;
 	float failureTime=60.0f, missionDuration=20.0f, failureMissionTime=0.0f, successMissionTime=0.0f, timeElapsed=0.0f;
 	bool dangerous=false, triggered=false, disrupted=false;
-	std::set<std::shared_ptr<Hero>> assignedHeroes;
-	std::vector<std::weak_ptr<Hero>> assignedSlots;
+	std::set<std::string> assignedHeroes;
+	std::vector<std::string> assignedSlots;
 
 	Mission(const std::string& name, const std::string& type, const std::string& caller, const std::string& description, const std::string& failureMsg, const std::string& failureMission, const std::string& successMsg, const std::string& successMission, const std::vector<std::string>& requirements, raylib::Vector2 pos, const std::map<std::string,int> &attr, int slots, int difficulty, float failureTime, float missionDuration, float failureMissionTimeool, float successMissionTime, bool dangerous);
 	Mission(const nlohmann::json& data);
@@ -72,9 +72,9 @@ public:
 
 	void validate() const;
 
-	void toggleHero(std::shared_ptr<Hero> hero);
-	void assignHero(std::shared_ptr<Hero> hero);
-	void unassignHero(std::shared_ptr<Hero> hero);
+	void toggleHero(const std::string& name);
+	void assignHero(const std::string& name);
+	void unassignHero(const std::string& name);
 
 	void changeStatus(Status newStatus);
 	void update(float deltaTime);

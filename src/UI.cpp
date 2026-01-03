@@ -47,7 +47,6 @@ namespace Dispatch::UI {
 					}
 				} else throw std::runtime_error(std::format("Layout Error: Subelement id '{}' for element '{}' is not present in the layout", subElement_id, el.id));
 			}
-
 		}
 
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
