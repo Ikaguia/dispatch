@@ -366,7 +366,7 @@ namespace Dispatch::UI {
 
 		// 1. Build Graph and Dependency Checks
 		// Node Map: Maps ids to index (0 to N-1) for graph operations
-		std::map<std::string, size_t> idToIndex;
+		std::unordered_map<std::string, size_t> idToIndex;
 		for (size_t i = 0; i < N; i++) idToIndex[subElement_ids[i]] = i;
 		
 		// Adjacency List: graph[i] contains indices of elements that depend on i.
@@ -382,7 +382,6 @@ namespace Dispatch::UI {
 			// Helper function to check and build dependency for one constraint part
 			auto processConstraint = [&](const Element::Constraint::ConstraintPart& part) {
 				if (part.type == Element::Constraint::ConstraintPart::ELEMENT) {
-					// Lock the weak_ptr to get the target element
 					std::string target_id = part.element_id;
 					// Check for non-sibling reference
 					if (!idToIndex.contains(target_id)) throw std::runtime_error("Layout Error: Element '" + dependent_id + "' references non-sibling element.");
@@ -1258,7 +1257,7 @@ namespace Dispatch::UI {
 		ScrollBox::from_json(j);
 
 		fixedChilds.clear();
-		fixedChilds = std::set<std::string>{BEGEND(subElement_ids)};
+		fixedChilds = std::unordered_set<std::string>{BEGEND(subElement_ids)};
 		layout->registerSharedDataListener(dataPath, id);
 		if (layout->sharedData.contains(dataPath)) rebuild();
 	}

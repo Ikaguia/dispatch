@@ -34,21 +34,21 @@ void HeroesHandler::loadHeroes(const std::string& filePath, bool activate) {
 		auto hero = std::make_unique<Hero>(hero_data);
 		// Utils::println("Loaded hero '{}'", hero->name);
 		if (activate) roster.push_back(hero->name);
-		missions[hero->name] = std::move(hero);
+		heroes[hero->name] = std::move(hero);
 	}
 }
 
 
 const Hero& HeroesHandler::operator[](const std::string& name) const {
-	return *(missions.at(name).get());
+	return *(heroes.at(name).get());
 }
 Hero& HeroesHandler::operator[](const std::string& name) {
-	return *(missions.at(name).get());
+	return *(heroes.at(name).get());
 }
 
 bool HeroesHandler::paused() const { return !selected.empty(); }
 
-bool HeroesHandler::isHeroSelected(const Hero& hero) const { return hero.name == selected; }
+bool HeroesHandler::isHeroSelected(const std::string& name) const { return name == selected; }
 
 void HeroesHandler::renderUI() {
 	raylib::Rectangle heroesRect{158*bgScale, 804*bgScale, 1603*bgScale, 236*bgScale};
@@ -108,8 +108,9 @@ void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
 }
 
 bool HeroesHandler::handleInput() {
-	auto mission = MissionsHandler::inst().selectedMission;
-	auto missionStatus = mission.expired() ? Mission::DONE : mission.lock()->status;
+	auto selected = MissionsHandler::inst().selected;
+	auto* mission = selected.empty() ? nullptr : &MissionsHandler::inst()[selected];
+	auto missionStatus = selected.empty() ? Mission::DONE : mission->status;
 	if (paused()) layoutHeroDetails.handleInput();
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
@@ -120,16 +121,16 @@ bool HeroesHandler::handleInput() {
 				if (hero.uiRect.CheckCollision(mousePos)) {
 					if (missionStatus == Mission::SELECTED) {
 						if ((hero.status != Hero::AVAILABLE && hero.status != Hero::ASSIGNED) || hero.health == Hero::DOWNED) return false;
-						mission.lock()->toggleHero(hero_name);
+						mission->toggleHero(hero_name);
 						return true;
-					} else if (mission.expired()) {
+					} else if (selected.empty()) {
 						selectHero(hero_name);
 						return true;
 					}
 				}
 			}
 		} else if (detailsTabButton.CheckCollision(mousePos)) {
-			if (mission.expired() || !mission.lock()->isMenuOpen()) {
+			if (selected.empty() || !mission->isMenuOpen()) {
 				auto it = std::find_if(BEGEND(roster), [&](const std::string& hero_name){ return (*this)[hero_name].skillPoints > 0; });
 				if (it != roster.end()) selectHero(*it);
 				else selectHero(roster[0]);

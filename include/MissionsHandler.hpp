@@ -1,6 +1,8 @@
 #pragma once
 
 #include <set>
+#include <unordered_set>
+#include <unordered_map>
 #include <map>
 #include <string>
 #include <memory>
@@ -12,29 +14,28 @@ private:
 	MissionsHandler();
 public:
 	Dispatch::UI::Layout layoutMissionDetails{"resources/layouts/mission-details.json"};
-	std::map<std::string, std::shared_ptr<Mission>> trigger_missions;
-	std::map<std::string, std::shared_ptr<Mission>> loaded_missions;
-	std::set<std::shared_ptr<Mission>> active_missions;
-	std::set<std::shared_ptr<Mission>> previous_missions;
-	std::weak_ptr<Mission> selectedMission;
-	std::vector<std::pair<std::weak_ptr<Mission>,float>> mission_queue;
+	std::unordered_map<std::string, std::unique_ptr<Mission>> missions;
+	std::unordered_set<std::string> trigger, loaded, active, previous;
+	std::string selected;
+	std::vector<std::pair<std::string,float>> mission_queue;
 	float timeToNext = 1.0f;
 
 	static MissionsHandler& inst();
 
 	void loadMissions(const std::string& file);
 	Mission& activateMission();
-	Mission& activateMission(std::string mission_name);
-	Mission& activateMission(std::weak_ptr<Mission> mission);
+	Mission& activateMission(const std::string& name);
 	Mission& createRandomMission(int difficulty=-1, int slots=-1);
+
+	const Mission& operator[](const std::string& name) const;
+	Mission& operator[](const std::string& name);
 
 	bool paused() const;
 
-	void selectMission(std::weak_ptr<Mission> ms);
+	void selectMission(const std::string& name);
 	void unselectMission();
 
-	void addMissionToQueue(std::string mission_name, float time);
-	void addMissionToQueue(std::weak_ptr<Mission> mission, float time);
+	void addMissionToQueue(const std::string& name, float time);
 
 	void renderUI();
 	void handleInput();

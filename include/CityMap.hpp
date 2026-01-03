@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <set>
+#include <unordered_set>
 #include <raylib-cpp.hpp>
 
 class CityMap {
@@ -11,7 +11,7 @@ public:
 	static CityMap& inst();
 
 	std::vector<raylib::Vector2> points;
-	std::vector<std::set<int>> roads;
+	std::vector<std::unordered_set<int>> roads;
 	raylib::Vector2 sourceSize;
 
 	void load(std::string fileName);

@@ -26,7 +26,7 @@ Mission::Mission(
 	const std::string& successMission,
 	const std::vector<std::string>& requirements,
 	raylib::Vector2 position,
-	const std::map<std::string, int> &attr,
+	const std::unordered_map<std::string, int> &attr,
 	int slots,
 	int difficulty,
 	float failureTime,
@@ -103,7 +103,7 @@ void Mission::assignHero(const std::string& name) {
 				break;
 			}
 		}
-		hero.changeStatus(Hero::ASSIGNED, weak_from_this());
+		hero.changeStatus(Hero::ASSIGNED, name);
 	}
 	auto& layout = MissionsHandler::inst().layoutMissionDetails;
 	updateLayout(layout, "assignedHeroes");
@@ -176,7 +176,7 @@ void Mission::changeStatus(Status newStatus) {
 			auto& hero = HeroesHandler::inst()[name];
 			if (hero.status == Hero::AWAITING_REVIEW) hero.changeStatus(Hero::AVAILABLE, {}, 0.0f);
 			else if (hero.status == Hero::WORKING) hero.changeStatus(Hero::RETURNING, {}, 0.0f);
-			else hero.mission.reset();
+			else hero.mission.clear();
 		}
 	} else {
 		Utils::println("Invalid mission status change, from {} to {}", statusToString(oldStatus), statusToString(newStatus));

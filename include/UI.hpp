@@ -6,6 +6,8 @@
 #include <map>
 #include <set>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <raylib-cpp.hpp>
 #include <nlohmann/json.hpp>
@@ -18,11 +20,11 @@ namespace Dispatch::UI {
 
 	class Layout {
 	public:
-		std::map<std::string, std::unique_ptr<Element>> elements;
-		std::map<std::string, std::unique_ptr<Style>> styles;
-		std::set<std::string> rootElements, hovered, clicked, pressed, unhover, release, dataChanged, needsRebuild;
-		std::map<std::string, nlohmann::json> sharedData;
-		std::map<std::string, std::set<std::string>> sharedDataListeners;
+		std::unordered_map<std::string, std::unique_ptr<Element>> elements;
+		std::unordered_map<std::string, std::unique_ptr<Style>> styles;
+		std::unordered_set<std::string> rootElements, hovered, clicked, pressed, unhover, release, dataChanged, needsRebuild;
+		std::unordered_map<std::string, nlohmann::json> sharedData;
+		std::unordered_map<std::string, std::unordered_set<std::string>> sharedDataListeners;
 		std::string path;
 
 		Layout(const std::string& path);
@@ -75,7 +77,7 @@ namespace Dispatch::UI {
 	class Element {
 	protected:
 		nlohmann::json orig;
-		std::set<std::string> dynamic_vars;
+		std::unordered_set<std::string> dynamic_vars;
 	public:
 		Layout* layout=nullptr;
 		bool visible=true, hovered=false, clicked=false, pressed=false, unhover=false, release=false, resortSub=false;
@@ -180,11 +182,11 @@ namespace Dispatch::UI {
 			StatusChanges(std::vector<raylib::Color> i, std::vector<raylib::Color> o, raylib::Color b, raylib::Color t, float s, int z) : inner{i}, outter{o}, border{b}, text{t}, size_mult{s}, z_order_offset{z} {}
 			StatusChanges() = default;
 		};
-		std::map<Status, StatusChanges> statusChanges;
+		std::unordered_map<Status, StatusChanges> statusChanges;
 		float size_mult = 1.0f;
 
 		Button() : TextBox() {
-			statusChanges = std::map<Status, StatusChanges>{
+			statusChanges = std::unordered_map<Status, StatusChanges>{
 				{Status::REGULAR, {{bgLgt, bgLgt, bgMed, bgLgt}, {bgMed}, {BLACK}, textColor, 1.0f, 0}},
 				{Status::HOVERED, {{SKYBLUE}, {BLUE}, {BLACK}, textColor, 1.1f, 30}},
 				{Status::PRESSED, {{BLUE}, {DARKBLUE}, {BLACK}, textColor, 1.1f, 20}},
@@ -293,7 +295,7 @@ namespace Dispatch::UI {
 	class DataInspector : public virtual ScrollBox {
 		public:
 			std::string dataPath;
-			std::set<std::string> fixedChilds;
+			std::unordered_set<std::string> fixedChilds;
 			int labelFontSize = 14;
 			int valueFontSize = 16;
 			float itemSpacing = 10.0f;

@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <unordered_set>
+#include <unordered_map>
 
 class Hero;
 
@@ -12,14 +14,15 @@ class Hero;
 #include <Mission.hpp>
 #include <Power.hpp>
 
-class Hero : public std::enable_shared_from_this<Hero> {
+class Hero {
 private:
 	AttrMap<int> real_attributes;
 public:
 	std::string name, nickname{"?"};
 	std::vector<std::string> tags;
-	std::map<std::string, std::string> bio, img_paths;
-	std::map<std::string, raylib::Texture> imgs;
+	std::map<std::string, std::string> bio;
+	std::unordered_map<std::string, std::string> img_paths;
+	std::unordered_map<std::string, raylib::Texture> imgs;
 	AttrMap<int> unconfirmed_attributes;
 	std::vector<Power> powers;
 	enum Status {
@@ -41,7 +44,7 @@ public:
 	float travelSpeedMult=1.0f, elapsedTime=0.0f, finishTime=0.0f, restingTime=10.0f;
 	bool flies=false;
 	int level=1, exp=0, skillPoints=3, expOffset=0;
-	std::weak_ptr<Mission> mission{};
+	std::string mission;
 	raylib::Vector2 pos{500, 200}, path;
 	raylib::Rectangle uiRect{};
 
@@ -61,7 +64,7 @@ public:
 	void renderUI(raylib::Rectangle rect);
 
 	void changeStatus(Status st, float fnTime=0.0f);
-	void changeStatus(Status st, std::weak_ptr<Mission> msn, float fnTime=0.0f);
+	void changeStatus(Status st, std::string msn, float fnTime=0.0f);
 	void wound();
 	void heal();
 	void addExp(int xp);

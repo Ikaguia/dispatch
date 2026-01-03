@@ -5,6 +5,7 @@
 #include <set>
 #include <iostream>
 #include <memory>
+#include <unordered_set>
 
 #include <nlohmann/json.hpp>
 
@@ -36,7 +37,7 @@ public:
 	static void from_json(const nlohmann::json& j, Disruption& disruption);
 };
 
-class Mission : public std::enable_shared_from_this<Mission> {
+class Mission {
 private:
 	raylib::Rectangle btnCancel, btnStart;
 public:
@@ -62,10 +63,10 @@ public:
 	int slots, difficulty=1, curDisruption=-1;
 	float failureTime=60.0f, missionDuration=20.0f, failureMissionTime=0.0f, successMissionTime=0.0f, timeElapsed=0.0f;
 	bool dangerous=false, triggered=false, disrupted=false;
-	std::set<std::string> assignedHeroes;
+	std::unordered_set<std::string> assignedHeroes;
 	std::vector<std::string> assignedSlots;
 
-	Mission(const std::string& name, const std::string& type, const std::string& caller, const std::string& description, const std::string& failureMsg, const std::string& failureMission, const std::string& successMsg, const std::string& successMission, const std::vector<std::string>& requirements, raylib::Vector2 pos, const std::map<std::string,int> &attr, int slots, int difficulty, float failureTime, float missionDuration, float failureMissionTimeool, float successMissionTime, bool dangerous);
+	Mission(const std::string& name, const std::string& type, const std::string& caller, const std::string& description, const std::string& failureMsg, const std::string& failureMission, const std::string& successMsg, const std::string& successMission, const std::vector<std::string>& requirements, raylib::Vector2 pos, const std::unordered_map<std::string,int> &attr, int slots, int difficulty, float failureTime, float missionDuration, float failureMissionTimeool, float successMissionTime, bool dangerous);
 	Mission(const nlohmann::json& data);
 	Mission(const Mission&) = delete;
 	Mission& operator=(const Mission&) = delete;

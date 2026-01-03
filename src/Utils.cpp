@@ -288,7 +288,7 @@ namespace Utils {
 		return pos+offset;
 	}
 	raylib::Rectangle anchorRect(raylib::Rectangle rect, raylib::Vector2 sz, Anchor anchor, raylib::Vector2 offset, AnchorType anchorType) {
-		static std::map<Anchor, AnchorType> automatic = {
+		static std::unordered_map<Anchor, AnchorType> automatic = {
 			{Anchor::topLeft,		AnchorType::bottomRight},
 			{Anchor::top,			AnchorType::bottom},
 			{Anchor::topRight,		AnchorType::bottomLeft},

@@ -11,6 +11,7 @@
 #include <HeroesHandler.hpp>
 #include <Power.hpp>
 #include <Attribute.hpp>
+#include <MissionsHandler.hpp>
 
 using nlohmann::json;
 
@@ -34,9 +35,9 @@ float Hero::travelSpeed() const { return travelSpeedMult * (50 + 2.5f*attributes
 
 bool Hero::canFly() const {
 	if (flies) return true;
-	if (!mission.expired()) {
-		auto heroes = mission.lock()->assignedHeroes;
-		for (auto& hero : heroes) if (hero.lock()->name == "Sonar") return true;
+	if (!mission.empty()) {
+		auto heroes = MissionsHandler::inst()[mission].assignedHeroes;
+		if (heroes.contains("Sonar")) return true;
 	}
 	return false;
 }
@@ -52,9 +53,9 @@ void Hero::update(float deltaTime) {
 			bool completed = updatePath();
 			if (completed) {
 				if (status == Hero::TRAVELLING) {
-					std::shared_ptr<Mission> ms = mission.lock();
+					Mission& ms = MissionsHandler::inst()[mission];
 					changeStatus(Hero::WORKING);
-					if (ms->status != Mission::PROGRESS) ms->changeStatus(Mission::PROGRESS);
+					if (ms.status != Mission::PROGRESS) ms.changeStatus(Mission::PROGRESS);
 				}
 				else changeStatus(Hero::RESTING, restingTime);
 			}
@@ -63,7 +64,7 @@ void Hero::update(float deltaTime) {
 
 	if (elapsedTime >= finishTime) switch (status) {
 		case Hero::RESTING:
-			if (mission.expired()) changeStatus(Hero::AVAILABLE);
+			if (mission.empty()) changeStatus(Hero::AVAILABLE);
 			else changeStatus(Hero::AWAITING_REVIEW);
 			break;
 		default:
@@ -76,7 +77,7 @@ void Hero::renderUI(raylib::Rectangle rect) {
 	raylib::Color color{GRAY}, txtColor{};
 	std::string txt;
 	float progress = 1.0f;
-	if (HeroesHandler::inst().isHeroSelected(shared_from_this())) color = SKYBLUE;
+	if (HeroesHandler::inst().isHeroSelected(name)) color = SKYBLUE;
 	else switch(status) {
 		case Hero::ASSIGNED:
 			color = ORANGE;
@@ -156,7 +157,7 @@ void Hero::renderUI(raylib::Rectangle rect) {
 
 
 void Hero::changeStatus(Status st, float fnTime) { changeStatus(st, mission, fnTime); }
-void Hero::changeStatus(Status st, std::weak_ptr<Mission> msn, float fnTime) {
+void Hero::changeStatus(Status st, std::string msn, float fnTime) {
 	status = st;
 	mission = msn;
 	finishTime = fnTime;
@@ -199,7 +200,7 @@ void Hero::resetAttributeChanges() {
 bool Hero::updatePath() {
 	if (status == Hero::TRAVELLING || status == Hero::RETURNING) {
 		CityMap& cityMap = CityMap::inst();
-		raylib::Vector2 dest = (status == Hero::TRAVELLING) ? mission.lock()->position : cityMap.points[89];
+		raylib::Vector2 dest = (status == Hero::TRAVELLING) ? MissionsHandler::inst()[mission].position : cityMap.points[89];
 
 		int posIDX = cityMap.closestPoint(pos);
 		int destIDX = cityMap.closestPoint(dest);

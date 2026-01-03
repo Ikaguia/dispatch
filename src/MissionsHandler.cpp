@@ -26,40 +26,36 @@ MissionsHandler& MissionsHandler::inst() {
 
 void MissionsHandler::loadMissions(const std::string& file) {
 	Utils::println("Loading missions from {}", file);
-	json missions = Utils::readJsonFile(file);
-	if (!missions.is_array()) throw std::runtime_error("Heroes error: Top-level JSON must be an array of heroes.");
-	Utils::println("Read {} missions", missions.size());
-	for (auto& data : missions) {
-		auto ms = std::make_shared<Mission>(data);
+	json missions_array = Utils::readJsonFile(file);
+	if (!missions_array.is_array()) throw std::runtime_error("Heroes error: Top-level JSON must be an array of heroes.");
+	Utils::println("Read {} missions", missions_array.size());
+	for (auto& data : missions_array) {
+		auto ms = std::make_unique<Mission>(data);
 		// Utils::println("Loaded {}mission '{}'", ms->triggered ? "triggered " : "", ms->name);
-		if (ms->triggered) trigger_missions[ms->name] = ms;
-		else loaded_missions[ms->name] = ms;
+		if (ms->triggered) trigger.insert(ms->name);
+		else loaded.insert(ms->name);
+		missions[ms->name] = std::move(ms);
 	}
 }
 Mission& MissionsHandler::activateMission() {
-	if (loaded_missions.empty()) return createRandomMission();
-	auto mission = Utils::random_element(loaded_missions).second;
-	return activateMission(mission->weak_from_this());
+	if (loaded.empty()) return createRandomMission();
+	auto& name = Utils::random_element(loaded);
+	return activateMission(name);
 }
-Mission& MissionsHandler::activateMission(std::string mission_name) {
-	if (trigger_missions.count(mission_name)) return activateMission(trigger_missions[mission_name]);
-	return activateMission(loaded_missions[mission_name]);
-}
-Mission& MissionsHandler::activateMission(std::weak_ptr<Mission> mission) {
-	auto sharedMission = mission.lock();
-	if (!sharedMission) throw std::invalid_argument("Cannot activate expired mission");
-	bool triggered = trigger_missions.count(sharedMission->name);
-	if (!triggered && !loaded_missions.count(sharedMission->name)) throw std::invalid_argument("Cannot activate mission that is not loaded");
-	if (active_missions.count(sharedMission)) throw std::invalid_argument("Cannot activate mission that is already active");
-	active_missions.insert(sharedMission);
-	if (triggered) trigger_missions.erase(sharedMission->name);
-	else loaded_missions.erase(sharedMission->name);
-	return *sharedMission;
+Mission& MissionsHandler::activateMission(const std::string& name) {
+	if (!missions.contains(name)) throw std::invalid_argument("Cannot activate mission that is not loaded");
+	if (active.contains(name)) throw std::invalid_argument("Cannot activate active mission");
+	if (previous.contains(name)) throw std::invalid_argument("Cannot activate completed mission");
+	auto& mission = (*this)[name];
+	active.insert(name);
+	loaded.erase(name);
+	trigger.erase(name);
+	return mission;
 }
 Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 	static int missionCount = 0;
 	difficulty = difficulty == -1 ? Utils::randInt(1, 5) : difficulty;
-	std::map<std::string, int> attributes{
+	std::unordered_map<std::string, int> attributes{
 		{"com", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 10)},
 		{"vig", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 10)},
 		{"mob", Utils::clamp(Utils::randInt(1, 10) * (5 + difficulty) / 10, 1, 10)},
@@ -71,9 +67,10 @@ Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 	std::vector<std::string> requirements;
 	for (auto& [attr, val] : sorted) if (requirements.size() <3) requirements.push_back(std::format("{} {} {}", attr.toIcon(), val > 6 ? "High" : val > 3 ? "Medium" : "Low", attr.toString()));
 
-	auto res = active_missions.emplace(new Mission{
+	std::string name = "Random Mission " + std::to_string(++missionCount);
+	auto mission = std::make_unique<Mission>(
 		// name
-		"Random Mission " + std::to_string(++missionCount),
+		name,
 		// type
 		std::vector<std::string>{"Rescue", "Assault", "Recon", "Escort", "Sabotage"}[Utils::randInt(0,4)],
 		// caller
@@ -91,7 +88,7 @@ Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 		// requirements
 		requirements,
 		// position
-		{ (float)Utils::randInt(50, 900), (float)Utils::randInt(50, 350) },
+		raylib::Vector2{ (float)Utils::randInt(50, 900), (float)Utils::randInt(50, 350) },
 		// required attributes
 		attributes,
 		// slots
@@ -108,76 +105,78 @@ Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 		0.0f,
 		// dangerous
 		(difficulty >= 3) ? true : ((rand()%5) < difficulty)
-	});
-	if (res.second == true) return **(res.first);
-	throw std::runtime_error("Failed to construct mission");
+	);
+	active.insert(name);
+	missions[name] = std::move(mission);
+	return *missions[name].get();
 }
 
-bool MissionsHandler::paused() const { return !selectedMission.expired(); }
+const Mission& MissionsHandler::operator[](const std::string& name) const { return *(missions.at(name).get()); }
+Mission& MissionsHandler::operator[](const std::string& name) { return *(missions.at(name).get()); }
 
-void MissionsHandler::selectMission(std::weak_ptr<Mission> ms) {
-	if (!active_missions.count(ms.lock())) return;
-	selectedMission = ms;
-	ms.lock()->setupLayout(layoutMissionDetails);
+bool MissionsHandler::paused() const { return !selected.empty(); }
+
+void MissionsHandler::selectMission(const std::string& name) {
+	if (!active.count(name)) return;
+	selected = name;
+	(*this)[name].setupLayout(layoutMissionDetails);
 }
 
-void MissionsHandler::unselectMission() { selectedMission.reset(); }
+void MissionsHandler::unselectMission() { selected.clear(); }
 
-void MissionsHandler::addMissionToQueue(std::string mission_name, float time) {
-	if (trigger_missions.count(mission_name)) addMissionToQueue(trigger_missions[mission_name], time);
-	else addMissionToQueue(loaded_missions[mission_name], time);
-}
-void MissionsHandler::addMissionToQueue(std::weak_ptr<Mission> mission, float time) {
-	if (mission.expired()) throw std::invalid_argument("Mission must be loaded");
-	Utils::println("Mission {} scheduled in {} seconds", mission.lock()->name, time);
-	mission_queue.emplace_back(mission, time);
+void MissionsHandler::addMissionToQueue(const std::string& name, float time) {
+	if (!missions.contains(name)) throw std::invalid_argument("Mission must be loaded");
+	Utils::println("Mission {} scheduled in {} seconds", name, time);
+	mission_queue.emplace_back(name, time);
 }
 
 
 void MissionsHandler::renderUI() {
-	for (auto& mission : active_missions) mission->renderUI(false);
-	if (!selectedMission.expired()) layoutMissionDetails.render();
+	for (auto& name : active) (*this)[name].renderUI(false);
+	if (paused()) layoutMissionDetails.render();
 }
 
 void MissionsHandler::handleInput() {
-	if (!selectedMission.expired())	{
-		Mission& mission = *selectedMission.lock();
+	if (paused())	{
+		auto& mission = (*this)[selected];
 		layoutMissionDetails.handleInput();
 		mission.handleInput();
 		if (!mission.isMenuOpen()) unselectMission();
-	} else for (auto& mission : active_missions) {
-		mission->handleInput();
-		if (mission->isMenuOpen()) {
-			selectMission(mission);
+	} else for (auto& name : active) {
+		auto& mission = (*this)[name];
+		mission.handleInput();
+		if (mission.isMenuOpen()) {
+			selectMission(name);
 			break;
 		}
 	}
 }
 
 void MissionsHandler::update(float deltaTime) {
-	std::vector<std::shared_ptr<Mission>> finished;
+	std::unordered_set<std::string> finished;
 
-	if (!selectedMission.expired()) selectedMission.lock()->update(deltaTime);
-	else for (auto& mission : active_missions) {
-		mission->update(deltaTime);
-		if (mission->status == Mission::DONE || mission->status == Mission::MISSED) finished.push_back(mission);
+	if (paused()) (*this)[selected].update(deltaTime);
+	else for (auto& name : active) {
+		auto& mission = (*this)[name];
+		mission.update(deltaTime);
+		if (mission.status == Mission::DONE || mission.status == Mission::MISSED) previous.insert(name);
 	}
 
-	for (auto& mission : finished) {
-		active_missions.erase(mission);
-		previous_missions.insert(mission);
+	for (auto& name : finished) {
+		active.erase(name);
+		previous.insert(name);
 	}
 
-	timeToNext -= deltaTime / (1 + active_missions.size());
+	timeToNext -= deltaTime / (1 + active.size());
 	if (timeToNext <= 0) {
 		activateMission();
 		timeToNext = rand() % 4 + rand() % 4 + 2;
 	}
 
 	for (int i = 0; i < (int)mission_queue.size(); i++) {
-		auto& [mission, time] = mission_queue[i];
+		auto& [name, time] = mission_queue[i];
 		if (time < deltaTime) {
-			activateMission(mission);
+			activateMission(name);
 			mission_queue.erase(mission_queue.begin()+i--);
 		} else time -= deltaTime;
 	}

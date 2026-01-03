@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <unordered_set>
+#include <unordered_map>
 
 #include <Hero.hpp>
 #include <Mission.hpp>
@@ -12,7 +14,7 @@ class HeroesHandler {
 private:
 	HeroesHandler();
 	raylib::Rectangle detailsTabButton{895, 166, 30, 32};
-	std::map<std::string, std::unique_ptr<Hero>> missions;
+	std::unordered_map<std::string, std::unique_ptr<Hero>> heroes;
 public:
 	std::vector<std::string> roster;
 	std::string selected;
@@ -30,7 +32,7 @@ public:
 	Hero& operator[](const std::string& name);
 
 	bool paused() const;
-	bool isHeroSelected(const Hero& hero) const;
+	bool isHeroSelected(const std::string& name) const;
 
 	void renderUI();
 	bool handleInput();
