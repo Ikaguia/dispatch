@@ -7,6 +7,7 @@
 #include <Attribute.hpp>
 #include <MissionsHandler.hpp>
 #include <HeroesHandler.hpp>
+#include <TextureManager.hpp>
 #include <CityMap.hpp>
 #include <UI.hpp>
 
@@ -22,6 +23,7 @@ int main() {
 		raylib::Texture background{"resources/images/background.png"}; bgScale = 1.0f * window.GetWidth() / background.GetWidth();
 		HeroesHandler& heroesHandler = HeroesHandler::inst();
 		MissionsHandler& missionsHandler = MissionsHandler::inst();
+		TextureManager& textureManager = TextureManager::inst();
 		CityMap& cityMap = CityMap::inst();
 		std::string paused = "";
 
@@ -104,12 +106,9 @@ int main() {
 			EndDrawing();
 		}
 
-		missionsHandler.loaded_missions.clear();
-		missionsHandler.active_missions.clear();
-		missionsHandler.previous_missions.clear();
-		heroesHandler.loaded_heroes.clear();
-		heroesHandler.active_heroes.clear();
-		heroesHandler.previous_heroes.clear();
+		missionsHandler.missions.clear();
+		heroesHandler.heroes.clear();
+		textureManager.clear();
 	} catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		throw e;

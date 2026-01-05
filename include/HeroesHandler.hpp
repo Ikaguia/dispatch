@@ -14,8 +14,8 @@ class HeroesHandler {
 private:
 	HeroesHandler();
 	raylib::Rectangle detailsTabButton{895, 166, 30, 32};
-	std::unordered_map<std::string, std::unique_ptr<Hero>> heroes;
 public:
+	std::unordered_map<std::string, std::unique_ptr<Hero>> heroes;
 	std::vector<std::string> roster;
 	std::string selected;
 	Dispatch::UI::Layout layoutHeroDetails{"resources/layouts/hero-details.json"};

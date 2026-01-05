@@ -2,1550 +2,300 @@
 	{
 		"type": "ELEMENT",
 		"id": "mapRect",
-		"size": {
-			"x": 0.94,
-			"y": 0.69
-		},
-		"innerMargin": {
-			"x": 44,
-			"y": 17,
-			"z": 44,
-			"w": 26
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "screen",
-				"side": "top"
-			},
-			"offset": 22
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "screen",
-				"side": "start"
-			},
-			"end": {
-				"type": "screen",
-				"side": "end"
-			}
-		},
-		"subElement_ids": [ "heroDetails-left/middle", "heroDetails-right", "tab-upgrades", "tab-powers", "tab-info" ]
-	}, {
-		"type": "BOX",
-		"id": "heroDetails-left/middle",
-		"father_id": "mapRect",
-		"subElement_ids": [
-			"heroDetails-left/middle-top",
-			"heroDetails-left/middle-bottom"
-		],
-		"size": {
-			"x": 0.662,
-			"y": 0.893
-		},
-		"verticalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"shadowOffset": [ 4, 4 ]
-	}, {
-		"type": "BOX",
-		"id": "heroDetails-right",
-		"father_id": "mapRect",
-		"subElement_ids": [ "heroDetails-right-attrGraph" ],
-		"size": {
-			"x": 0.32,
-			"y": 0.893
-		},
-		"verticalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		},
-		"shadowOffset": [ 4, 4 ]
-	}, {
-		"type": "RADIOBUTTON",
-		"id": "tab-upgrades",
-		"father_id": "mapRect",
-		"size": {
-			"x": 0.195,
-			"y": 0.09
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "element",
-				"side": "top",
-				"element_id": "heroDetails-left/middle"
-			}
-		},
-		"horizontalConstraint": {
-			"end": {
-				"type": "element",
-				"side": "start",
-				"element_id": "tab-powers"
-			},
-			"offset": 19
-		},
-		"shadowOffset": [ 4, 4 ],
-		"text": "UPGRADES",
-		"statusChanges": {
-			"regular": {
-				"inner": ["DARKGREEN"],
-				"outter": ["GREEN"]
-			}
-		},
-		"key": "tab",
-		"selected": true
-	}, {
-		"type": "RADIOBUTTON",
-		"id": "tab-powers",
-		"father_id": "mapRect",
-		"size": {
-			"x": 0.195,
-			"y": 0.09
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "element",
-				"side": "top",
-				"element_id": "heroDetails-left/middle"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		},
-		"shadowOffset": [ 4, 4 ],
-		"text": "POWERS",
-		"statusChanges": {
-			"regular": {
-				"inner": ["DARKGREEN"],
-				"outter": ["GREEN"]
-			}
-		},
-		"key": "tab"
-	}, {
-		"type": "RADIOBUTTON",
-		"id": "tab-info",
-		"father_id": "mapRect",
-		"size": {
-			"x": 0.195,
-			"y": 0.09
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "element",
-				"side": "top",
-				"element_id": "heroDetails-left/middle"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "element",
-				"side": "end",
-				"element_id": "tab-powers"
-			},
-			"offset": 19
-		},
-		"shadowOffset": [ 4, 4 ],
-		"text": "INFO",
-		"statusChanges": {
-			"regular": {
-				"inner": ["DARKGREEN"],
-				"outter": ["GREEN"]
-			}
-		},
-		"key": "tab"
-	}, {
-		"type": "BOX",
-		"id": "heroDetails-left/middle-top",
-		"father_id": "heroDetails-left/middle",
-		"subElement_ids": [ "heroDetails-image", "heroDetails-mask", "heroDetails-name", "heroDetails-tags", "heroDetails-stats", "heroDetails-powers", "heroDetails-info" ],
-		"size": {
-			"x": 1.0,
-			"y": 0.88
-		},
-		"innerMargin": {
-			"x": 4,
-			"y": 4,
-			"z": 4,
-			"w": 4
-		},
-		"borderThickness": 0.0,
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		}
-	}, {
-		"type": "ELEMENT",
-		"id": "heroDetails-left/middle-bottom",
-		"father_id": "heroDetails-left/middle",
-		"subElement_ids": ["heroDetails-backButton"],
-		"size": {
-			"x": 1.0,
-			"y": 0.12
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 2,
-			"z": 0,
-			"w": 2
-		},
-		"verticalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		}
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-backButton",
-		"father_id": "heroDetails-left/middle-bottom",
-		"size": {
-			"x": 0.15,
-			"y": 0.9
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		},
-		"text": "BACK"
-	}, {
-		"type": "IMAGE",
-		"id": "heroDetails-mask",
-		"father_id": "heroDetails-left/middle-top",
-		"size": {
-			"x": 1.0,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 0,
-			"z": 0,
-			"w": 0
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"path": "resources/images/hero-details-mask.png",
-		"fillType": "stretch"
-	}, {
-		"type": "IMAGE",
-		"id": "heroDetails-image",
-		"father_id": "heroDetails-left/middle-top",
-		"size": {
-			"x": 1.0,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 0,
-			"z": 10,
-			"w": 0
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"path": "resources/images/heroes/Crumple/full-image.png",
-		"fillType": "fit",
-		"imageAnchor": "left"
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-name",
-		"father_id": "heroDetails-left/middle-top",
-		"size": {
-			"x": 0.9,
-			"y": 0.108
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			},
-			"ratio": 0.77
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.2
-		},
-		"text": "{@name}",
-		"textAnchor": "left"
-	}, {
-		"type": "DATAINSPECTOR",
-		"id": "heroDetails-tags",
-		"father_id": "heroDetails-left/middle-top",
-		"size": { "x": 0.9, "y": 0.108 },
-		"verticalConstraint": { "start": { "type": "father", "side": "top" }, "end": { "type": "father", "side": "bottom" }, "ratio": 0.88 },
-		"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" }, "ratio": 0.2 },
-		"dataPath": "tags",
-		"orientation": "horizontal",
-		"borderThickness": 0,
-		"innerColor": "BLANK",
-		"outterColor": "BLANK",
-		"borderColor": "BLANK"
-	}, {
-		"type": "BOX",
-		"id": "heroDetails-stats",
-		"father_id": "heroDetails-left/middle-top",
-		"subElement_ids": [
-			"heroDetails-stats-points",
-			"heroDetails-stats-combat",
-			"heroDetails-stats-vigor",
-			"heroDetails-stats-mobility",
-			"heroDetails-stats-charisma",
-			"heroDetails-stats-intelligence",
-			"heroDetails-stats-reset",
-			"heroDetails-stats-confirm"
-		],
-		"size": {
-			"x": 0.38,
-			"y": 0.88
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"offset": 32
-		}
-	}, {
-		"type": "DATAARRAY",
-		"id": "heroDetails-powers",
-		"father_id": "heroDetails-left/middle-top",
-		"size": { "x": 0.48, "y": 0.88 },
-		"verticalConstraint": { "start": { "type": "father", "side": "top" }, "end": { "type": "father", "side": "bottom" } },
-		"horizontalConstraint": { "end": { "type": "father", "side": "end" }, "offset": 32 },
-		"dataPath": "powerNames",
-		"childTemplate": {
-			"type": "BOX",
-			"size": { "x": 1.0, "y": 0.249 },
-			"verticalConstraint": { "start": { "type": "element", "side": "bottom" } },
-			"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" } },
-			"outterMargin": [ 0, 2, 0, 2 ],
-			"innerMargin": [ 3, 3, 3, 3 ],
-			"subElements": [
-				{
-					"type": "TEXT",
-					"id": "power-name-{$heroDetails-powers}",
-					"size": { "x": 1.0, "y": 0.2 },
-					"verticalConstraint": { "start": { "type": "father", "side": "top" } },
-					"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" } },
-					"text": "{@powers.{$heroDetails-powers}.name}",
-					"textAnchor": "top",
-					"fontSize": 14
-				}, {
-					"type": "TEXT",
-					"id": "power-description-{$heroDetails-powers}",
-					"size": { "x": 1.0, "y": 0.79 },
-					"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "power-name-{$heroDetails-powers}", "offset": 8 } },
-					"horizontalConstraint": { "start": { "type": "father", "side": "start" }, "end": { "type": "father", "side": "end" } },
-					"text": "{@powers.{$heroDetails-powers}.description}",
-					"textAnchor": "topLeft",
-					"fontSize": 10
-				}
-			]
-		},
-		"innerColor": "BLANK",
-		"outterColor": "BLANK",
-		"borderColor": "BLANK",
-		"visible": false
-	}, {
-		"type": "BOX",
-		"id": "heroDetails-info",
-		"father_id": "heroDetails-left/middle-top",
-		"subElement_ids": [ "heroDetails-info-list" ],
-		"size": {
-			"x": 0.38,
-			"y": 0.88
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"offset": 32
-		},
-		"visible": false
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-points",
-		"father_id": "heroDetails-stats",
-		"size": {
-			"x": 1.0,
-			"y": 0.15
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 4,
-			"z": 0,
-			"w": 4
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			},
-			"ratio": 0.0
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		},
-		"text": "Skill Points: {@skillPoints}"
-	}, {
-		"type": "ELEMENT",
-		"id": "heroDetails-stats-combat",
-		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-combat-text", "heroDetails-stats-combat-minus", "heroDetails-stats-combat-value", "heroDetails-stats-combat-plus" ],
-		"size": {
-			"x": 1.0,
-			"y": 0.15
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 4,
-			"z": 0,
-			"w": 4
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			},
-			"ratio": 0.167
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		}
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-combat-text",
-		"father_id": "heroDetails-stats-combat",
-		"size": {
-			"x": 0.6,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 4,
-			"y": 2,
-			"z": 0,
-			"w": 2
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"text": "Combat",
-		"textAnchor": "left"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-combat-minus",
-		"father_id": "heroDetails-stats-combat",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.72
-		},
-		"text": "-"
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-combat-value",
-		"father_id": "heroDetails-stats-combat",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.86
-		},
-		"text": "{@combat}"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-combat-plus",
-		"father_id": "heroDetails-stats-combat",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 1.0
-		},
-		"text": "+"
-	}, {
-		"type": "ELEMENT",
-		"id": "heroDetails-stats-vigor",
-		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-vigor-text",  "heroDetails-stats-vigor-minus", "heroDetails-stats-vigor-value", "heroDetails-stats-vigor-plus" ],
-		"size": {
-			"x": 1.0,
-			"y": 0.15
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 4,
-			"z": 0,
-			"w": 4
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			},
-			"ratio": 0.334
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		}
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-vigor-text",
-		"father_id": "heroDetails-stats-vigor",
-		"size": {
-			"x": 0.6,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 4,
-			"y": 2,
-			"z": 0,
-			"w": 2
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"text": "Vigor",
-		"textAnchor": "left"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-vigor-minus",
-		"father_id": "heroDetails-stats-vigor",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.72
-		},
-		"text": "-"
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-vigor-value",
-		"father_id": "heroDetails-stats-vigor",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.86
-		},
-		"text": "{@vigor}"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-vigor-plus",
-		"father_id": "heroDetails-stats-vigor",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 1.0
-		},
-		"text": "+"
-	}, {
-		"type": "ELEMENT",
-		"id": "heroDetails-stats-mobility",
-		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-mobility-text", "heroDetails-stats-mobility-minus", "heroDetails-stats-mobility-value", "heroDetails-stats-mobility-plus" ],
-		"size": {
-			"x": 1.0,
-			"y": 0.15
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 4,
-			"z": 0,
-			"w": 4
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			},
-			"ratio": 0.5
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		}
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-mobility-text",
-		"father_id": "heroDetails-stats-mobility",
-		"size": {
-			"x": 0.6,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 4,
-			"y": 2,
-			"z": 0,
-			"w": 2
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"text": "Mobility",
-		"textAnchor": "left"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-mobility-minus",
-		"father_id": "heroDetails-stats-mobility",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.72
-		},
-		"text": "-"
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-mobility-value",
-		"father_id": "heroDetails-stats-mobility",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.86
-		},
-		"text": "{@mobility}"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-mobility-plus",
-		"father_id": "heroDetails-stats-mobility",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 1.0
-		},
-		"text": "+"
-	}, {
-		"type": "ELEMENT",
-		"id": "heroDetails-stats-charisma",
-		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-charisma-text", "heroDetails-stats-charisma-minus", "heroDetails-stats-charisma-value", "heroDetails-stats-charisma-plus" ],
-		"size": {
-			"x": 1.0,
-			"y": 0.15
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 4,
-			"z": 0,
-			"w": 4
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			},
-			"ratio": 0.667
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		}
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-charisma-text",
-		"father_id": "heroDetails-stats-charisma",
-		"size": {
-			"x": 0.6,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 4,
-			"y": 2,
-			"z": 0,
-			"w": 2
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"text": "Charisma",
-		"textAnchor": "left"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-charisma-minus",
-		"father_id": "heroDetails-stats-charisma",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.72
-		},
-		"text": "-"
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-charisma-value",
-		"father_id": "heroDetails-stats-charisma",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.86
-		},
-		"text": "{@charisma}"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-charisma-plus",
-		"father_id": "heroDetails-stats-charisma",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 1.0
-		},
-		"text": "+"
-	}, {
-		"type": "ELEMENT",
-		"id": "heroDetails-stats-intelligence",
-		"father_id": "heroDetails-stats",
-		"subElement_ids": [ "heroDetails-stats-intelligence-text", "heroDetails-stats-intelligence-minus", "heroDetails-stats-intelligence-value", "heroDetails-stats-intelligence-plus" ],
-		"size": {
-			"x": 1.0,
-			"y": 0.15
-		},
-		"outterMargin": {
-			"x": 0,
-			"y": 4,
-			"z": 0,
-			"w": 4
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			},
-			"ratio": 0.833
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		}
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-intelligence-text",
-		"father_id": "heroDetails-stats-intelligence",
-		"size": {
-			"x": 0.6,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 4,
-			"y": 2,
-			"z": 0,
-			"w": 2
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"text": "Intelligence",
-		"textAnchor": "left"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-intelligence-minus",
-		"father_id": "heroDetails-stats-intelligence",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.72
-		},
-		"text": "-"
-	}, {
-		"type": "TEXT",
-		"id": "heroDetails-stats-intelligence-value",
-		"father_id": "heroDetails-stats-intelligence",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 0.86
-		},
-		"text": "{@intelligence}"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-intelligence-plus",
-		"father_id": "heroDetails-stats-intelligence",
-		"size": {
-			"x": 0.14,
-			"y": 1.0
-		},
-		"outterMargin": {
-			"x": 3,
-			"y": 3,
-			"z": 3,
-			"w": 3
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			},
-			"ratio": 1.0
-		},
-		"text": "+"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-reset",
-		"father_id": "heroDetails-stats",
-		"size": {
-			"x": 0.5,
-			"y": 0.15
-		},
-		"outterMargin": {
-			"x": 4,
-			"y": 4,
-			"z": 2,
-			"w": 4
-		},
-		"verticalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			}
-		},
-		"text": "RESET"
-	}, {
-		"type": "BUTTON",
-		"id": "heroDetails-stats-confirm",
-		"father_id": "heroDetails-stats",
-		"size": {
-			"x": 0.5,
-			"y": 0.15
-		},
-		"outterMargin": {
-			"x": 2,
-			"y": 4,
-			"z": 4,
-			"w": 4
-		},
-		"verticalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		},
-		"text": "CONFIRM"
-	}, {
-		"type": "ATTRGRAPH",
-		"id": "heroDetails-right-attrGraph",
-		"father_id": "heroDetails-right",
-		"size": {
-			"x": 0.8,
-			"y": 0.8
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		},
-		"groups": [
+		"size": { "x": 0.94, "y": 0.69 },
+		"innerMargin": { "x": 44, "y": 17, "z": 44, "w": 26 },
+		"verticalConstraint": { "start": "screen-top", "offset": 22 },
+		"horizontalConstraint": { "start": "screen-start", "end": "screen-end" },
+		"subElements": [
 			{
-				"values": "{@attributes}",
-				"color": "ORANGE"
+				"type": "BOX",
+				"id": "left/middle",
+				"size": { "x": 0.662, "y": 0.893 },
+				"verticalConstraint": { "end": "father-bottom" },
+				"horizontalConstraint": { "start": "father-start" },
+				"shadowOffset": [ 4, 4 ],
+				"subElements": [
+					{
+						"type": "BOX",
+						"id": "left/middle-top",
+						"size": { "x": 1.0, "y": 0.88 },
+						"innerMargin": [ 4, 4, 4, 4],
+						"borderThickness": 0,
+						"verticalConstraint": { "start": "father-top" },
+						"horizontalConstraint": { "start": "father-start" },
+						"subElements": [
+							{
+								"type": "IMAGE",
+								"id": "image",
+								"size": { "x": 1.0, "y": 1.0 },
+								"outterMargin": [ 0, 0, 10, 0 ],
+								"verticalConstraint": "father-v",
+								"horizontalConstraint": { "start": "father-start" },
+								"imgKey": "{@full-image-key}",
+								"placeholderPath": "resources/images/heroes/Crumple/full-image.png",
+								"placeholderKey": "hero-full-image-placeholder",
+								"fillType": "fit",
+								"imageAnchor": "left"
+							}, {
+								"type": "IMAGE",
+								"id": "mask",
+								"size": { "x": 1.0, "y": 1.0 },
+								"outterMargin": [ 0, 0, 0, 0 ],
+								"verticalConstraint": "father-v",
+								"horizontalConstraint": { "start": "father-start" },
+								"imgPath": "resources/images/hero-details-mask.png",
+								"imgKey": "hero-details-mask",
+								"fillType": "stretch"
+							}, {
+								"type": "TEXT",
+								"id": "name",
+								"size": { "x": 0.9, "y": 0.108 },
+								"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.77 },
+								"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": 0.2 },
+								"text": "{@name}",
+								"textAnchor": "left"
+							}, {
+								"type": "DATAINSPECTOR",
+								"id": "tags",
+								"size": { "x": 0.9, "y": 0.108 },
+								"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.88 },
+								"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": 0.2 },
+								"dataPath": "tags",
+								"orientation": "horizontal",
+								"borderThickness": 0,
+								"innerColor": "BLANK",
+								"outterColor": "BLANK",
+								"borderColor": "BLANK"
+							}, {
+								"type": "BOX",
+								"id": "stats",
+								"size": { "x": 0.38, "y": 0.88 },
+								"verticalConstraint": "father-v",
+								"horizontalConstraint": { "end": "father-end", "offset": 32 },
+								"subElements": [
+									{
+										"type": "TEXT",
+										"id": "stats-points",
+										"size": { "x": 1.0, "y": 0.15 },
+										"outterMargin": [ 0, 4, 0, 4 ],
+										"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.0 },
+										"horizontalConstraint": "father-h",
+										"text": "Skill Points: {@skillPoints}"
+									}, {
+										"type": "DATAARRAY",
+										"id": "stats-array",
+										"size": { "x": 1.0, "y": 0.7 },
+										"outterMargin": [ 0, 4, 0, 4 ],
+										"verticalConstraint": {
+											"start": { "type": "element", "element_id": "stats-points", "side": "bottom" },
+											"end": { "type": "element", "element_id": "stats-reset", "side": "top" }
+										},
+										"horizontalConstraint": "father-h",
+										"children": [ "Combat", "Vigor", "Mobility", "Charisma", "Intelligence" ],
+										"childTemplate": {
+											"type": "ELEMENT",
+											"id": "stats-{$stats-array}",
+											"size": { "x": 1.0, "y": "{$stats-array|split}" },
+											"outterMargin": [ 0, 4, 0, 4 ],
+											"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": "{$stats-array|spread}" },
+											"horizontalConstraint": "father-h",
+											"subElements": [
+												{
+													"type": "TEXT",
+													"id": "stats-{$stats-array}-text",
+													"size": { "x": 0.6, "y": 1.0 },
+													"outterMargin": [ 4, 2, 0, 2 ],
+													"verticalConstraint": "father-v",
+													"horizontalConstraint": { "start": "father-start" },
+													"text": "{$stats-array}",
+													"textAnchor": "left"
+												}, {
+													"type": "BUTTON",
+													"id": "stats-{$stats-array}-minus",
+													"size": { "x": 0.14, "y": 1.0 },
+													"outterMargin": [ 3, 3, 3, 3 ],
+													"verticalConstraint": "father-v",
+													"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": 0.72 },
+													"text": "-"
+												}, {
+													"type": "TEXT",
+													"id": "stats-{$stats-array}-value",
+													"size": { "x": 0.14, "y": 1.0 },
+													"outterMargin": [ 3, 3, 3, 3 ],
+													"verticalConstraint": "father-v",
+													"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": 0.86 },
+													"text": "{@stats-{$stats-array}-value}"
+												}, {
+													"type": "BUTTON",
+													"id": "stats-{$stats-array}-plus",
+													"size": { "x": 0.14, "y": 1.0 },
+													"outterMargin": [ 3, 3, 3, 3],
+													"verticalConstraint": "father-v",
+													"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": 1.0 },
+													"text": "+"
+												}
+											]
+										}
+									}, {
+										"type": "BUTTON",
+										"id": "stats-reset",
+										"size": { "x": 0.5, "y": 0.15 },
+										"outterMargin": [ 4, 4, 2, 4 ],
+										"verticalConstraint": { "end": "father-bottom" },
+										"horizontalConstraint": { "start": "father-start" },
+										"text": "RESET"
+									}, {
+										"type": "BUTTON",
+										"id": "stats-confirm",
+										"size": { "x": 0.5, "y": 0.15 },
+										"outterMargin": [ 2, 4, 4, 4 ],
+										"verticalConstraint": { "end": "father-bottom" },
+										"horizontalConstraint": { "end": "father-end" },
+										"text": "CONFIRM"
+									}
+								]
+							}, {
+								"type": "DATAARRAY",
+								"id": "powers",
+								"size": { "x": 0.48, "y": 0.88 },
+								"verticalConstraint": "father-v",
+								"horizontalConstraint": { "end": "father-end", "offset": 32 },
+								"dataPath": "powerNames",
+								"childTemplate": {
+									"type": "BOX",
+									"size": { "x": 1.0, "y": 0.249 },
+									"verticalConstraint": { "start": { "type": "element", "side": "bottom" } },
+									"horizontalConstraint": "father-h",
+									"outterMargin": [ 0, 2, 0, 2 ],
+									"innerMargin": [ 3, 3, 3, 3 ],
+									"subElements": [
+										{
+											"type": "TEXT",
+											"id": "power-name-{$powers}",
+											"size": { "x": 1.0, "y": 0.2 },
+											"verticalConstraint": { "start": "father-top" },
+											"horizontalConstraint": "father-h",
+											"text": "{@powers.{$powers}.name}",
+											"textAnchor": "top",
+											"fontSize": 14
+										}, {
+											"type": "TEXT",
+											"id": "power-description-{$powers}",
+											"size": { "x": 1.0, "y": 0.79 },
+											"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "power-name-{$powers}", "offset": 8 } },
+											"horizontalConstraint": "father-h",
+											"text": "{@powers.{$powers}.description}",
+											"textAnchor": "topLeft",
+											"fontSize": 10
+										}
+									]
+								},
+								"innerColor": "BLANK",
+								"outterColor": "BLANK",
+								"borderColor": "BLANK",
+								"visible": false
+							}, {
+								"type": "BOX",
+								"id": "info",
+								"size": { "x": 0.38, "y": 0.88 },
+								"verticalConstraint": "father-v",
+								"horizontalConstraint": { "end": "father-end", "offset": 32 },
+								"visible": false,
+								"subElements": [
+									{
+										"type": "DATAINSPECTOR",
+										"id": "info-list",
+										"size": { "x": 0.95, "y": 0.95 },
+										"verticalConstraint": "father-v",
+										"horizontalConstraint": "father-h",
+										"dataPath": "bio",
+										"borderThickness": 0,
+										"subElements": [
+											{
+												"type": "IMAGE",
+												"id": "info-mugshot",
+												"size": { "x": 1.0, "y": 0.4 },
+												"verticalConstraint": { "start": "father-top" },
+												"horizontalConstraint": "father-h",
+												"imgKey": "{@mugshot-image-key}",
+												"placeholderPath": "resources/images/heroes/Crumple/mugshot.jpg",
+												"placeholderKey": "hero-mugshot-image-placeholder",
+												"fillType": "fill",
+												"imageAnchor": "top"
+											}
+										]
+									}
+								]
+							}
+						]
+					}, {
+						"type": "ELEMENT",
+						"id": "left/middle-bottom",
+						"size": { "x": 1.0, "y": 0.12 },
+						"outterMargin": [ 0, 2, 0, 2 ],
+						"verticalConstraint": { "end": "father-bottom" },
+						"horizontalConstraint": { "start": "father-start" },
+						"subElements": [
+							{
+								"type": "BUTTON",
+								"id": "backButton",
+								"size": { "x": 0.15, "y": 0.9 },
+								"verticalConstraint": "father-v",
+								"horizontalConstraint": "father-h",
+								"text": "BACK"
+							}
+						]
+					}
+				]
+			}, {
+				"type": "BOX",
+				"id": "right",
+				"size": { "x": 0.32, "y": 0.893 },
+				"verticalConstraint": { "end": "father-bottom" },
+				"horizontalConstraint": { "end": "father-end" },
+				"shadowOffset": [ 4, 4 ],
+				"subElements": [
+					{
+						"id": "attr-graph",
+						"type": "ATTRGRAPH",
+						"size": { "x": 0.8, "y": 0.8 },
+						"verticalConstraint": "father-v",
+						"horizontalConstraint": "father-h",
+						"groups": [ { "values": "{@attributes}", "color": "ORANGE" } ]
+					}
+				]
+			}, {
+				"type": "RADIOBUTTON",
+				"id": "tab-upgrades",
+				"size": { "x": 0.195, "y": 0.09 },
+				"verticalConstraint": { "start": "father-top", "end": { "type": "element", "side": "top", "element_id": "left/middle" } },
+				"horizontalConstraint": { "end": { "type": "element", "side": "start", "element_id": "tab-powers" }, "offset": 19 },
+				"shadowOffset": [ 4, 4 ],
+				"text": "UPGRADES",
+				"statusChanges": { "regular": { "inner": ["DARKGREEN"], "outter": ["GREEN"] } },
+				"key": "tab",
+				"selected": true
+			}, {
+				"type": "RADIOBUTTON",
+				"id": "tab-powers",
+				"size": { "x": 0.195, "y": 0.09 },
+				"verticalConstraint": { "start": "father-top", "end": { "type": "element", "side": "top", "element_id": "left/middle" } },
+				"horizontalConstraint": "father-h",
+				"shadowOffset": [ 4, 4 ],
+				"text": "POWERS",
+				"statusChanges": { "regular": { "inner": ["DARKGREEN"], "outter": ["GREEN"] } },
+				"key": "tab"
+			}, {
+				"type": "RADIOBUTTON",
+				"id": "tab-info",
+				"size": { "x": 0.195, "y": 0.09 },
+				"verticalConstraint": { "start": "father-top", "end": { "type": "element", "side": "top", "element_id": "left/middle" } },
+				"horizontalConstraint": { "start": { "type": "element", "side": "end", "element_id": "tab-powers" }, "offset": 19 },
+				"shadowOffset": [ 4, 4 ],
+				"text": "INFO",
+				"statusChanges": { "regular": { "inner": ["DARKGREEN"], "outter": ["GREEN"] } },
+				"key": "tab"
 			}
 		]
-	}, {
-		"type": "IMAGE",
-		"id": "heroDetails-info-mugshot",
-		"father_id": "heroDetails-info-list",
-		"size": {
-			"x": 1.0,
-			"y": 0.4
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		},
-		"path": "resources/images/heroes/Crumple/mugshot.jpg",
-		"fillType": "fill",
-		"imageAnchor": "top"
-	}, {
-		"type": "DATAINSPECTOR",
-		"id": "heroDetails-info-list",
-		"father_id": "heroDetails-info",
-		"subElement_ids": ["heroDetails-info-mugshot"],
-		"size": {
-			"x": 0.95,
-			"y": 0.95
-		},
-		"verticalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "top"
-			},
-			"end": {
-				"type": "father",
-				"side": "bottom"
-			}
-		},
-		"horizontalConstraint": {
-			"start": {
-				"type": "father",
-				"side": "start"
-			},
-			"end": {
-				"type": "father",
-				"side": "end"
-			}
-		},
-		"dataPath": "bio",
-		"borderThickness": 0
 	}
 ]

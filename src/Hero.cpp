@@ -12,6 +12,7 @@
 #include <Power.hpp>
 #include <Attribute.hpp>
 #include <MissionsHandler.hpp>
+#include <TextureManager.hpp>
 
 using nlohmann::json;
 
@@ -73,6 +74,7 @@ void Hero::update(float deltaTime) {
 }
 
 void Hero::renderUI(raylib::Rectangle rect) {
+	auto& TM = TextureManager::inst();
 	uiRect = rect;
 	raylib::Color color{GRAY}, txtColor{};
 	std::string txt;
@@ -117,10 +119,12 @@ void Hero::renderUI(raylib::Rectangle rect) {
 
 	raylib::Rectangle pictureRect = Utils::inset(rect, 2.0f); pictureRect.height -= 13.0f;
 	std::string portrait = health == Health::NORMAL ? "portrait" : "wounded";
-	if (imgs.count(portrait)) {
+	std::string img_key = std::format("hero-{}-{}", name, portrait);
+	if (TM.has(img_key)) {
+		raylib::Texture& img = TM[img_key];
 		pictureRect.Draw(color);
 		pictureRect.DrawLines(BLACK);
-		DrawTexturePro(imgs[portrait], {0.0f, 0.0f, (float)imgs[portrait].width, (float)imgs[portrait].height}, pictureRect, {0.0f, 0.0f}, 0.0f, WHITE);
+		DrawTexturePro(img, {0.0f, 0.0f, (float)img.width, (float)img.height}, pictureRect, {0.0f, 0.0f}, 0.0f, WHITE);
 	}
 
 	if (health == Health::WOUNDED) pictureRect.Draw(ColorAlpha(RED, 0.2f));
@@ -144,7 +148,10 @@ void Hero::renderUI(raylib::Rectangle rect) {
 		pos.DrawCircle(22, BLACK);
 		pos.DrawCircle(21, WHITE);
 		pos.DrawCircle(20, status == Hero::TRAVELLING ? BLUE : YELLOW);
-		Utils::drawCircularTexture(imgs[portrait], pos, 20.0f, 2.0f);
+		if (TM.has(img_key)) {
+			raylib::Texture& img = TM[img_key];
+			Utils::drawCircularTexture(img, pos, 20.0f, 2.0f);
+		}
 	}
 
 	raylib::Vector2 xpPos{rect.x + rect.width - 17, rect.y + rect.height - 27};
@@ -303,10 +310,8 @@ void Hero::from_json(const nlohmann::json& j, Hero& hero) {
 		READ2(imagesData, img_paths["wounded"], wounded);
 		READ2(imagesData, img_paths["mugshot"], mugshot);
 	}
-	hero.imgs["full"] = raylib::Texture(hero.img_paths["full"]);
-	hero.imgs["portrait"] = raylib::Texture(hero.img_paths["portrait"]);
-	hero.imgs["wounded"] = raylib::Texture(hero.img_paths["wounded"]);
-	hero.imgs["mugshot"] = raylib::Texture(hero.img_paths["mugshot"]);
+	auto& TM = TextureManager::inst();
+	for (auto& [type, path] : hero.img_paths) TM.load(path, std::format("hero-{}-{}", hero.name, type));
 
 	READREQ2(j, real_attributes, attributes);
 	// READ(j, unconfirmed_attributes);

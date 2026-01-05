@@ -75,10 +75,10 @@ void HeroesHandler::renderUI() {
 }
 
 void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
-	Dispatch::UI::Button* confirm = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("heroDetails-stats-confirm").get());
-	Dispatch::UI::Button* reset = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("heroDetails-stats-reset").get());
-	if (!confirm) throw std::runtime_error("Hero details layout is missing 'heroDetails-stats-confirm' element or it is of the wrong type.");
-	if (!reset) throw std::runtime_error("Hero details layout is missing 'heroDetails-stats-reset' element or it is of the wrong type.");
+	Dispatch::UI::Button* confirm = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("stats-confirm").get());
+	Dispatch::UI::Button* reset = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("stats-reset").get());
+	if (!confirm) throw std::runtime_error("Hero details layout is missing 'stats-confirm' element or it is of the wrong type.");
+	if (!reset) throw std::runtime_error("Hero details layout is missing 'stats-reset' element or it is of the wrong type.");
 
 	const auto& attrs = hero.attributes();
 	const auto& unc_attrs = hero.unconfirmed_attributes;
@@ -87,9 +87,10 @@ void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
 	layout.updateSharedData("skillPoints", std::to_string(hero.skillPoints));
 	layout.updateSharedData("attributes", attrs);
 	for (Attribute::Value attr : Attribute::Values) {
-		std::string attr_str = Utils::toLower((std::string)Attribute(attr).toString());
-		std::string str_minus = std::format("heroDetails-stats-{}-minus", attr_str);
-		std::string str_plus = std::format("heroDetails-stats-{}-plus", attr_str);
+		std::string attr_str = (std::string)Attribute(attr).toString();
+		std::string str_minus = std::format("stats-{}-minus", attr_str);
+		std::string str_plus = std::format("stats-{}-plus", attr_str);
+		std::string str_value = std::format("stats-{}-value", attr_str);
 		Dispatch::UI::Button* minus = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at(str_minus).get());
 		Dispatch::UI::Button* plus = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at(str_plus).get());
 		if (!minus) throw std::runtime_error(std::format("Hero details layout is missing '{}' element or it is of the wrong type.", str_minus));
@@ -100,7 +101,7 @@ void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
 
 		minus->changeStatus(unconfirmed ? Dispatch::UI::Element::Status::REGULAR : Dispatch::UI::Element::Status::DISABLED);
 		plus->changeStatus(hero.skillPoints ? Dispatch::UI::Element::Status::REGULAR : Dispatch::UI::Element::Status::DISABLED);
-		layout.updateSharedData(attr_str, std::to_string(attrs[attr] + unconfirmed));
+		layout.updateSharedData(str_value, std::to_string(attrs[attr] + unconfirmed));
 	}
 	auto status = totalUnconfirmed ? Dispatch::UI::Element::Status::REGULAR : Dispatch::UI::Element::Status::DISABLED;
 	reset->changeStatus(status);
@@ -108,14 +109,14 @@ void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
 }
 
 bool HeroesHandler::handleInput() {
-	auto selected = MissionsHandler::inst().selected;
-	auto* mission = selected.empty() ? nullptr : &MissionsHandler::inst()[selected];
-	auto missionStatus = selected.empty() ? Mission::DONE : mission->status;
+	auto selectedMission = MissionsHandler::inst().selected;
+	auto* mission = selectedMission.empty() ? nullptr : &MissionsHandler::inst()[selectedMission];
+	auto missionStatus = selectedMission.empty() ? Mission::DONE : mission->status;
 	if (paused()) layoutHeroDetails.handleInput();
 	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
-		raylib::Rectangle heroes{158*bgScale, 804*bgScale, 1603*bgScale, 236*bgScale};
-		if (heroes.CheckCollision(mousePos)) {
+		raylib::Rectangle heroesRect{158*bgScale, 804*bgScale, 1603*bgScale, 236*bgScale};
+		if (heroesRect.CheckCollision(mousePos)) {
 			for (auto [idx, hero_name] : Utils::enumerate(roster)) {
 				auto& hero = (*this)[hero_name];
 				if (hero.uiRect.CheckCollision(mousePos)) {
@@ -123,7 +124,7 @@ bool HeroesHandler::handleInput() {
 						if ((hero.status != Hero::AVAILABLE && hero.status != Hero::ASSIGNED) || hero.health == Hero::DOWNED) return false;
 						mission->toggleHero(hero_name);
 						return true;
-					} else if (selected.empty()) {
+					} else if (selectedMission.empty()) {
 						selectHero(hero_name);
 						return true;
 					}
@@ -151,21 +152,22 @@ bool HeroesHandler::handleInput() {
 				changeTab(INFO);
 				return true;
 			}
-		} else if (layoutHeroDetails.release.contains("heroDetails-backButton")) {
+		} else if (layoutHeroDetails.release.contains("backButton")) {
 			selectHero("");
 			return true;
-		} else if (layoutHeroDetails.release.contains("heroDetails-stats-reset")) {
+		} else if (layoutHeroDetails.release.contains("stats-reset")) {
 			hero.resetAttributeChanges();
 			updateLayoutStatsData(layoutHeroDetails, hero);
 			return true;
-		} else if (layoutHeroDetails.release.contains("heroDetails-stats-confirm")) {
+		} else if (layoutHeroDetails.release.contains("stats-confirm")) {
 			hero.applyAttributeChanges();
 			updateLayoutStatsData(layoutHeroDetails, hero);
 			return true;
 		} else {
 			for (auto attr : Attribute::Values) {
-				std::string minus = std::format("heroDetails-stats-{}-minus", Utils::toLower((std::string)Attribute(attr).toString()));
-				std::string plus = std::format("heroDetails-stats-{}-plus", Utils::toLower((std::string)Attribute(attr).toString()));
+				std::string attr_str = (std::string)Attribute(attr).toString();
+				std::string minus = std::format("stats-{}-minus", attr_str);
+				std::string plus = std::format("stats-{}-plus", attr_str);
 				if (layoutHeroDetails.release.contains(minus)) {
 					if (hero.unconfirmed_attributes[attr] > 0) {
 						hero.unconfirmed_attributes[attr]--;
@@ -187,13 +189,12 @@ bool HeroesHandler::handleInput() {
 	return false;
 }
 
-void HeroesHandler::update(float deltaTime) { for (auto& hero_name : roster) (*this)[hero_name].update(deltaTime); }
+void HeroesHandler::update(float deltaTime) {
+	for (auto& hero_name : roster) (*this)[hero_name].update(deltaTime);
+}
 
 void HeroesHandler::selectHero(const std::string& name) {
 	selected = name;
-	Dispatch::UI::Image* image = dynamic_cast<Dispatch::UI::Image*>(layoutHeroDetails.elements.at("heroDetails-image").get());
-	Dispatch::UI::Image* mugshot = dynamic_cast<Dispatch::UI::Image*>(layoutHeroDetails.elements.at("heroDetails-info-mugshot").get());
-	if (!image) throw std::runtime_error("Hero details layout is missing 'heroDetails-image' element or it is of the wrong type.");
 
 	if (paused()) {
 		const Hero& hero = (*this)[selected];
@@ -210,15 +211,15 @@ void HeroesHandler::selectHero(const std::string& name) {
 		layoutHeroDetails.updateSharedData("tags", hero.tags);
 		layoutHeroDetails.updateSharedData("powers", hero.powers);
 		layoutHeroDetails.updateSharedData("powerNames", powerNames);
-		image->texture.Load(hero.img_paths.at("full"));
-		mugshot->texture.Load(hero.img_paths.at("mugshot"));
+		layoutHeroDetails.updateSharedData("full-image-key", std::format("hero-{}-full", hero.name));
+		layoutHeroDetails.updateSharedData("mugshot-image-key", std::format("hero-{}-mugshot", hero.name));
 		updateLayoutStatsData(layoutHeroDetails, hero);
 	}
 }
 
 void HeroesHandler::changeTab(Tab newTab) {
 	tab = newTab;
-	layoutHeroDetails.elements.at("heroDetails-stats").get()->visible = (tab == UPGRADE);
-	layoutHeroDetails.elements.at("heroDetails-powers").get()->visible = (tab == POWERS);
-	layoutHeroDetails.elements.at("heroDetails-info").get()->visible = (tab == INFO);
+	layoutHeroDetails.elements.at("stats").get()->visible = (tab == UPGRADE);
+	layoutHeroDetails.elements.at("powers").get()->visible = (tab == POWERS);
+	layoutHeroDetails.elements.at("info").get()->visible = (tab == INFO);
 }

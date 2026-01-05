@@ -22,7 +22,6 @@ public:
 	std::vector<std::string> tags;
 	std::map<std::string, std::string> bio;
 	std::unordered_map<std::string, std::string> img_paths;
-	std::unordered_map<std::string, raylib::Texture> imgs;
 	AttrMap<int> unconfirmed_attributes;
 	std::vector<Power> powers;
 	enum Status {

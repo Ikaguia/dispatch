@@ -111,8 +111,12 @@ Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 	return *missions[name].get();
 }
 
-const Mission& MissionsHandler::operator[](const std::string& name) const { return *(missions.at(name).get()); }
-Mission& MissionsHandler::operator[](const std::string& name) { return *(missions.at(name).get()); }
+const Mission& MissionsHandler::operator[](const std::string& name) const {
+	return *(missions.at(name).get());
+}
+Mission& MissionsHandler::operator[](const std::string& name) {
+	return *(missions.at(name).get());
+}
 
 bool MissionsHandler::paused() const { return !selected.empty(); }
 

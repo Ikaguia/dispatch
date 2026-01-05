@@ -73,9 +73,9 @@ public:
 
 	void validate() const;
 
-	void toggleHero(const std::string& name);
-	void assignHero(const std::string& name);
-	void unassignHero(const std::string& name);
+	void toggleHero(const std::string& heroName);
+	void assignHero(const std::string& heroName);
+	void unassignHero(const std::string& heroName);
 
 	void changeStatus(Status newStatus);
 	void update(float deltaTime);

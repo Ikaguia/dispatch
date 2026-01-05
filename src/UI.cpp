@@ -8,6 +8,7 @@
 #include <regex>
 
 #include <nlohmann/json.hpp>
+#include <TextureManager.hpp>
 using json = nlohmann::json;
 
 namespace Dispatch::UI {
@@ -30,12 +31,12 @@ namespace Dispatch::UI {
 	}
 
 	// Layout
-	Layout::Layout(const std::string& path) : path{path} {
+	Layout::Layout(const std::string& new_path) : path{new_path} {
 		json data_array = Utils::readJsonFile(path);
 		Utils::println("Reading layout '{}'", path);
-		load(data_array);
+		auto new_ids = load(data_array);
 
-		for (auto& [id, _] : elements) {
+		for (auto& id : new_ids) {
 			auto& el = *elements[id].get();
 			if (!el.father_id.empty() && !elements.count(el.father_id)) {
 				throw std::runtime_error(std::format("Layout Error: Father id '{}' for element '{}' is not present in the layout", el.father_id, el.id));
@@ -50,17 +51,23 @@ namespace Dispatch::UI {
 		}
 
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
-		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
-	}
 
-	void Layout::load(nlohmann::json& data_array) {
+		Utils::println("Pre-initializing layout '{}'", path);
+		for (auto& id : new_ids) elements.at(id)->preInit();
+		Utils::println("Solving layout '{}'", path);
+		for (auto& id : rootElements) elements.at(id)->solveLayout();
+		Utils::println("Initializing layout '{}'", path);
+		for (auto& id : new_ids) elements.at(id)->init();
+	}
+	std::unordered_set<std::string> Layout::load(nlohmann::json& data_array) {
+		std::unordered_set<std::string> new_ids;
 		if (!data_array.is_array()) throw std::runtime_error("Layout Error: Top-level JSON must be an array of elements.");
 
 		for (const auto& data : data_array) {
 			std::string id = data.at("id").get<std::string>();
 			std::string type = data.at("type").get<std::string>();
 			if (type != "STYLE") continue;
-			// std::cerr << "Reading style " << data["id"] << std::endl;
+			// std::cout << "Reading style " << data["id"] << std::endl;
 			auto style = std::make_unique<Style>();
 			try { data.get_to(*style); }
 			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize style '{}'. {}", id, e.what())); }
@@ -73,7 +80,7 @@ namespace Dispatch::UI {
 			std::string id = data.at("id").get<std::string>();
 			std::string type = data.at("type").get<std::string>();
 			if (type == "STYLE") continue;
-			// std::cerr << "Reading element " << data["id"] << std::endl;
+			// std::cout << "Reading element " << data["id"] << std::endl;
 			auto el = elementFactory(type);
 			el->layout = this;
 			if (data.contains("subElements")) {
@@ -82,7 +89,7 @@ namespace Dispatch::UI {
 					data["subElement_ids"].push_back(s_id);
 					s_data["father_id"] = id;
 				}
-				load(data.at("subElements"));
+				new_ids.merge(load(data.at("subElements")));
 			}
 			try { data.get_to(*el); }
 			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize element '{}' of type '{}'. {}", id, type, e.what())); }
@@ -90,15 +97,19 @@ namespace Dispatch::UI {
 			if (el->father_id.empty()) rootElements.insert(id);
 
 			elements[id] = std::move(el);
+			new_ids.insert(id);
 		}
-	}
-	void Layout::reload(const std::string& path) {
-		json data_array = Utils::readJsonFile(path);
-		Utils::println("Reloading layout '{}'", path);
-		rootElements.clear();
-		reload(data_array);
 
-		for (auto& [id, _] : elements) {
+		return new_ids;
+	}
+	std::unordered_set<std::string> Layout::reload(const std::string& new_path) {
+		json data_array = Utils::readJsonFile(new_path);
+		Utils::println("Reloading layout '{}'", new_path);
+		path = new_path;
+		rootElements.clear();
+		auto new_ids = reload(data_array);
+
+		for (auto& id : new_ids) {
 			auto& el = *elements[id].get();
 			if (!el.father_id.empty() && !elements.count(el.father_id)) {
 				throw std::runtime_error(std::format("Layout Error: Father id '{}' for element '{}' is not present in the layout", el.father_id, el.id));
@@ -114,18 +125,23 @@ namespace Dispatch::UI {
 		}
 
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
-		for (const std::string& id : rootElements) elements.at(id)->solveLayout();
+
+		for (auto& id : new_ids) elements.at(id)->preInit();
+		for (auto& id : rootElements) elements.at(id)->solveLayout();
+		for (auto& id : new_ids) elements.at(id)->init();
 
 		Utils::println("Layout '{}' reloaded successfully.", path);
+		return new_ids;
 	}
-	void Layout::reload(json& data_array) {
+	std::unordered_set<std::string> Layout::reload(json& data_array) {
 		if (!data_array.is_array()) throw std::runtime_error("Layout Reload Error: Top-level JSON must be an array of elements.");
+		std::unordered_set<std::string> new_ids;
 
 		for (const auto& data : data_array) {
 			std::string id = data.at("id").get<std::string>();
 			if (data.at("type").get<std::string>() != "STYLE") continue;
 			if (!styles.count(id)) throw std::runtime_error("Layout Reload Error: New styles cannot be added via hot reload.");
-			std::cerr << "Reloading style " << id << std::endl;
+			std::cout << "Reloading style " << id << std::endl;
 			auto& style = *(styles.at(id).get());
 			try { data.get_to(style); }
 			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Reload Error: Failed to deserialize style '{}'. {}", id, e.what())); }
@@ -136,20 +152,24 @@ namespace Dispatch::UI {
 			std::string type = data.at("type").get<std::string>();
 			if (type == "STYLE") continue;
 			if (!elements.count(id)) throw std::runtime_error("Layout Reload Error: New elements cannot be added via hot reload.");
-			std::cerr << "Reloading style " << id << std::endl;
+			std::cout << "Reloading style " << id << std::endl;
 			auto& el = *(elements.at(id).get());
 			if (data.contains("subElements")) {
 				for (json& s_data : data.at("subElements")) {
 					data["subElement_ids"].push_back(s_data.at("id"));
 					s_data["father_id"] = id;
 				}
-				reload(data.at("subElements"));
+				new_ids.merge(reload(data.at("subElements")));
 			}
 			try { data.get_to(el); }
 			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Reload Error: Failed to deserialize element '{}' of type '{}'. {}", id, type, e.what())); }
 			if (el.father_id.empty()) rootElements.insert(id);
+			new_ids.insert(id);
 		}
+
+		return new_ids;
 	}
+
 	void Layout::sync() {
 		if (needsRebuild.empty()) return;
 		for (const std::string& id : needsRebuild) if (elements.contains(id)) elements.at(id)->rebuild();
@@ -204,7 +224,7 @@ namespace Dispatch::UI {
 	}
 
 	// Element
-	const float Element::side(Side side, Bound bound) const {
+	float Element::side(Side side, Bound bound) const {
 		const auto& rect = this->rect(bound);
 		switch (side) {
 			case Side::TOP:
@@ -229,9 +249,15 @@ namespace Dispatch::UI {
 		if (!initialized) throw std::runtime_error("Element bounding rect requested before initialization");
 		return boundsMap.at(bound);
 	}
-	const bool Element::colidesWith(const Element& other) const { return rect().CheckCollision(other.rect()); }
-	const bool Element::colidesWith(const raylib::Vector2& other) const { return rect().CheckCollision(other); }
-	const bool Element::colidesWith(const raylib::Rectangle& other) const { return rect().CheckCollision(other); }
+	bool Element::colidesWith(const Element& other) const { return rect().CheckCollision(other.rect()); }
+	bool Element::colidesWith(const raylib::Vector2& other) const { return rect().CheckCollision(other); }
+	bool Element::colidesWith(const raylib::Rectangle& other) const { return rect().CheckCollision(other); }
+
+	void Element::preInit() {
+		applyStyles();
+		changeStatus(Status::REGULAR, true);
+	}
+	void Element::init() {}
 	void Element::render() {
 		if (!visible) return;
 		if (resortSub) sortSubElements(true);
@@ -350,12 +376,12 @@ namespace Dispatch::UI {
 		boundsMap[Bound::REGULAR].width = size.x;
 		boundsMap[Bound::REGULAR].height = size.y;
 	}
-	void Element::sortSubElements(bool z_order) {
+	void Element::sortSubElements(bool use_z_order) {
 		resortSub = false;
 
 		auto& elements = layout->elements;
 		// Sort based on the z_order member
-		if (z_order) {
+		if (use_z_order) {
 			std::sort(BEGEND(subElement_ids), [&](const auto& lhs, const auto& rhs) { return elements.at(lhs)->z_order < elements.at(rhs)->z_order; });
 			return;
 		}
@@ -435,7 +461,8 @@ namespace Dispatch::UI {
 		// 4. Update the vector
 		subElement_ids = std::move(sortedIds);
 	}
-	void Element::changeStatus(Status st, bool force) { status = st; }
+	std::string Element::sharedDataDefault() const { return "???"; }
+	void Element::changeStatus(Status st, bool /* force */) { status = st; }
 	void Element::applyStyles(bool force) {
 		for (const std::string& style_id : style_ids) applyStyle(style_id, force);
 	}
@@ -484,21 +511,23 @@ namespace Dispatch::UI {
 		else return false;
 		return true;
 	}
-	void Element::parseString(const std::string& orig) {
+	void Element::parseString(const std::string& orig_str) {
 		static const std::regex pattern{R"(\{@([^}]+)\})"};
-		std::sregex_token_iterator iter(BEGEND(orig), pattern, 1);
+		std::sregex_token_iterator iter(BEGEND(orig_str), pattern, 1);
 		std::sregex_token_iterator end;
 
 		if (iter == end) return;
-		for (; iter != end; ++iter) layout->registerSharedDataListener(*iter, id);
+		for (; iter != end; ++iter) {
+			layout->registerSharedDataListener(*iter, id);
+		}
 	}
-	std::string Element::updateString(const std::string& orig) {
+	std::string Element::updateString(const std::string& orig_str) {
 		static const std::regex pattern{R"(\{@([^}]+)\})"};
 
 		std::string result;
-		result.reserve(orig.size());
+		result.reserve(orig_str.size());
 
-		auto it = std::sregex_iterator(BEGEND(orig), pattern);
+		auto it = std::sregex_iterator(BEGEND(orig_str), pattern);
 		auto end = std::sregex_iterator();
 		
 		size_t lastPos = 0;
@@ -507,25 +536,31 @@ namespace Dispatch::UI {
 			const std::smatch& match = *it;
 			
 			// 1. Append the text between the last match and this one
-			result.append(orig, lastPos, match.position(0) - lastPos);
+			result.append(orig_str, lastPos, match.position(0) - lastPos);
 			
 			// 2. Lookup the replacement
 			std::string key = match[1].str();
 			auto dataIt = layout->sharedData.find(key);
 			
 			if (dataIt != layout->sharedData.end()) result.append(dataIt->second.get<std::string>());
-			else result.append("???");
+			else result.append(sharedDataDefault());
 
 			// 3. Move the cursor forward
 			lastPos = match.position(0) + match.length(0);
 		}
 
 		// 4. Append any remaining text after the last match
-		result.append(orig, lastPos, std::string::npos);
+		result.append(orig_str, lastPos, std::string::npos);
 		
 		return result;
 	}
 	// Text
+	void Text::preInit() {
+		Element::preInit();
+		parseString(text);
+		text = updateString(text);
+		// font = Utils::getFont(fontName);
+	}
 	void Text::_render() {
 		Element::_render();
 		raylib::Rectangle rect = innerRect();
@@ -541,7 +576,9 @@ namespace Dispatch::UI {
 			rect.width
 		);
 	}
-	void Text::onSharedDataUpdate(const std::string& key, const json& value) { text = updateString(orig.at("text").get<std::string>()); }
+	void Text::onSharedDataUpdate(const std::string& /* key */, const json& /* value */) {
+		text = updateString(orig.at("text").get<std::string>());
+	}
 	bool Text::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (Element::applyStylePart(key, value)) ;
 		else if (key == "fontSize") value.get_to(fontSize);
@@ -552,35 +589,6 @@ namespace Dispatch::UI {
 		else if (key == "textAnchor") value.get_to(textAnchor);
 		else return false;
 		return true;
-	}
-	// Image
-	void Image::_render() {
-		Element::_render();
-		if (texture.IsValid()) {
-			Utils::drawTextureAnchored(
-				texture,
-				rect(),
-				tintColor,
-				fillType,
-				imageAnchor
-			);
-		}
-	}
-	bool Image::applyStylePart(const std::string& key, const nlohmann::json& value) {
-		if (Element::applyStylePart(key, value)) ;
-		else if (key == "path") value.get_to(path);
-		else if (key == "placeholder") value.get_to(placeholder);
-		else if (key == "fillType") value.get_to(fillType);
-		else if (key == "imageAnchor") value.get_to(imageAnchor);
-		else if (key == "tintColor") value.get_to(tintColor);
-		else return false;
-		return true;
-	}
-	void Image::onSharedDataUpdate(const std::string& key, const json& value) {
-		path = updateString(orig.at("path").get<std::string>());
-		if (path != "???") texture.Load(path);
-		else if (!placeholder.empty()) texture.Load(placeholder);
-		else texture.Unload();
 	}
 	// Button
 	void Button::solveSize() {
@@ -644,6 +652,15 @@ namespace Dispatch::UI {
 		return true;
 	}
 	// RadioButton
+	void RadioButton::preInit() {
+		Button::preInit();
+		if (orig.contains("selected")) {
+			layout->updateSharedData(key, id);
+			changeStatus(Status::SELECTED);
+		}
+		layout->registerSharedDataListener(key, id);
+	}
+
 	void RadioButton::_handleInput(raylib::Vector2 offset) {
 		Button::_handleInput(offset);
 		if (release) layout->updateSharedData(key, id);
@@ -654,6 +671,51 @@ namespace Dispatch::UI {
 		if (value == id) changeStatus(Status::SELECTED);
 		else if (status == Status::SELECTED) changeStatus(Status::REGULAR);
 	}
+	// Image
+	void Image::init() {
+		Element::init();
+		parseString(imgPath);
+		parseString(imgKey);
+		parseString(placeholderPath);
+		parseString(placeholderKey);
+		onSharedDataUpdate("", {});
+	}
+	void Image::_render() {
+		Element::_render();
+		auto& TM = TextureManager::inst();
+		if (TM.has(imgKey) || TM.has(placeholderKey)) {
+			auto& texture = TM.has(imgKey) ? TM[imgKey] : TM[placeholderKey];
+			Utils::drawTextureAnchored(
+				texture,
+				rect(),
+				tintColor,
+				fillType,
+				imageAnchor
+			);
+		}
+	}
+	bool Image::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (Element::applyStylePart(key, value)) ;
+		else if (key == "imgPath") value.get_to(imgPath);
+		else if (key == "imgKey") value.get_to(imgKey);
+		else if (key == "placeholderPath") value.get_to(placeholderPath);
+		else if (key == "placeholderKey") value.get_to(placeholderKey);
+		else if (key == "fillType") value.get_to(fillType);
+		else if (key == "imageAnchor") value.get_to(imageAnchor);
+		else if (key == "tintColor") value.get_to(tintColor);
+		else return false;
+		return true;
+	}
+	void Image::onSharedDataUpdate(const std::string& /* key */, const json& /* value */) {
+		auto& TM = TextureManager::inst();
+		if (orig.contains("imgKey")) imgKey = updateString(orig.at("imgKey").get<std::string>());
+		if (orig.contains("imgPath")) imgPath = updateString(orig.at("imgPath").get<std::string>());
+		if (orig.contains("placeholderKey")) placeholderKey = updateString(orig.at("placeholderKey").get<std::string>());
+		if (orig.contains("placeholderPath")) placeholderPath = updateString(orig.at("placeholderPath").get<std::string>());
+		if (!imgKey.empty()) { if (!TM.has(imgKey)) TM.load(imgPath, imgKey); }
+		else if (!placeholderKey.empty()) { if (!TM.has(placeholderKey)) TM.load(placeholderPath, placeholderKey); }
+	}
+	std::string Image::sharedDataDefault() const { return ""; }
 	// RadarGraph
 	void RadarGraph::_render() {
 		raylib::Rectangle rect = innerRect();
@@ -763,7 +825,7 @@ namespace Dispatch::UI {
 		for (const std::string& el_id : subElement_ids) elements.at(el_id)->handleInput(offset + scrollOffset);
 		_handleInput(offset);
 	}
-	void ScrollBox::_handleInput(raylib::Vector2 offset) {
+	void ScrollBox::_handleInput(raylib::Vector2 /* offset */) {
 		Box::_handleInput();
 
 		if (hovered) {
@@ -783,8 +845,8 @@ namespace Dispatch::UI {
 	void ScrollBox::solveLayout() {
 		Element::solveLayout();
 		contentSize = raylib::Vector2{};
-		for (std::string id : subElement_ids) {
-			Element* el = layout->elements[id].get();
+		for (std::string s_id : subElement_ids) {
+			Element* el = layout->elements[s_id].get();
 			contentSize.x = std::max(contentSize.x, el->side(Side::END, Bound::OUTTER));
 			contentSize.y = std::max(contentSize.y, el->side(Side::BOTTOM, Bound::OUTTER));
 		}
@@ -799,7 +861,14 @@ namespace Dispatch::UI {
 		return true;
 	}
 	// DataInspector
-	void DataInspector::onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {
+	void DataInspector::init() {
+		ScrollBox::init();
+		fixedChilds.clear();
+		fixedChilds = std::unordered_set<std::string>{BEGEND(subElement_ids)};
+		layout->registerSharedDataListener(dataPath, id);
+		if (layout->sharedData.contains(dataPath)) rebuild();
+	}
+	void DataInspector::onSharedDataUpdate(const std::string& key, const nlohmann::json& /* value */) {
 		if (key == dataPath) layout->needsRebuild.insert(id);
 	}
 	void DataInspector::rebuild() {
@@ -825,6 +894,7 @@ namespace Dispatch::UI {
 		}
 
 		if (data.is_object() || data.is_array()) {
+			Utils::println("Loading dynamic children of element '{}'", id);
 			for (auto& [key, value] : data.items()) {
 				std::string row_id = std::format("{}_row_{}", id, key), text;
 				if (data.is_object()) {
@@ -890,7 +960,12 @@ namespace Dispatch::UI {
 			}
 		} else return;
 
+		Utils::println("Pre-initializing dynamic children of element '{}'", id);
+		for (auto& s_id : subElement_ids) layout->elements.at(s_id)->preInit();
+		Utils::println("Solving Layout of dynamic children of element '{}'", id);
 		solveLayout();
+		Utils::println("Initializing dynamic children of element '{}'", id);
+		for (auto& s_id : subElement_ids) layout->elements.at(s_id)->init();
 	}
 	bool DataInspector::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (ScrollBox::applyStylePart(key, value)) ;
@@ -902,20 +977,34 @@ namespace Dispatch::UI {
 		return true;
 	}
 	// DataArray
-	void DataArray::onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {
+	void DataArray::init() {
+		ScrollBox::init();
+		if (!dataPath.empty()) {
+			layout->registerSharedDataListener(dataPath, id);
+			if (layout->sharedData.contains(dataPath)) rebuild();
+		} else rebuild();
+	}
+	void DataArray::onSharedDataUpdate(const std::string& key, const nlohmann::json& /* value */) {
 		if (key == dataPath) layout->needsRebuild.insert(id);
 	}
 	void DataArray::rebuild() {
-		json& data = layout->sharedData[dataPath];
-		std::vector<std::string> children = data.get<std::vector<std::string>>();
+		std::vector<std::string> children;
+		if (dataPath.empty()) {
+			children = curChildren;
+			if (!subElement_ids.empty()) return;
+		} else {
+			json& data = layout->sharedData[dataPath];
+			children = data.get<std::vector<std::string>>();
+			if (children == curChildren) return;
 
-		if (children == curChildren) return;
-
-		for (const std::string& child : curChildren) {
-			const std::string& child_id = std::format("{}.children.{}", id, child);
-			layout->removeElement(child_id, "needsRebuild");
+			for (const std::string& child : curChildren) {
+				const std::string& child_id = std::format("{}.children.{}", id, child);
+				layout->removeElement(child_id, "needsRebuild");
+			}
+			subElement_ids.clear();
 		}
-		subElement_ids.clear(); subElement_ids.reserve(children.size());
+
+		subElement_ids.reserve(children.size());
 
 		std::string last_id = "";
 
@@ -979,9 +1068,17 @@ namespace Dispatch::UI {
 			last_id = child_id;
 			idx++;
 		}
-		layout->load(ja);
+
+		Utils::println("Loading dynamic children of element '{}': {}", id, json{subElement_ids}.dump());
+		auto new_ids = layout->load(ja);
 		curChildren = children;
+
+		Utils::println("Pre-initializing dynamic children of element '{}'", id);
+		for (auto& s_id : new_ids) layout->elements.at(s_id)->preInit();
+		Utils::println("Solving layout of dynamic children of element '{}'", id);
 		solveLayout();
+		Utils::println("Initializing dynamic children of element '{}'", id);
+		for (auto& s_id : new_ids) layout->elements.at(s_id)->init();
 	}
 
 	// JSON Serialization Macros
@@ -1059,7 +1156,6 @@ namespace Dispatch::UI {
 		READREQ(j, verticalConstraint);
 		READREQ(j, horizontalConstraint);
 		READ(j, style_ids);
-		applyStyles();
 
 		if (j.contains("verticalConstraint")) {
 			auto& vc = j["verticalConstraint"];
@@ -1093,9 +1189,6 @@ namespace Dispatch::UI {
 		READ(j, fontName);
 		READ(j, fontColor);
 		READ(j, textAnchor);
-		// font = Utils::getFont(fontName);
-		parseString(text);
-		text = updateString(text);
 	}
 	void Button::to_json(nlohmann::json& j) const {
 		auto& inst = *this;
@@ -1109,7 +1202,6 @@ namespace Dispatch::UI {
 				std::string sts{json{st}.dump()}; sts = sts.substr(2, sts.size()-4);
 				if (j["statusChanges"].contains(sts)) j["statusChanges"][sts].get_to(statusChanges[st]);
 			}
-			changeStatus(Status::REGULAR, true);
 		}
 	}
 	void RadioButton::to_json(nlohmann::json& j) const {
@@ -1121,11 +1213,6 @@ namespace Dispatch::UI {
 		auto& inst = *this;
 		Button::from_json(j);
 		READ(j, key);
-		if (j.contains("selected")) {
-			layout->updateSharedData(key, id);
-			changeStatus(Status::SELECTED);
-		}
-		layout->registerSharedDataListener(key, id);
 	}
 	void Circle::to_json(json& j) const {
 		auto& inst = *this;
@@ -1162,8 +1249,10 @@ namespace Dispatch::UI {
 	void Image::to_json(json& j) const {
 		auto& inst = *this;
 		Element::to_json(j);
-		WRITE(path);
-		WRITE(placeholder);
+		if (!imgPath.empty()) WRITE(imgPath);
+		if (!imgKey.empty()) WRITE(imgKey);
+		if (!placeholderPath.empty()) WRITE(placeholderPath);
+		if (!placeholderKey.empty()) WRITE(placeholderKey);
 		WRITE(fillType);
 		WRITE(imageAnchor);
 		WRITE(tintColor);
@@ -1171,13 +1260,13 @@ namespace Dispatch::UI {
 	void Image::from_json(const json& j) {
 		auto& inst = *this;
 		Element::from_json(j);
-		READREQ(j, path);
-		READ(j, placeholder);
+		READ(j, imgPath);
+		READREQ(j, imgKey);
+		READ(j, placeholderPath);
+		READ(j, placeholderKey);
 		READ(j, fillType);
 		READ(j, imageAnchor);
 		READ(j, tintColor);
-		parseString(path);
-		onSharedDataUpdate("", {});
 	}
 	void RadarGraph::to_json(json& j) const {
 		auto& inst = *this;
@@ -1243,6 +1332,15 @@ namespace Dispatch::UI {
 		READ(j, scrollX);
 		READ(j, scrollY);
 	}
+	void DataInspector::to_json(nlohmann::json& j) const {
+		auto& inst = *this;
+		ScrollBox::to_json(j);
+		WRITE(dataPath);
+		WRITE(labelFontSize);
+		WRITE(valueFontSize);
+		WRITE(itemSpacing);
+		WRITE(orientation);
+	}
 	void DataInspector::from_json(const nlohmann::json& j) {
 		auto& inst = *this;
 		READREQ(j, dataPath);
@@ -1255,35 +1353,20 @@ namespace Dispatch::UI {
 			scrollY = false;
 		}
 		ScrollBox::from_json(j);
-
-		fixedChilds.clear();
-		fixedChilds = std::unordered_set<std::string>{BEGEND(subElement_ids)};
-		layout->registerSharedDataListener(dataPath, id);
-		if (layout->sharedData.contains(dataPath)) rebuild();
-	}
-	void DataInspector::to_json(nlohmann::json& j) const {
-		auto& inst = *this;
-		ScrollBox::to_json(j);
-		WRITE(dataPath);
-		WRITE(labelFontSize);
-		WRITE(valueFontSize);
-		WRITE(itemSpacing);
-		WRITE(orientation);
-	}
-	void DataArray::from_json(const nlohmann::json& j) {
-		auto& inst = *this;
-		READREQ(j, dataPath);
-		READREQ(j, childTemplate);
-		ScrollBox::from_json(j);
-
-		layout->registerSharedDataListener(dataPath, id);
-		if (layout->sharedData.contains(dataPath)) rebuild();
 	}
 	void DataArray::to_json(nlohmann::json& j) const {
 		auto& inst = *this;
 		ScrollBox::to_json(j);
 		WRITE(dataPath);
 		WRITE(childTemplate);
+	}
+	void DataArray::from_json(const nlohmann::json& j) {
+		auto& inst = *this;
+		READREQ(j, childTemplate);
+		READ(j, dataPath);
+		READ2(j, curChildren, children);
+		if (dataPath.empty() && curChildren.empty()) throw std::runtime_error("DataArray needs either dataPath or children");
+		ScrollBox::from_json(j);
 	}
 }
 

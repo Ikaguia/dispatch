@@ -1,8 +1,6 @@
 TODO:
 
 - Other layout files.
-- Change string maps for hash maps or unordered string maps.
-- Texture Manager.
+- Font Manager.
 - Input Manager.
-- Z ordering.
 - Hero attributes memorization?

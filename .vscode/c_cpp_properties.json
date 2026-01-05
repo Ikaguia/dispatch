@@ -5,8 +5,9 @@
             "includePath": [
                 "C:/raylib/raylib/src/**",
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/include/raylib-cpp/**",
-                "${workspaceFolder}/include/**"
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/external/raylib-cpp/**",
+                "${workspaceFolder}/external/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -26,8 +27,9 @@
             "includePath": [
                 "<path_to_raylib>/src/**",
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/include/raylib-cpp/**",
-                "${workspaceFolder}/include/**"
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/external/raylib-cpp/**",
+                "${workspaceFolder}/external/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -49,8 +51,9 @@
             "includePath": [
                 "<path_to_raylib>/src/**",
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/include/raylib-cpp/**",
-                "${workspaceFolder}/include/**"
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/external/raylib-cpp/**",
+                "${workspaceFolder}/external/**"
             ],
             "defines": [
                 "_DEBUG",

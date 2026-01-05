@@ -16,45 +16,45 @@ using nlohmann::json;
 #include <HeroesHandler.hpp>
 
 Mission::Mission(
-	const std::string& name,
-	const std::string& type,
-	const std::string& caller,
-	const std::string& description,
-	const std::string& failureMsg,
-	const std::string& failureMission,
-	const std::string& successMsg,
-	const std::string& successMission,
-	const std::vector<std::string>& requirements,
-	raylib::Vector2 position,
-	const std::unordered_map<std::string, int> &attr,
-	int slots,
-	int difficulty,
-	float failureTime,
-	float missionDuration,
-	float failureMissionTime,
-	float successMissionTime,
-	bool dangerous
+	const std::string& new_name,
+	const std::string& new_type,
+	const std::string& new_caller,
+	const std::string& new_description,
+	const std::string& new_failureMsg,
+	const std::string& new_failureMission,
+	const std::string& new_successMsg,
+	const std::string& new_successMission,
+	const std::vector<std::string>& new_requirements,
+	raylib::Vector2 new_position,
+	const std::unordered_map<std::string, int> &new_requiredAttributes,
+	int new_slots,
+	int new_difficulty,
+	float new_failureTime,
+	float new_missionDuration,
+	float new_failureMissionTime,
+	float new_successMissionTime,
+	bool new_dangerous
 ) :
-	name{name},
-	type{type},
-	caller{caller},
-	description{description},
-	failureMsg{failureMsg},
-	failureMission{failureMission},
-	successMsg{successMsg},
-	successMission{successMission},
-	requirements{requirements},
-	position{position},
+	name{new_name},
+	type{new_type},
+	caller{new_caller},
+	description{new_description},
+	failureMsg{new_failureMsg},
+	failureMission{new_failureMission},
+	successMsg{new_successMsg},
+	successMission{new_successMission},
+	requirements{new_requirements},
+	position{new_position},
 	requiredAttributes{},
-	slots{slots},
-	difficulty{difficulty},
-	failureTime{failureTime},
-	missionDuration{missionDuration},
-	failureMissionTime{failureMissionTime},
-	successMissionTime{successMissionTime},
-	dangerous{dangerous}
+	slots{new_slots},
+	difficulty{new_difficulty},
+	failureTime{new_failureTime},
+	missionDuration{new_missionDuration},
+	failureMissionTime{new_failureMissionTime},
+	successMissionTime{new_successMissionTime},
+	dangerous{new_dangerous}
 {
-	for (auto [attrName, value] : attr) {
+	for (auto [attrName, value] : new_requiredAttributes) {
 		Attribute attribute = Attribute::fromString(attrName);
 		requiredAttributes[attribute] = value;
 	}
@@ -86,20 +86,20 @@ void Mission::validate() const {
 }
 
 
-void Mission::toggleHero(const std::string& name) {
-	bool assigned = assignedHeroes.contains(name);
-	if (assigned) unassignHero(name);
-	else assignHero(name);
+void Mission::toggleHero(const std::string& hero_name) {
+	bool assigned = assignedHeroes.contains(hero_name);
+	if (assigned) unassignHero(hero_name);
+	else assignHero(hero_name);
 }
 
-void Mission::assignHero(const std::string& name) {
-	auto& hero = HeroesHandler::inst()[name];
+void Mission::assignHero(const std::string& hero_name) {
+	auto& hero = HeroesHandler::inst()[hero_name];
 	int cnt = (int)(assignedHeroes.size());
 	if (cnt < slots && hero.status == Hero::AVAILABLE) {
-		assignedHeroes.insert(name);
+		assignedHeroes.insert(hero_name);
 		for (int i = 0; i < slots; i++) {
 			if (assignedSlots[i].empty()) {
-				assignedSlots[i] = name;
+				assignedSlots[i] = hero_name;
 				break;
 			}
 		}
@@ -109,12 +109,12 @@ void Mission::assignHero(const std::string& name) {
 	updateLayout(layout, "assignedHeroes");
 }
 
-void Mission::unassignHero(const std::string& name) {
-	auto& hero = HeroesHandler::inst()[name];
-	if (assignedHeroes.contains(name)) {
-		assignedHeroes.erase(name);
+void Mission::unassignHero(const std::string& hero_name) {
+	auto& hero = HeroesHandler::inst()[hero_name];
+	if (assignedHeroes.contains(hero_name)) {
+		assignedHeroes.erase(hero_name);
 		for (int i = 0; i < slots; i++) {
-			if (assignedSlots[i] == name) {
+			if (assignedSlots[i] == hero_name) {
 				assignedSlots[i].clear();
 				break;
 			}
@@ -132,11 +132,11 @@ void Mission::changeStatus(Status newStatus) {
 
 	if (oldStatus == Mission::PENDING && newStatus == Mission::SELECTED) {}
 	else if (oldStatus == Mission::SELECTED && newStatus == Mission::PENDING) {
-		for (auto& name : assignedHeroes) HeroesHandler::inst()[name].changeStatus(Hero::AVAILABLE, {}, 0.0f);
+		for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::AVAILABLE, {}, 0.0f);
 		assignedHeroes.clear();
 		for (auto& slot : assignedSlots) if (!slot.empty()) slot.clear();
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) {
-		for (auto name : assignedHeroes) HeroesHandler::inst()[name].changeStatus(Hero::TRAVELLING);
+		for (auto hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::TRAVELLING);
 	} else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::DISRUPTION) {
 		curDisruption++;
@@ -145,15 +145,13 @@ void Mission::changeStatus(Status newStatus) {
 		auto& disruption = disruptions[curDisruption];
 		for (auto& option : disruption.options) {
 			if (option.type == Disruption::Option::HERO) {
-				option.disabled = !std::any_of(BEGEND(assignedHeroes), [&](auto& name){
-					return HeroesHandler::inst()[name].name == option.hero;
-				});
+				option.disabled = !std::any_of(BEGEND(assignedHeroes), [&](auto& hero_name){ return hero_name == option.hero; });
 			} else option.disabled = false;
 		}
 	} else if (oldStatus == Mission::DISRUPTION && newStatus == Mission::PROGRESS) {
 		disrupted = true;
 		curDisruption = disruptions.size();
-	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) for (auto& name : assignedHeroes) HeroesHandler::inst()[name].changeStatus(Hero::RETURNING);
+	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::RETURNING);
 	else if (oldStatus == Mission::AWAITING_REVIEW) Utils::println("Mission {} completed, it was a {}", name, newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure");
 	else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		if (oldStatus == Mission::REVIEWING_SUCESS && !disrupted) {
@@ -162,18 +160,18 @@ void Mission::changeStatus(Status newStatus) {
 			float difficultyMult = std::sqrt(difficulty);
 			float heroCountDiv = std::sqrt(assignedHeroes.size());
 			int exp = 500 * chanceMult * difficultyMult / heroCountDiv;
-			for (auto& name : assignedHeroes) HeroesHandler::inst()[name].addExp(exp);
+			for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].addExp(exp);
 			Utils::println("Each hero gained {} exp", exp);
 			if (!successMission.empty()) MissionsHandler::inst().addMissionToQueue(successMission, successMissionTime);
 		} else if ((oldStatus == Mission::REVIEWING_FAILURE || disrupted) && dangerous) {
-			auto& name = Utils::random_element(assignedHeroes);
-			auto& hero = HeroesHandler::inst()[name];
+			auto& hero_name = Utils::random_element(assignedHeroes);
+			auto& hero = HeroesHandler::inst()[hero_name];
 			hero.wound();
 			Utils::println("{} was wounded", hero.name);
 			if (!failureMission.empty()) MissionsHandler::inst().addMissionToQueue(failureMission, failureMissionTime);
 		}
-		for (auto& name : assignedHeroes) {
-			auto& hero = HeroesHandler::inst()[name];
+		for (auto& hero_name : assignedHeroes) {
+			auto& hero = HeroesHandler::inst()[hero_name];
 			if (hero.status == Hero::AWAITING_REVIEW) hero.changeStatus(Hero::AVAILABLE, {}, 0.0f);
 			else if (hero.status == Hero::WORKING) hero.changeStatus(Hero::RETURNING, {}, 0.0f);
 			else hero.mission.clear();
@@ -188,7 +186,7 @@ void Mission::changeStatus(Status newStatus) {
 }
 
 void Mission::update(float deltaTime) {
-	int working = std::count_if(BEGEND(assignedHeroes), [&](auto& name){ return HeroesHandler::inst()[name].status == Hero::WORKING; });
+	int working = std::count_if(BEGEND(assignedHeroes), [&](auto& hero_name){ return HeroesHandler::inst()[hero_name].status == Hero::WORKING; });
 	switch (status) {
 		case Mission::PENDING:
 			timeElapsed += deltaTime;
@@ -271,11 +269,11 @@ void Mission::renderUI(bool full) {
 		if (status == Mission::SELECTED) btns.emplace_back("DISPATCH", btnStart);
 		auto rects = Utils::splitRect(btnsRect, 1, btns.size(), {2.0f, 0.0f});
 		for (int i = 0; i < (int)btns.size(); i++) {
-			auto [name, rect] = btns[i];
+			auto [hero_name, rect] = btns[i];
 			rect = rects[i];
 			rect.Draw(Dispatch::UI::bgLgt);
 			rect.DrawLines(BLACK);
-			Utils::drawTextCentered(name, Utils::center(rect), Dispatch::UI::fontText, 18, BLACK);
+			Utils::drawTextCentered(hero_name, Utils::center(rect), Dispatch::UI::fontText, 18, BLACK);
 		}
 		if (status == Mission::SELECTED && assignedHeroes.empty()) btnStart.Draw(Fade(Dispatch::UI::bgDrk, 0.6f));
 
@@ -285,9 +283,8 @@ void Mission::renderUI(bool full) {
 		Utils::inset(mainPanel, 2).DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt);
 		if (status == Mission::DISRUPTION_MENU) {
 			auto& disruption = disruptions[curDisruption];
-			auto mainRect = mainPanel;
 
-			Utils::drawTextAnchored(disruption.description, mainRect, Utils::Anchor::top, Dispatch::UI::fontText, Dispatch::UI::textColor, 24, 2, {0.0f, 8.0f}, mainRect.width-8.0f);
+			Utils::drawTextAnchored(disruption.description, mainPanel, Utils::Anchor::top, Dispatch::UI::fontText, Dispatch::UI::textColor, 24, 2, {0.0f, 8.0f}, mainPanel.width-8.0f);
 
 			if (disruption.selected_option == -1) {
 				btnCancel.Draw(Fade(Dispatch::UI::bgDrk, 0.6f));
@@ -307,7 +304,7 @@ void Mission::renderUI(bool full) {
 					auto& button = disruption.optionButtons[i];
 					std::string text = std::format("{} ({})", option.name, option.type == Disruption::Option::HERO ? option.disabled ? "???" : option.hero : option.attribute);
 
-					raylib::Rectangle optionButtonText = Utils::positionTextAnchored(text, mainRect, Utils::Anchor::center, Dispatch::UI::fontText, 16, 2, offset, mainRect.width-8.0f);
+					raylib::Rectangle optionButtonText = Utils::positionTextAnchored(text, mainPanel, Utils::Anchor::center, Dispatch::UI::fontText, 16, 2, offset, mainPanel.width-8.0f);
 					button = Utils::inset(optionButtonText, {-8.0f, -4.0f});
 					button.x -= (totalSize.x - optionButtonText.width) / 2; button.width = totalSize.x+16;
 					button.Draw(Dispatch::UI::bgMed);
@@ -321,12 +318,12 @@ void Mission::renderUI(bool full) {
 				auto opt = disruption.options[disruption.selected_option];
 				bool success = isDisruptionSuccessful();
 				if (opt.type == Disruption::Option::HERO) {
-					auto& name = opt.hero;
-					raylib::Rectangle heroText = Utils::positionTextAnchored(name, mainRect, Utils::Anchor::center, Dispatch::UI::fontText, 36, 2, {0.0f,0.0f}, mainRect.width-8.0f);
+					auto& hero_name = opt.hero;
+					raylib::Rectangle heroText = Utils::positionTextAnchored(hero_name, mainRect, Utils::Anchor::center, Dispatch::UI::fontText, 36, 2, {0.0f,0.0f}, mainRect.width-8.0f);
 					raylib::Rectangle heroRect = Utils::inset(heroText, {-8.0f, -4.0f});
 					heroRect.Draw(Dispatch::UI::bgLgt);
 					heroRect.DrawLines(BLACK);
-					Dispatch::UI::fontText.DrawText(name, heroText.GetPosition(), 36, 2, Dispatch::UI::textColor);
+					Dispatch::UI::fontText.DrawText(hero_name, heroText.GetPosition(), 36, 2, Dispatch::UI::textColor);
 				} else {
 					raylib::Vector2 radarCenter = Utils::center(mainRect) + raylib::Vector2{0.0f, 30.0f};
 					auto totalAttributes = getTotalAttributes();
@@ -407,10 +404,10 @@ void Mission::renderUI(bool full) {
 				// Hero portraits
 				float start = mainPanel.x + (mainPanel.width - (slots*74 - 10)) / 2;
 				raylib::Rectangle heroRect{start, mainPanel.y + mainPanel.height - 74, 64, 64};
-				for (const auto& name : assignedHeroes) {
+				for (const auto& hero_name : assignedHeroes) {
 					heroRect.Draw(Fade(DARKGRAY, 0.5f));
 					heroRect.DrawLines(GRAY);
-					Utils::drawTextCentered(name.substr(0, 9), Utils::center(heroRect), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
+					Utils::drawTextCentered(hero_name.substr(0, 9), Utils::center(heroRect), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
 					// TODO: Draw hero portrait
 					heroRect.x += 74;
 				}
@@ -533,6 +530,7 @@ void Mission::renderUI(bool full) {
 				break;
 			case Mission::PROGRESS:
 				progress = timeElapsed / missionDuration;
+				// fallthrough
 			case Mission::TRAVELLING:
 				text = "🏃";
 				font = &Dispatch::UI::emojiFont;
@@ -661,12 +659,12 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 
 AttrMap<int> Mission::getTotalAttributes() const {
 	AttrMap<int> totalAttributes;
-	for (const auto& name : assignedHeroes) for (const auto& [attr, value] : HeroesHandler::inst()[name].attributes()) totalAttributes[attr] += value;
+	for (const auto& hero_name : assignedHeroes) for (const auto& [attr, value] : HeroesHandler::inst()[hero_name].attributes()) totalAttributes[attr] += value;
 	return totalAttributes;
 }
 int Mission::getTotalAttribute(Attribute attr) const {
 	int total = 0;
-	for (const auto& name : assignedHeroes) total += HeroesHandler::inst()[name].attributes()[attr];
+	for (const auto& hero_name : assignedHeroes) total += HeroesHandler::inst()[hero_name].attributes()[attr];
 	return total;
 }
 

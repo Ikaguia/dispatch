@@ -28,9 +28,9 @@ namespace Dispatch::UI {
 		std::string path;
 
 		Layout(const std::string& path);
-		void load(nlohmann::json& data);
-		void reload(const std::string& path);
-		void reload(nlohmann::json& data);
+		std::unordered_set<std::string> load(nlohmann::json& data);
+		std::unordered_set<std::string> reload(const std::string& path);
+		std::unordered_set<std::string> reload(nlohmann::json& data);
 
 		void sync();
 		void render();
@@ -109,17 +109,19 @@ namespace Dispatch::UI {
 
 		virtual ~Element() = default;
 
-		virtual const float side(Side side, Bound bound = Bound::REGULAR) const;
+		virtual float side(Side side, Bound bound = Bound::REGULAR) const;
 		virtual raylib::Vector2 center() const;
 		virtual raylib::Vector2 anchor(Utils::Anchor anchor = Utils::Anchor::center) const;
 		virtual const raylib::Rectangle& rect(Bound bound = Bound::REGULAR) const;
 		virtual const raylib::Rectangle& outterRect() const { return rect(Bound::OUTTER); }
 		virtual const raylib::Rectangle& innerRect() const { return rect(Bound::INNER); }
 
-		virtual const bool colidesWith(const Element& other) const;
-		virtual const bool colidesWith(const raylib::Vector2& other) const;
-		virtual const bool colidesWith(const raylib::Rectangle& other) const;
+		virtual bool colidesWith(const Element& other) const;
+		virtual bool colidesWith(const raylib::Vector2& other) const;
+		virtual bool colidesWith(const raylib::Rectangle& other) const;
 
+		virtual void preInit();
+		virtual void init();
 		virtual void render();
 		virtual void _render();
 		virtual void handleInput(raylib::Vector2 offset={});
@@ -127,7 +129,8 @@ namespace Dispatch::UI {
 		virtual void solveLayout();
 		virtual void solveSize();
 		virtual void sortSubElements(bool z_order);
-		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {}
+		virtual void onSharedDataUpdate(const std::string& /* key */, const nlohmann::json& /* value */) {}
+		virtual std::string sharedDataDefault() const;
 		virtual void changeStatus(Status st, bool force=false);
 		virtual void rebuild() {};
 		virtual void applyStyles(bool force=false);
@@ -163,11 +166,13 @@ namespace Dispatch::UI {
 		raylib::Color fontColor = textColor;
 		Utils::Anchor textAnchor = Utils::Anchor::center;
 
+		virtual void preInit() override;
 		virtual void _render() override;
-		virtual void from_json(const nlohmann::json& j) override;
-		virtual void to_json(nlohmann::json& j) const override;
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
 	};
 
 	class TextBox : public virtual Box, public virtual Text {};
@@ -198,6 +203,7 @@ namespace Dispatch::UI {
 		virtual void solveSize() override;
 		virtual void changeStatus(Status st, bool force=false) override;
 		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
 	};
@@ -206,10 +212,12 @@ namespace Dispatch::UI {
 	public:
 		std::string key;
 
+		virtual void preInit() override;
 		virtual void _handleInput(raylib::Vector2 offset={}) override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
-		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 	};
 
 	class Circle : public virtual Box {
@@ -231,15 +239,16 @@ namespace Dispatch::UI {
 
 	class Image : public virtual Element {
 	public:
-		raylib::Texture texture;
-		std::string path, placeholder;
+		std::string imgPath, imgKey, placeholderPath, placeholderKey;
 		Utils::FillType fillType = Utils::FillType::fill;
 		Utils::Anchor imageAnchor = Utils::Anchor::center;
 		raylib::Color tintColor = WHITE;
 
+		virtual void init() override;
 		virtual void _render() override;
 		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+		virtual std::string sharedDataDefault() const override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 	};
@@ -293,31 +302,33 @@ namespace Dispatch::UI {
 	};
 
 	class DataInspector : public virtual ScrollBox {
-		public:
-			std::string dataPath;
-			std::unordered_set<std::string> fixedChilds;
-			int labelFontSize = 14;
-			int valueFontSize = 16;
-			float itemSpacing = 10.0f;
-			Orientation orientation=Orientation::VERTICAL;
+	public:
+		std::string dataPath;
+		std::unordered_set<std::string> fixedChilds;
+		int labelFontSize = 14;
+		int valueFontSize = 16;
+		float itemSpacing = 10.0f;
+		Orientation orientation=Orientation::VERTICAL;
 
-			virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
-			virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
-			virtual void from_json(const nlohmann::json& j) override;
-			virtual void to_json(nlohmann::json& j) const override;
-			virtual void rebuild() override;
+		virtual void init() override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
+		virtual void rebuild() override;
 	};
 
 	class DataArray : public virtual ScrollBox {
-			std::vector<std::string> curChildren;
-		public:
-			std::string dataPath;
-			nlohmann::json childTemplate;
+		std::vector<std::string> curChildren;
+	public:
+		std::string dataPath;
+		nlohmann::json childTemplate;
 
-			virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
-			virtual void from_json(const nlohmann::json& j) override;
-			virtual void to_json(nlohmann::json& j) const override;
-			virtual void rebuild() override;
+		virtual void init() override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
+		virtual void rebuild() override;
 	};
 }
 

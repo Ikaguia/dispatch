@@ -59,7 +59,7 @@ void CityMap::renderUI() {
 		Utils::drawTextCentered(std::to_string(i), src, 12, WHITE);
 	}
 }
-void CityMap::update(float elapsedTime) {}
+void CityMap::update(float /* elapsedTime */) {}
 
 int CityMap::closestPoint(raylib::Vector2 p) {
 	int mnIdx = 0, sz = static_cast<int>(points.size());
