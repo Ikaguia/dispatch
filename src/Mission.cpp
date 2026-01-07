@@ -606,7 +606,7 @@ void Mission::handleInput() {
 				layout.resetInput();
 			}
 		} else if (status == Mission::REVIEWING_SUCESS || status == Mission::REVIEWING_FAILURE) {
-			if (layout.clicked.contains("close")) {
+			if (layout.clicked.contains("close-centered")) {
 				changeStatus(Mission::DONE);
 				layout.resetInput();
 			}
@@ -631,14 +631,31 @@ void Mission::handleInput() {
 }
 
 void Mission::setupLayout(Dispatch::UI::Layout& layout) {
+	AttrMap<int> overlap, totalAttributes = getTotalAttributes();
+	for (Attribute::Value attr : Attribute::Values) overlap[attr] = std::min(requiredAttributes[attr], totalAttributes[attr]);
 	layout.updateSharedData("type", type);
 	layout.updateSharedData("caller", caller);
 	layout.updateSharedData("description", description);
 	layout.updateSharedData("name", name);
 	layout.updateSharedData("requirements", Utils::join(requirements, "\n"));
-	Dispatch::UI::Button* dispatch = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("dispatch").get());
-	if (!dispatch) throw std::runtime_error("Mission details layout is missing 'dispatch' element or it is of the wrong type.");
+	layout.updateSharedData("required-attributes", requiredAttributes);
+	layout.updateSharedData("overlap-attributes", overlap);
+	layout.updateSharedData("success-chance", std::format("{}%", getSuccessChance())); // TODO: Add icon "🎯"
+	layout.updateSharedData("review-message", status == Status::REVIEWING_SUCESS ? successMsg : failureMsg);
+
+	layout["main-selected"]->visible = status == Status::SELECTED;
+	layout["main-reviewing"]->visible = (status == Status::REVIEWING_SUCESS) || (status == Status::REVIEWING_FAILURE);
+
+	layout["dispatch"]->visible = status == Status::SELECTED;
+	layout["close"]->visible = status == Status::SELECTED;
+	layout["close-centered"]->visible = status != Status::SELECTED;
+
+	auto* attrGraph = layout.get<Dispatch::UI::AttrGraph>("result-attrs");
+	attrGraph->overlap.color = status == Status::REVIEWING_SUCESS ? GREEN : RED;
+
+	auto* dispatch = layout.get<Dispatch::UI::Button>("dispatch");
 	dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);
+
 	updateLayout(layout, "");
 }
 void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& changed) {
@@ -657,10 +674,9 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 			}
 		}
 		layout.updateSharedData("slot-names", slotNames);
+		layout.updateSharedData("total-attributes", getTotalAttributes());
 
-		layout.updateSharedData("attributes", getTotalAttributes());
-
-		Dispatch::UI::Button* dispatch = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("dispatch").get());
+		auto* dispatch = layout.get<Dispatch::UI::Button>("dispatch");
 		if (!dispatch) throw std::runtime_error("Mission details layout is missing 'dispatch' element or it is of the wrong type.");
 		bool isDisabled = dispatch->status == Dispatch::UI::Element::Status::DISABLED;
 		if (assignedHeroes.empty() && !isDisabled) dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);

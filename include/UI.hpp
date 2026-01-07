@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <typeinfo>
 
 #include <raylib-cpp.hpp>
 #include <nlohmann/json.hpp>
@@ -31,6 +32,16 @@ namespace Dispatch::UI {
 		std::unordered_set<std::string> load(nlohmann::json& data);
 		std::unordered_set<std::string> reload(const std::string& path);
 		std::unordered_set<std::string> reload(nlohmann::json& data);
+
+		const Element* operator[](const std::string& elName) const;
+		Element* operator[](const std::string& elName);
+
+		template <typename T>
+		T* get(const std::string& elName) {
+			T* casted = dynamic_cast<T*>((*this)[elName]);
+			if (!casted) throw std::runtime_error(std::format("Invalid cast of element {} to {}", elName, typeid(T).name()));
+			return casted;
+		}
 
 		void sync();
 		void render();
@@ -266,16 +277,20 @@ namespace Dispatch::UI {
 		};
 		std::vector<Segment> segments;
 		std::vector<Group> groups;
+		Group overlap{std::vector<float>{}, WHITE};
 		float maxValue = 10.0f;
 		int fontSize = 14, precision=0;
-		raylib::Color fontColor=textColor, overlapColor=WHITE, bgLines=bgDrk;
+		raylib::Color fontColor=textColor, bgLines=bgDrk;
 		bool drawLabels=true, drawIcons=false, drawOverlap=true;
 
+		virtual void init() override;
 		virtual void _render() override;
 		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+
+		void calcOverlap();
 	};
 
 	class AttrGraph : public virtual RadarGraph {

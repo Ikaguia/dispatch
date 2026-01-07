@@ -164,7 +164,7 @@ void MissionsHandler::update(float deltaTime) {
 	else for (auto& name : active) {
 		auto& mission = getRef(name);
 		mission.update(deltaTime);
-		if (mission.status == Mission::DONE || mission.status == Mission::MISSED) previous.insert(name);
+		if (mission.status == Mission::DONE || mission.status == Mission::MISSED) finished.insert(name);
 	}
 
 	for (auto& name : finished) {

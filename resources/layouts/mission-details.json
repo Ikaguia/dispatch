@@ -9,6 +9,14 @@
 		"borderThickness": 1
 	}, {
 		"type": "STYLE",
+		"id": "BLANK",
+		"innerColor": "BLANK",
+		"outterColor": "BLANK",
+		"shadowColor": "BLANK",
+		"borderColor": "BLANK",
+		"borderThickness": 0
+	}, {
+		"type": "STYLE",
 		"id": "TEXTBOX4",
 		"innerColor": "BLANK",
 		"outterColor": "BGLGT",
@@ -120,30 +128,84 @@
 						"verticalConstraint": { "start": { "type": "element", "element_id": "title", "side": "bottom" } },
 						"subElements": [
 							{
-								"type": "ATTRGRAPH",
-								"id": "required-attrs",
-								"size": { "x": 0.45, "y": 0.7 },
+								"type": "ELEMENT",
+								"id": "main-selected",
+								"size": { "x": 1.0, "y": 1.0 },
 								"horizontalConstraint": "father-h",
-								"verticalConstraint": { "start": "father-top" },
-								"groups": [ { "values": "{@attributes}", "color": "ORANGE" } ]
+								"verticalConstraint": "father-v",
+								"subElements": [
+									{
+										"type": "ATTRGRAPH",
+										"id": "total-attrs",
+										"size": { "x": 0.45, "y": 0.7 },
+										"horizontalConstraint": "father-h",
+										"verticalConstraint": { "start": "father-top" },
+										"groups": [ { "values": "{@total-attributes}", "color": "ORANGE" } ]
+									}, {
+										"type": "DATAARRAY",
+										"id": "slots",
+										"size": { "x": 0.9, "y": 0.3 },
+										"horizontalConstraint": "father-h",
+										"verticalConstraint": { "end": "father-bottom" },
+										"dataPath": "slot-names",
+										"childTemplate": {
+											"type": "IMAGE",
+											"id": "slot-{$slots}-image",
+											"size": { "x": 0.24, "y": 1.0 },
+											"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": "{$slots|spread}" },
+											"verticalConstraint": { "start": "father-top", "end": "father-bottom" },
+											"imgKey": "{@{$slots}-image-key}",
+											"borderColor": "BLACK",
+											"borderThickness": 1,
+											"innerColor": "GRAY"
+										},
+										"style_ids": ["BLANK"]
+									}
+								]
 							}, {
-								"type": "DATAARRAY",
-								"id": "slots",
-								"size": { "x": 0.9, "y": 0.3 },
+								"type": "ELEMENT",
+								"id": "main-reviewing",
+								"size": { "x": 1.0, "y": 1.0 },
 								"horizontalConstraint": "father-h",
-								"verticalConstraint": { "end": "father-bottom" },
-								"dataPath": "slot-names",
-								"childTemplate": {
-									"type": "IMAGE",
-									"id": "slot-{$slots}-image",
-									"size": { "x": "{$slots|split|0.8}", "y": 1.0 },
-									"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": "{$slots|spread}" },
-									"verticalConstraint": { "start": "father-top", "end": "father-bottom" },
-									"imgKey": "{@{$slots}-image-key}",
-									"borderColor": "BLACK",
-									"borderThickness": 1,
-									"innerColor": "GRAY"
-								}
+								"verticalConstraint": "father-v",
+								"subElements": [
+									{
+										"type": "ATTRGRAPH",
+										"id": "result-attrs",
+										"size": { "x": 0.8, "y": 0.8 },
+										"horizontalConstraint": "father-h",
+										"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.75 },
+										"groups": [
+											{ "values": "{@total-attributes}", "color": "ORANGE" },
+											{ "values": "{@required-attributes}", "color": "WHITE" }
+										]
+									}, {
+										"type": "TEXTBOX",
+										"id": "success-chance",
+										"size": { "x": 0.25, "y": 0.1 },
+										"horizontalConstraint": "father-h",
+										"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.88 },
+										"innerColors": [ "BGMED", "BGMED", "BGDRK", "BGMED" ],
+										"text": "{@success-chance}"
+									}, {
+										"type": "TEXTBOX",
+										"id": "review-message",
+										"size": { "x": 1.0, "y": 0.1 },
+										"horizontalConstraint": "father-h",
+										"verticalConstraint": { "end": "father-bottom" },
+										"text": "{@review-message}",
+										"innerColors": [ "BGDRK", "BGDRK", "BGMED", "BGDRK" ]
+									}
+								],
+								"visible": false
+							}, {
+								"type": "ELEMENT",
+								"id": "main-disruption",
+								"size": { "x": 1.0, "y": 1.0 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": "father-v",
+								"subElements": [],
+								"visible": false
 							}
 						]
 					}, {
@@ -156,6 +218,15 @@
 						"verticalConstraint": { "end": "father-bottom" },
 						"subElements": [
 							{
+								"type": "BUTTON",
+								"id": "close-centered",
+								"father_id": "mapRect",
+								"size": { "x": 0.495, "y": 1.0 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": { "end": "father-bottom" },
+								"text": "CLOSE",
+								"visible": false
+							}, {
 								"type": "BUTTON",
 								"id": "close",
 								"father_id": "mapRect",

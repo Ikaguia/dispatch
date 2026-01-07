@@ -76,8 +76,8 @@ void HeroesHandler::renderUI() {
 }
 
 void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
-	Dispatch::UI::Button* confirm = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("stats-confirm").get());
-	Dispatch::UI::Button* reset = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at("stats-reset").get());
+	auto* confirm = layout.get<Dispatch::UI::Button>("stats-confirm");
+	auto* reset = layout.get<Dispatch::UI::Button>("stats-reset");
 	if (!confirm) throw std::runtime_error("Hero details layout is missing 'stats-confirm' element or it is of the wrong type.");
 	if (!reset) throw std::runtime_error("Hero details layout is missing 'stats-reset' element or it is of the wrong type.");
 
@@ -92,8 +92,8 @@ void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
 		std::string str_minus = std::format("stats-{}-minus", attr_str);
 		std::string str_plus = std::format("stats-{}-plus", attr_str);
 		std::string str_value = std::format("stats-{}-value", attr_str);
-		Dispatch::UI::Button* minus = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at(str_minus).get());
-		Dispatch::UI::Button* plus = dynamic_cast<Dispatch::UI::Button*>(layout.elements.at(str_plus).get());
+		auto* minus = layout.get<Dispatch::UI::Button>(str_minus);
+		auto* plus = layout.get<Dispatch::UI::Button>(str_plus);
 		if (!minus) throw std::runtime_error(std::format("Hero details layout is missing '{}' element or it is of the wrong type.", str_minus));
 		if (!plus) throw std::runtime_error(std::format("Hero details layout is missing '{}' element or it is of the wrong type.", str_plus));
 
@@ -221,7 +221,7 @@ void HeroesHandler::selectHero(const std::string& name) {
 
 void HeroesHandler::changeTab(Tab newTab) {
 	tab = newTab;
-	layoutHeroDetails.elements.at("stats").get()->visible = (tab == UPGRADE);
-	layoutHeroDetails.elements.at("powers").get()->visible = (tab == POWERS);
-	layoutHeroDetails.elements.at("info").get()->visible = (tab == INFO);
+	layoutHeroDetails["stats"]->visible = (tab == UPGRADE);
+	layoutHeroDetails["powers"]->visible = (tab == POWERS);
+	layoutHeroDetails["info"]->visible = (tab == INFO);
 }

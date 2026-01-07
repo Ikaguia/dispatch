@@ -6,6 +6,7 @@
 #include <queue>
 #include <set>
 #include <regex>
+#include <limits>
 
 #include <nlohmann/json.hpp>
 #include <TextureManager.hpp>
@@ -151,6 +152,7 @@ namespace Dispatch::UI {
 			std::string id = data.at("id").get<std::string>();
 			std::string type = data.at("type").get<std::string>();
 			if (type == "STYLE") continue;
+			if (type == "DATAARRAY" || type == "DATAINSPECTOR") continue; // TODO: Make reload work with these two
 			if (!elements.count(id)) throw std::runtime_error("Layout Reload Error: New elements cannot be added via hot reload.");
 			std::cout << "Reloading style " << id << std::endl;
 			auto& el = *(elements.at(id).get());
@@ -169,6 +171,9 @@ namespace Dispatch::UI {
 
 		return new_ids;
 	}
+
+	const Element* Layout::operator[](const std::string& elName) const { return elements.at(elName).get(); }
+	Element* Layout::operator[](const std::string& elName) { return elements.at(elName).get(); }
 
 	void Layout::sync() {
 		if (needsRebuild.empty()) return;
@@ -302,7 +307,7 @@ namespace Dispatch::UI {
 		}
 	}
 	void Element::handleInput(raylib::Vector2 offset) {
-		for (const std::string& el_id : subElement_ids) layout->elements.at(el_id)->handleInput(offset);
+		for (const std::string& el_id : subElement_ids) (*layout)[el_id]->handleInput(offset);
 		_handleInput(offset);
 	}
 	void Element::_handleInput(raylib::Vector2 offset) {
@@ -623,7 +628,7 @@ namespace Dispatch::UI {
 			if (oldSc.z_order_offset != sc.z_order_offset) {
 				z_order -= oldSc.z_order_offset;
 				z_order += sc.z_order_offset;
-				if (!father_id.empty()) layout->elements.at(father_id)->resortSub = true;
+				if (!father_id.empty()) (*layout)[father_id]->resortSub = true;
 			}
 			if (initialized && (size_mult != oldSizeMult)) solveLayout();
 		}
@@ -727,6 +732,10 @@ namespace Dispatch::UI {
 	}
 	std::string Image::sharedDataDefault() const { return ""; }
 	// RadarGraph
+	void RadarGraph::init() {
+		for (auto& [v,_] : groups) if (v.size() != segments.size()) v.resize(segments.size());
+		calcOverlap();
+	}
 	void RadarGraph::_render() {
 		raylib::Rectangle rect = innerRect();
 		raylib::Vector2 center = this->center();
@@ -747,8 +756,8 @@ namespace Dispatch::UI {
 			DrawCircleLines(pos.x, pos.y, 16, borderColor);
 			Utils::drawTextCenteredShadow(icon, pos, emojiFont, 26);
 		}
-		for (auto [values, color] : groups) {
-			if (values.size() != (size_t)sides) continue;
+		auto drawGroup = [&](auto& values, auto& color) {
+			if (values.size() != (size_t)sides) return;
 			std::vector<raylib::Vector2> points;
 			for (int i = 0; i < sides; i++) {
 				float value = values[i];
@@ -774,7 +783,9 @@ namespace Dispatch::UI {
 					Dispatch::UI::defaultFont.DrawText(text, point - sz/2, 12, 2, BLACK);
 				} else if (sideLength > 20) point.DrawCircle(3, color.Fade(0.4f));
 			}
-		}
+		};
+		for (auto [values, color] : groups) drawGroup(values, color);
+		if (drawOverlap && (int)groups.size() > 1) drawGroup(overlap.values, overlap.color);
 	}
 	void RadarGraph::onSharedDataUpdate(const std::string& key, const nlohmann::json& value) {
 		int idx = 0;
@@ -799,6 +810,8 @@ namespace Dispatch::UI {
 				idx++;
 			}
 		}
+		for (auto& [v,_] : groups) if (v.size() != segments.size()) v.resize(segments.size());
+		calcOverlap();
 	}
 	bool RadarGraph::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (Element::applyStylePart(key, value)) ;
@@ -808,13 +821,21 @@ namespace Dispatch::UI {
 		else if (key == "fontSize") value.get_to(fontSize);
 		else if (key == "precision") value.get_to(precision);
 		else if (key == "fontColor") value.get_to(fontColor);
-		else if (key == "overlapColor") value.get_to(overlapColor);
+		else if (key == "overlapColor") value.get_to(overlap.color);
 		else if (key == "bgLines") value.get_to(bgLines);
 		else if (key == "drawLabels") value.get_to(drawLabels);
 		else if (key == "drawIcons") value.get_to(drawIcons);
 		else if (key == "drawOverlap") value.get_to(drawOverlap);
 		else return false;
 		return true;
+	}
+	void RadarGraph::calcOverlap() {
+		if (drawOverlap) {
+			size_t sides = segments.size();
+			if (overlap.values.size() != sides) overlap.values.resize(sides);
+			for (size_t i = 0; i < sides; i++) overlap.values[i] = std::numeric_limits<float>::infinity();
+			for (auto& [v,_] : groups) for (size_t i = 0; i < sides; i++) overlap.values[i] = std::min(overlap.values[i], v[i]);
+		}
 	}
 	// ScrollBox
 	void ScrollBox::render() {
@@ -895,7 +916,7 @@ namespace Dispatch::UI {
 		float bottom = -1;
 
 		for (const std::string& child_id : subElement_ids) {
-			Element* child = layout->elements.at(child_id).get();
+			Element* child = (*layout)[child_id];
 			float c_bottom = child->side(Side::BOTTOM, Bound::OUTTER);
 			if (last_id.empty() || c_bottom > bottom) {
 				last_id = child_id;
@@ -971,11 +992,11 @@ namespace Dispatch::UI {
 		} else return;
 
 		Utils::println("Pre-initializing dynamic children of element '{}'", id);
-		for (auto& s_id : subElement_ids) layout->elements.at(s_id)->preInit();
+		for (auto& s_id : subElement_ids) (*layout)[s_id]->preInit();
 		Utils::println("Solving Layout of dynamic children of element '{}'", id);
 		solveLayout();
 		Utils::println("Initializing dynamic children of element '{}'", id);
-		for (auto& s_id : subElement_ids) layout->elements.at(s_id)->init();
+		for (auto& s_id : subElement_ids) (*layout)[s_id]->init();
 	}
 	bool DataInspector::applyStylePart(const std::string& key, const nlohmann::json& value) {
 		if (ScrollBox::applyStylePart(key, value)) ;
@@ -1039,7 +1060,7 @@ namespace Dispatch::UI {
 			}
 			while (std::regex_search(text, match, pattern_spread)) {
 				int childrenSize = (int)children.size();
-				float calculated = childrenSize == 1 ? 0.5f : idx * (1.0 / (childrenSize-1));
+				float calculated = (childrenSize == 1) ? 0.5f : idx * (1.0 / (childrenSize-1));
 				std::stringstream ss; ss << std::fixed << std::setprecision(2) << calculated;
 				text.replace(match.position(0), match.length(0), ss.str());
 			}
@@ -1085,11 +1106,11 @@ namespace Dispatch::UI {
 		curChildren = children;
 
 		Utils::println("Pre-initializing dynamic children of element '{}'", id);
-		for (auto& s_id : new_ids) layout->elements.at(s_id)->preInit();
+		for (auto& s_id : new_ids) (*layout)[s_id]->preInit();
 		Utils::println("Solving layout of dynamic children of element '{}'", id);
 		solveLayout();
 		Utils::println("Initializing dynamic children of element '{}'", id);
-		for (auto& s_id : new_ids) layout->elements.at(s_id)->init();
+		for (auto& s_id : new_ids) (*layout)[s_id]->init();
 	}
 
 	// JSON Serialization Macros
@@ -1152,13 +1173,15 @@ namespace Dispatch::UI {
 		READ(j, shadowOffset);
 		READ(j, outterMargin);
 		READ(j, innerMargin);
-		READ(j, innerColors);
-		READ(j, outterColors);
-		if (j.contains("innerColor")) {
+		if (j.contains("innerColors")) {
+			READ(j, innerColors);
+		} else if (j.contains("innerColor")) {
 			raylib::Color innerColor = j["innerColor"].get<raylib::Color>();
 			innerColors = {innerColor};
 		}
-		if (j.contains("outterColor")) {
+		if (j.contains("outterColors")) {
+			READ(j, outterColors);
+		} else if (j.contains("outterColor")) {
 			raylib::Color outterColor = j["outterColor"].get<raylib::Color>();
 			outterColors = {outterColor};
 		}
@@ -1166,7 +1189,15 @@ namespace Dispatch::UI {
 		READ(j, shadowColor);
 		READREQ(j, verticalConstraint);
 		READREQ(j, horizontalConstraint);
-		READ(j, style_ids);
+		if (j.contains("style_ids")) {
+			READ(j, style_ids);
+		} else if (j.contains("style_id")) {
+			std::string style_id = j["style_id"].get<std::string>();
+			style_ids = {style_id};
+		} else if (j.contains("style")) {
+			std::string style_id = j["style"].get<std::string>();
+			style_ids = {style_id};
+		}
 
 		if (j.contains("verticalConstraint")) {
 			auto& vc = j["verticalConstraint"];
@@ -1287,7 +1318,7 @@ namespace Dispatch::UI {
 		WRITE(maxValue);
 		WRITE(fontSize);
 		WRITE(fontColor);
-		WRITE(overlapColor);
+		WRITE2(overlap.color, overlapColor);
 		WRITE(drawLabels);
 		WRITE(drawIcons);
 		WRITE(drawOverlap);
@@ -1300,7 +1331,7 @@ namespace Dispatch::UI {
 		READ(j, maxValue);
 		READ(j, fontSize);
 		READ(j, fontColor);
-		READ(j, overlapColor);
+		READ2(j, overlap.color, overlapColor);
 		READ(j, drawLabels);
 		READ(j, drawIcons);
 		READ(j, drawOverlap);
