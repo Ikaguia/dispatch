@@ -597,10 +597,19 @@ void Mission::handleInput() {
 		auto& layout = MissionsHandler::inst().layoutMissionDetails;
 
 		if (status == Mission::SELECTED) {
-			if (layout.clicked.contains("close")) changeStatus(Mission::PENDING);
-			else if (layout.clicked.contains("dispatch") && !assignedHeroes.empty()) changeStatus(Mission::TRAVELLING);
+			if (layout.clicked.contains("close")) {
+				changeStatus(Mission::PENDING);
+				layout.resetInput();
+			}
+			else if (layout.clicked.contains("dispatch") && !assignedHeroes.empty()) {
+				changeStatus(Mission::TRAVELLING);
+				layout.resetInput();
+			}
 		} else if (status == Mission::REVIEWING_SUCESS || status == Mission::REVIEWING_FAILURE) {
-			if (layout.clicked.contains("close")) changeStatus(Mission::DONE);
+			if (layout.clicked.contains("close")) {
+				changeStatus(Mission::DONE);
+				layout.resetInput();
+			}
 		} else if (status == Mission::DISRUPTION_MENU) {
 			auto& disruption = disruptions[curDisruption];
 			if (disruption.selected_option == -1) {
@@ -612,7 +621,10 @@ void Mission::handleInput() {
 				// }
 			} else if (layout.clicked.contains("close")) {
 				disrupted |= !isDisruptionSuccessful();
-				if (++curDisruption == (int)disruptions.size()) changeStatus(Mission::DONE);
+				if (++curDisruption == (int)disruptions.size()) {
+					changeStatus(Mission::DONE);
+					layout.resetInput();
+				}
 			}
 		}
 	}
@@ -634,12 +646,14 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 		std::vector<std::string> slotNames;
 		for (int i = 0; i < slots; i++) {
 			if (assignedSlots[i].empty()) {
-				slotNames.push_back(std::format("{}-empty", i));
-				layout.deleteSharedData(std::format("{}-empty-texture", i));
+				std::string s_key = std::format("{}-empty", i);
+				slotNames.push_back(s_key);
+				layout.deleteSharedData(s_key + "-image-key");
 			} else {
 				auto& hero = HeroesHandler::inst()[assignedSlots[i]];
-				slotNames.push_back(std::format("{}-{}", i, hero.name));
-				layout.updateSharedData(std::format("{}-{}-image", i, hero.name), hero.img_paths["portrait"]);
+				std::string s_key = std::format("{}-{}", i, hero.name);
+				slotNames.push_back(s_key);
+				layout.updateSharedData(s_key + "-image-key", std::format("hero-{}-portrait", hero.name));
 			}
 		}
 		layout.updateSharedData("slot-names", slotNames);

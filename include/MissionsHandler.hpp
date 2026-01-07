@@ -12,6 +12,11 @@
 class MissionsHandler {
 private:
 	MissionsHandler();
+
+	const Mission* get(const std::string& name) const;
+	Mission* get(const std::string& name);
+	const Mission& getRef(const std::string& name) const;
+	Mission& getRef(const std::string& name);
 public:
 	Dispatch::UI::Layout layoutMissionDetails{"resources/layouts/mission-details.json"};
 	std::unordered_map<std::string, std::unique_ptr<Mission>> missions;
@@ -29,6 +34,7 @@ public:
 
 	const Mission& operator[](const std::string& name) const;
 	Mission& operator[](const std::string& name);
+	Mission* selectedMission();
 
 	bool paused() const;
 

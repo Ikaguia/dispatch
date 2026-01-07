@@ -35,6 +35,7 @@ namespace Dispatch::UI {
 		void sync();
 		void render();
 		void handleInput();
+		void resetInput();
 		void updateSharedData(const std::string& key, const nlohmann::json& value);
 		void deleteSharedData(const std::string& key);
 		void registerSharedDataListener(const std::string& key, const std::string& element_id);
@@ -126,6 +127,7 @@ namespace Dispatch::UI {
 		virtual void _render();
 		virtual void handleInput(raylib::Vector2 offset={});
 		virtual void _handleInput(raylib::Vector2 offset={});
+		virtual void resetInput();
 		virtual void solveLayout();
 		virtual void solveSize();
 		virtual void sortSubElements(bool z_order);

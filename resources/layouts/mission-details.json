@@ -139,10 +139,10 @@
 									"size": { "x": "{$slots|split|0.8}", "y": 1.0 },
 									"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": "{$slots|spread}" },
 									"verticalConstraint": { "start": "father-top", "end": "father-bottom" },
-									"path": "{@{$slots}-image}",
+									"imgKey": "{@{$slots}-image-key}",
 									"borderColor": "BLACK",
 									"borderThickness": 1,
-									"innerColor": "DARKGRAY"
+									"innerColor": "GRAY"
 								}
 							}
 						]

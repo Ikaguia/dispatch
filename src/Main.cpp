@@ -1,4 +1,5 @@
 #include <raylib-cpp.hpp>
+#include <nlohmann/json.hpp>
 #include <iostream>
 #include <string>
 
@@ -10,6 +11,8 @@
 #include <TextureManager.hpp>
 #include <CityMap.hpp>
 #include <UI.hpp>
+
+using nlohmann::json;
 
 // raylib::Window window(1920, 1080, "raylib-cpp - basic window"); float bgScale;
 raylib::Window window(960, 540, "raylib-cpp - basic window"); float bgScale;
@@ -65,6 +68,22 @@ int main() {
 			if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 				raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 				std::cout << "mousePos: " << mousePos.x << "," << mousePos.y << std::endl;
+				std::cout << "paused: " << paused << std::endl;
+				std::cout << "heroes:" << std::endl;
+				for (auto& heroName : heroesHandler.roster) {
+					auto& hero = heroesHandler[heroName];
+					std::cout << "	" << heroName << ": " << json{hero.status} << std::endl;
+				}
+				std::cout << "active missions:" << std::endl;
+				for (auto& missionName : missionsHandler.active) {
+					auto& mission = missionsHandler[missionName];
+					std::cout << "	" << missionName << ": " << json{mission.status} << std::endl;
+				}
+				std::cout << "previous missions:" << std::endl;
+				for (auto& missionName : missionsHandler.previous) {
+					auto& mission = missionsHandler[missionName];
+					std::cout << "	" << missionName << ": " << json{mission.status} << std::endl;
+				}
 			}
 
 			target.BeginMode();

@@ -46,7 +46,7 @@ Mission& MissionsHandler::activateMission(const std::string& name) {
 	if (!missions.contains(name)) throw std::invalid_argument("Cannot activate mission that is not loaded");
 	if (active.contains(name)) throw std::invalid_argument("Cannot activate active mission");
 	if (previous.contains(name)) throw std::invalid_argument("Cannot activate completed mission");
-	auto& mission = (*this)[name];
+	auto& mission = getRef(name);
 	active.insert(name);
 	loaded.erase(name);
 	trigger.erase(name);
@@ -111,19 +111,20 @@ Mission& MissionsHandler::createRandomMission(int difficulty, int slots) {
 	return *missions[name].get();
 }
 
-const Mission& MissionsHandler::operator[](const std::string& name) const {
-	return *(missions.at(name).get());
-}
-Mission& MissionsHandler::operator[](const std::string& name) {
-	return *(missions.at(name).get());
-}
+const Mission* MissionsHandler::get(const std::string& name) const { return (missions.at(name).get()); }
+Mission* MissionsHandler::get(const std::string& name) { return (missions.at(name).get()); }
+const Mission& MissionsHandler::getRef(const std::string& name) const { return *get(name); }
+Mission& MissionsHandler::getRef(const std::string& name) { return *get(name); }
+const Mission& MissionsHandler::operator[](const std::string& name) const { return getRef(name); }
+Mission& MissionsHandler::operator[](const std::string& name) { return getRef(name); }
+Mission* MissionsHandler::selectedMission() { return paused() ? get(selected) : (Mission*)nullptr; }
 
 bool MissionsHandler::paused() const { return !selected.empty(); }
 
 void MissionsHandler::selectMission(const std::string& name) {
 	if (!active.count(name)) return;
 	selected = name;
-	(*this)[name].setupLayout(layoutMissionDetails);
+	getRef(name).setupLayout(layoutMissionDetails);
 }
 
 void MissionsHandler::unselectMission() { selected.clear(); }
@@ -136,18 +137,18 @@ void MissionsHandler::addMissionToQueue(const std::string& name, float time) {
 
 
 void MissionsHandler::renderUI() {
-	for (auto& name : active) (*this)[name].renderUI(false);
+	for (auto& name : active) getRef(name).renderUI(false);
 	if (paused()) layoutMissionDetails.render();
 }
 
 void MissionsHandler::handleInput() {
 	if (paused())	{
-		auto& mission = (*this)[selected];
+		auto& mission = getRef(selected);
 		layoutMissionDetails.handleInput();
 		mission.handleInput();
 		if (!mission.isMenuOpen()) unselectMission();
 	} else for (auto& name : active) {
-		auto& mission = (*this)[name];
+		auto& mission = getRef(name);
 		mission.handleInput();
 		if (mission.isMenuOpen()) {
 			selectMission(name);
@@ -159,9 +160,9 @@ void MissionsHandler::handleInput() {
 void MissionsHandler::update(float deltaTime) {
 	std::unordered_set<std::string> finished;
 
-	if (paused()) (*this)[selected].update(deltaTime);
+	if (paused()) getRef(selected).update(deltaTime);
 	else for (auto& name : active) {
-		auto& mission = (*this)[name];
+		auto& mission = getRef(name);
 		mission.update(deltaTime);
 		if (mission.status == Mission::DONE || mission.status == Mission::MISSED) previous.insert(name);
 	}

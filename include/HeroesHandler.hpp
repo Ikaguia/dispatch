@@ -14,6 +14,11 @@ class HeroesHandler {
 private:
 	HeroesHandler();
 	raylib::Rectangle detailsTabButton{895, 166, 30, 32};
+
+	const Hero* get(const std::string& name) const;
+	Hero* get(const std::string& name);
+	const Hero& getRef(const std::string& name) const;
+	Hero& getRef(const std::string& name);
 public:
 	std::unordered_map<std::string, std::unique_ptr<Hero>> heroes;
 	std::vector<std::string> roster;
@@ -30,6 +35,7 @@ public:
 
 	const Hero& operator[](const std::string& name) const;
 	Hero& operator[](const std::string& name);
+	Hero* selectedHero();
 
 	bool paused() const;
 	bool isHeroSelected(const std::string& name) const;

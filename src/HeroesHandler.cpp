@@ -39,12 +39,13 @@ void HeroesHandler::loadHeroes(const std::string& filePath, bool activate) {
 }
 
 
-const Hero& HeroesHandler::operator[](const std::string& name) const {
-	return *(heroes.at(name).get());
-}
-Hero& HeroesHandler::operator[](const std::string& name) {
-	return *(heroes.at(name).get());
-}
+const Hero* HeroesHandler::get(const std::string& name) const { return (heroes.at(name).get()); }
+Hero* HeroesHandler::get(const std::string& name) { return (heroes.at(name).get()); }
+const Hero& HeroesHandler::getRef(const std::string& name) const { return *get(name); }
+Hero& HeroesHandler::getRef(const std::string& name) { return *get(name); }
+const Hero& HeroesHandler::operator[](const std::string& name) const { return getRef(name); }
+Hero& HeroesHandler::operator[](const std::string& name) { return getRef(name); }
+Hero* HeroesHandler::selectedHero() { return paused() ? get(selected) : (Hero*)nullptr; }
 
 bool HeroesHandler::paused() const { return !selected.empty(); }
 
@@ -56,14 +57,14 @@ void HeroesHandler::renderUI() {
 	std::vector<int> Ws = {180, 185, 189, 192, 192, 189, 185, 180};
 	int spacing = (heroesRect.width - heroRect.width * roster.size()) / (roster.size() - 1);
 	for (auto [idx, hero_name] : Utils::enumerate(roster)) {
-		auto& hero = (*this)[hero_name];
+		auto& hero = getRef(hero_name);
 		int i = std::min(idx, (roster.size()-1)-idx);
 		heroRect.width = Ws[i] * bgScale;
 		hero.renderUI(heroRect);
 		heroRect.x += heroRect.width + spacing;
 	}
 
-	int points_available = std::accumulate(BEGEND(roster), 0, [&](int tot, const std::string& hero_name){ return tot + (*this)[hero_name].skillPoints; });
+	int points_available = std::accumulate(BEGEND(roster), 0, [&](int tot, const std::string& hero_name){ return tot + getRef(hero_name).skillPoints; });
 	if (points_available) {
 		auto rect = Utils::anchorRect(detailsTabButton, {15.0f, 15.0f}, Utils::Anchor::topLeft, {}, Utils::AnchorType::center);
 		rect.Draw(Dispatch::UI::bgMed);
@@ -118,7 +119,7 @@ bool HeroesHandler::handleInput() {
 		raylib::Rectangle heroesRect{158*bgScale, 804*bgScale, 1603*bgScale, 236*bgScale};
 		if (heroesRect.CheckCollision(mousePos)) {
 			for (auto [idx, hero_name] : Utils::enumerate(roster)) {
-				auto& hero = (*this)[hero_name];
+				auto& hero = getRef(hero_name);
 				if (hero.uiRect.CheckCollision(mousePos)) {
 					if (missionStatus == Mission::SELECTED) {
 						if ((hero.status != Hero::AVAILABLE && hero.status != Hero::ASSIGNED) || hero.health == Hero::DOWNED) return false;
@@ -132,14 +133,14 @@ bool HeroesHandler::handleInput() {
 			}
 		} else if (detailsTabButton.CheckCollision(mousePos)) {
 			if (selected.empty() || !mission->isMenuOpen()) {
-				auto it = std::find_if(BEGEND(roster), [&](const std::string& hero_name){ return (*this)[hero_name].skillPoints > 0; });
+				auto it = std::find_if(BEGEND(roster), [&](const std::string& hero_name){ return getRef(hero_name).skillPoints > 0; });
 				if (it != roster.end()) selectHero(*it);
 				else selectHero(roster[0]);
 			}
 		}
 	}
 	if (paused()) {
-		auto& hero = (*this)[selected];
+		auto& hero = getRef(selected);
 
 		if (layoutHeroDetails.dataChanged.contains("tab")) {
 			if (layoutHeroDetails.sharedData["tab"] == "tab-upgrades") {
@@ -154,6 +155,7 @@ bool HeroesHandler::handleInput() {
 			}
 		} else if (layoutHeroDetails.release.contains("backButton")) {
 			selectHero("");
+			layoutHeroDetails.resetInput();
 			return true;
 		} else if (layoutHeroDetails.release.contains("stats-reset")) {
 			hero.resetAttributeChanges();
@@ -190,14 +192,14 @@ bool HeroesHandler::handleInput() {
 }
 
 void HeroesHandler::update(float deltaTime) {
-	for (auto& hero_name : roster) (*this)[hero_name].update(deltaTime);
+	for (auto& hero_name : roster) getRef(hero_name).update(deltaTime);
 }
 
 void HeroesHandler::selectHero(const std::string& name) {
 	selected = name;
 
 	if (paused()) {
-		const Hero& hero = (*this)[selected];
+		const Hero& hero = getRef(selected);
 		const AttrMap<int>& attrs = hero.attributes();
 		std::vector<std::string> powerNames;
 		for (const auto& power : hero.powers) powerNames.push_back(power.name);

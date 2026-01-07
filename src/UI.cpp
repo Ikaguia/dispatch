@@ -187,6 +187,15 @@ namespace Dispatch::UI {
 		for (const std::string& id : rootElements) elements.at(id)->handleInput();
 		sync();
 	}
+	void Layout::resetInput() {
+		hovered.clear();
+		clicked.clear();
+		pressed.clear();
+		unhover.clear();
+		release.clear();
+		dataChanged.clear();
+		for (const auto& [id, element] : elements) element->resetInput();
+	}
 	void Layout::updateSharedData(const std::string& key, const json& value) {
 		if (value == sharedData[key]) return;
 		sharedData[key] = value;
@@ -316,6 +325,7 @@ namespace Dispatch::UI {
 			else changeStatus(Status::REGULAR);
 		}
 	}
+	void Element::resetInput() { if (status == Status::HOVERED || status == Status::PRESSED) changeStatus(Status::REGULAR); }
 	void Element::solveLayout() {
 		auto& elements = layout->elements;
 		solveSize();
@@ -1028,7 +1038,8 @@ namespace Dispatch::UI {
 				text.replace(match.position(0), match.length(0), ss.str());
 			}
 			while (std::regex_search(text, match, pattern_spread)) {
-				float calculated = idx * (1.0 / ((int)children.size() - 1));
+				int childrenSize = (int)children.size();
+				float calculated = childrenSize == 1 ? 0.5f : idx * (1.0 / (childrenSize-1));
 				std::stringstream ss; ss << std::fixed << std::setprecision(2) << calculated;
 				text.replace(match.position(0), match.length(0), ss.str());
 			}

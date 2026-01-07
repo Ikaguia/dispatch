@@ -89,7 +89,7 @@ namespace nlohmann {
 	};
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Hero::Status, {
-		{ Hero::Status::UNAVAILABLE, nullptr },
+		{ Hero::Status::UNAVAILABLE, "unavailable" },
 		{ Hero::Status::ASSIGNED, "assigned" },
 		{ Hero::Status::TRAVELLING, "travelling" },
 		{ Hero::Status::WORKING, "working" },
