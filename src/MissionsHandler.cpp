@@ -137,7 +137,7 @@ void MissionsHandler::addMissionToQueue(const std::string& name, float time) {
 
 
 void MissionsHandler::renderUI() {
-	for (auto& name : active) getRef(name).renderUI(false);
+	for (auto& name : active) getRef(name).renderUI();
 	if (paused()) layoutMissionDetails.render();
 }
 

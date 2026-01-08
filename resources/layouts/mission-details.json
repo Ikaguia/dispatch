@@ -92,7 +92,7 @@
 						"horizontalConstraint": { "start": "father-start" },
 						"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "image" } },
 						"text": "{@caller}",
-						"style_ids": ["TEXTBOX8"],
+						"style": "TEXTBOX8",
 						"outterColor": "BLANK"
 					}, {
 						"type": "TEXTBOX",
@@ -101,7 +101,7 @@
 						"horizontalConstraint": { "start": "father-start" },
 						"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "caller" } },
 						"text": "{@description}",
-						"style_ids": ["TEXTBOX8"]
+						"style": "TEXTBOX8"
 					}
 				]
 			}, {
@@ -122,92 +122,182 @@
 						"innerColors": [ "ORANGE", "ORANGE", "ORANGE", { "func": "lerp", "args": [ "ORANGE", "YELLOW", 0.7 ] } ]
 					}, {
 						"type": "BOX",
-						"id": "main",
+						"id": "main-selected",
+						"size": { "x": 1.0, "y": 0.796 },
+						"horizontalConstraint": { "start": "father-start" },
+						"verticalConstraint": { "start": { "type": "element", "element_id": "title", "side": "bottom" } },
+						"subElements": [
+							{
+								"type": "ATTRGRAPH",
+								"id": "total-attrs",
+								"size": { "x": 0.45, "y": 0.7 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": { "start": "father-top" },
+								"groups": [ { "values": "{@total-attributes}", "color": "ORANGE" } ]
+							}, {
+								"type": "DATAARRAY",
+								"id": "slots",
+								"size": { "x": 0.9, "y": 0.3 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": { "end": "father-bottom" },
+								"dataPath": "slot-names",
+								"childTemplate": {
+									"type": "IMAGE",
+									"id": "slot-{$slots}-image",
+									"size": { "x": 0.24, "y": 1.0 },
+									"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": "{$slots|spread}" },
+									"verticalConstraint": { "start": "father-top", "end": "father-bottom" },
+									"imgKey": "{@{$slots}-image-key}",
+									"borderColor": "BLACK",
+									"borderThickness": 1,
+									"innerColor": "GRAY"
+								},
+								"style": "BLANK"
+							}
+						]
+					}, {
+						"type": "BOX",
+						"id": "main-reviewing",
+						"size": { "x": 1.0, "y": 0.796 },
+						"horizontalConstraint": { "start": "father-start" },
+						"verticalConstraint": { "start": { "type": "element", "element_id": "title", "side": "bottom" } },
+						"subElements": [
+							{
+								"type": "ATTRGRAPH",
+								"id": "result-attrs",
+								"size": { "x": 0.75, "y": 0.75 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.4 },
+								"groups": [
+									{ "values": "{@total-attributes}", "color": "ORANGE" },
+									{ "values": "{@required-attributes}", "color": "WHITE" }
+								]
+							}, {
+								"type": "TEXTBOX",
+								"id": "success-chance",
+								"size": { "x": 0.25, "y": 0.1 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.88 },
+								"innerColors": [ "BGMED", "BGMED", "BGDRK", "BGMED" ],
+								"text": "{@success-chance}"
+							}, {
+								"type": "TEXTBOX",
+								"id": "review-message",
+								"size": { "x": 0.9, "y": 0.1 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.99 },
+								"text": "{@review-message}",
+								"innerColors": [ "BGDRK", "BGDRK", "BGMED", "BGDRK" ],
+								"textColor": "BGLGT"
+							}
+						],
+						"visible": false
+					}, {
+						"type": "ELEMENT",
+						"id": "main-disruption",
+						"size": { "x": 1.0, "y": 0.884 },
+						"horizontalConstraint": "father-h",
+						"verticalConstraint": { "end": "father-bottom" },
+						"subElements": [
+							{
+								"type": "TEXT",
+								"id": "disruption-description",
+								"size": { "x": 1.0, "y": 0.5 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": { "start": "father-top" },
+								"text": "{@disruption-description}",
+								"textAnchor": "center"
+							}, {
+								"type": "DATAARRAY",
+								"id": "disruption-options",
+								"size": { "x": 1.0, "y": 0.5 },
+								"horizontalConstraint": "father-h",
+								"verticalConstraint": { "end": "father-bottom" },
+								"dataPath": "disruption-options",
+								"childTemplate": {
+									"type": "BUTTON",
+									"size": { "x": 0.9, "y": 0.25 },
+									"horizontalConstraint": "father-h",
+									"verticalConstraint": { "start": { "type": "element", "side": "bottom" }, "offset": 5 },
+									"text": "{@disruption-options-{$disruption-options}-name}",
+									"innerColors": [ "BGMED", "BGMED", "BGLGT", "BGMED" ],
+									"borderThickness": 2,
+									"disabled": "{@disruption-options-{$disruption-options}-disabled}"
+								},
+								"style": "BLANK"
+							}
+						],
+						"visible": false
+					}, {
+						"type": "BOX",
+						"id": "main-disruption-result",
 						"size": { "x": 1.0, "y": 0.796 },
 						"horizontalConstraint": { "start": "father-start" },
 						"verticalConstraint": { "start": { "type": "element", "element_id": "title", "side": "bottom" } },
 						"subElements": [
 							{
 								"type": "ELEMENT",
-								"id": "main-selected",
+								"id": "disruption-result-hero",
 								"size": { "x": 1.0, "y": 1.0 },
 								"horizontalConstraint": "father-h",
 								"verticalConstraint": "father-v",
 								"subElements": [
 									{
-										"type": "ATTRGRAPH",
-										"id": "total-attrs",
-										"size": { "x": 0.45, "y": 0.7 },
+										"type": "IMAGE",
+										"id": "disruption-result-hero-img",
+										"size": { "x": 1.0, "y": 1.0 },
 										"horizontalConstraint": "father-h",
-										"verticalConstraint": { "start": "father-top" },
-										"groups": [ { "values": "{@total-attributes}", "color": "ORANGE" } ]
+										"verticalConstraint": "father-v",
+										"imgKey": "{@disruption-hero-image-key}"
 									}, {
-										"type": "DATAARRAY",
-										"id": "slots",
-										"size": { "x": 0.9, "y": 0.3 },
+										"type": "TEXTBOX",
+										"id": "disruption-result-hero-msg",
+										"size": { "x": 1.0, "y": 0.1 },
 										"horizontalConstraint": "father-h",
-										"verticalConstraint": { "end": "father-bottom" },
-										"dataPath": "slot-names",
-										"childTemplate": {
-											"type": "IMAGE",
-											"id": "slot-{$slots}-image",
-											"size": { "x": 0.24, "y": 1.0 },
-											"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": "{$slots|spread}" },
-											"verticalConstraint": { "start": "father-top", "end": "father-bottom" },
-											"imgKey": "{@{$slots}-image-key}",
-											"borderColor": "BLACK",
-											"borderThickness": 1,
-											"innerColor": "GRAY"
-										},
-										"style_ids": ["BLANK"]
+										"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.95 },
+										"text": "{@disruption-result-msg}",
+										"textAnchor": "center",
+										"innerColor": "BGDRK",
+										"borderColor": "BGLGT",
+										"textColor": "BGLGT",
+										"borderThickness": 2
 									}
 								]
 							}, {
 								"type": "ELEMENT",
-								"id": "main-reviewing",
+								"id": "disruption-result-regular",
 								"size": { "x": 1.0, "y": 1.0 },
 								"horizontalConstraint": "father-h",
 								"verticalConstraint": "father-v",
 								"subElements": [
 									{
 										"type": "ATTRGRAPH",
-										"id": "result-attrs",
-										"size": { "x": 0.8, "y": 0.8 },
+										"id": "disruption-result-regular-stats",
+										"size": { "x": 0.75, "y": 0.75 },
 										"horizontalConstraint": "father-h",
-										"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.75 },
+										"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.4 },
 										"groups": [
 											{ "values": "{@total-attributes}", "color": "ORANGE" },
 											{ "values": "{@required-attributes}", "color": "WHITE" }
-										]
+										],
+										"filter": "{@disruption-attribute}"
 									}, {
 										"type": "TEXTBOX",
-										"id": "success-chance",
-										"size": { "x": 0.25, "y": 0.1 },
+										"id": "disruption-result-regular-msg",
+										"size": { "x": 0.9, "y": 0.1 },
 										"horizontalConstraint": "father-h",
-										"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.88 },
-										"innerColors": [ "BGMED", "BGMED", "BGDRK", "BGMED" ],
-										"text": "{@success-chance}"
-									}, {
-										"type": "TEXTBOX",
-										"id": "review-message",
-										"size": { "x": 1.0, "y": 0.1 },
-										"horizontalConstraint": "father-h",
-										"verticalConstraint": { "end": "father-bottom" },
-										"text": "{@review-message}",
-										"innerColors": [ "BGDRK", "BGDRK", "BGMED", "BGDRK" ]
+										"verticalConstraint": { "start": "father-top", "end": "father-bottom", "ratio": 0.98 },
+										"text": "{@disruption-result-msg}",
+										"textAnchor": "center",
+										"innerColor": "BGDRK",
+										"borderColor": "BGLGT",
+										"textColor": "BGLGT",
+										"borderThickness": 2
 									}
-								],
-								"visible": false
-							}, {
-								"type": "ELEMENT",
-								"id": "main-disruption",
-								"size": { "x": 1.0, "y": 1.0 },
-								"horizontalConstraint": "father-h",
-								"verticalConstraint": "father-v",
-								"subElements": [],
-								"visible": false
+								]
 							}
-						]
+						],
+						"visible": false
 					}, {
 						"type": "ELEMENT",
 						"id": "buttons",
@@ -260,37 +350,166 @@
 				"subElements": [
 					{
 						"type": "ELEMENT",
-						"id": "requirements-title",
-						"size": { "x": 1.0, "y": 0.113 },
-						"horizontalConstraint": { "start": "father-start" },
-						"verticalConstraint": { "start": "father-top" },
+						"id": "right-requirements",
+						"size": { "x": 1.0, "y": 1.0 },
+						"horizontalConstraint": "father-h",
+						"verticalConstraint": "father-v",
 						"subElements": [
 							{
-								"type": "TEXT",
-								"id": "requirements-title-text",
-								"size": { "x": 0.7, "y": 1.0 },
-								"innerMargin": [ 4, 4, 4, 4 ],
+								"type": "ELEMENT",
+								"id": "requirements-title",
+								"size": { "x": 1.0, "y": 0.113 },
 								"horizontalConstraint": { "start": "father-start" },
 								"verticalConstraint": { "start": "father-top" },
-								"text": "REQUIREMENTS",
-								"textAnchor": "left",
-								"innerColor": "BLANK"
+								"subElements": [
+									{
+										"type": "TEXT",
+										"id": "requirements-title-text",
+										"size": { "x": 0.7, "y": 1.0 },
+										"innerMargin": [ 4, 4, 4, 4 ],
+										"horizontalConstraint": { "start": "father-start" },
+										"verticalConstraint": { "start": "father-top" },
+										"text": "REQUIREMENTS",
+										"textAnchor": "left",
+										"innerColor": "BLANK"
+									}, {
+										"type": "ELEMENT",
+										"id": "requirements-title-fill",
+										"size": { "x": 0.3, "y": 1.0 },
+										"horizontalConstraint": { "end": "father-end" },
+										"verticalConstraint": { "start": "father-top" }
+									}
+								]
 							}, {
-								"type": "ELEMENT",
-								"id": "requirements-title-fill",
-								"size": { "x": 0.3, "y": 1.0 },
-								"horizontalConstraint": { "end": "father-end" },
-								"verticalConstraint": { "start": "father-top" }
+								"type": "TEXTBOX",
+								"id": "requirements",
+								"size": { "x": 1.0, "y": 0.83 },
+								"horizontalConstraint": { "start": "father-start" },
+								"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "requirements-title" } },
+								"text": "{@requirements}",
+								"style": "TEXTBOX8"
 							}
 						]
 					}, {
-						"type": "TEXTBOX",
-						"id": "requirements",
-						"size": { "x": 1.0, "y": 0.83 },
-						"horizontalConstraint": { "start": "father-start" },
-						"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "requirements-title" } },
-						"text": "{@requirements}",
-						"style_ids": ["TEXTBOX8"]
+						"type": "ELEMENT",
+						"id": "right-assigned-stats",
+						"size": { "x": 1.0, "y": 1.0 },
+						"horizontalConstraint": "father-h",
+						"verticalConstraint": "father-v",
+						"subElements": [
+							{
+								"type": "ELEMENT",
+								"id": "assigned-stats-title",
+								"size": { "x": 1.0, "y": 0.113 },
+								"horizontalConstraint": { "start": "father-start" },
+								"verticalConstraint": { "start": "father-top" },
+								"subElements": [
+									{
+										"type": "TEXT",
+										"id": "assigned-stats-title-text",
+										"size": { "x": 0.7, "y": 1.0 },
+										"innerMargin": [ 4, 4, 4, 4 ],
+										"horizontalConstraint": "father-h",
+										"verticalConstraint": "father-v",
+										"text": "ASSIGNED HERO STATS",
+										"textAnchor": "CENTER",
+										"innerColor": "BLANK"
+									}, {
+										"type": "ELEMENT",
+										"id": "assigned-stats-title-fill-start",
+										"size": { "x": 0.15, "y": 1.0 },
+										"horizontalConstraint": { "start": "father-start" },
+										"verticalConstraint": "father-v"
+									}, {
+										"type": "ELEMENT",
+										"id": "assigned-stats-title-fill-end",
+										"size": { "x": 0.15, "y": 1.0 },
+										"horizontalConstraint": { "end": "father-end" },
+										"verticalConstraint": "father-v"
+									}
+								]
+							}, {
+								"type": "BOX",
+								"id": "assigned-stats-content",
+								"size": { "x": 1.0, "y": 0.83 },
+								"horizontalConstraint": { "start": "father-start" },
+								"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "assigned-stats-title" } },
+								"style": "TEXTBOX8",
+								"subElements": [
+									{
+										"type": "ATTRGRAPH",
+										"id": "assigned-stats-graph",
+										"size": { "x": 0.7, "y": 0.7 },
+										"horizontalConstraint": "father-h",
+										"verticalConstraint": "father-v",
+										"groups": [ { "values": "{@total-attributes}", "color": "ORANGE" } ]
+									}
+								]
+							}
+						],
+						"visible": false
+					}, {
+						"type": "ELEMENT",
+						"id": "right-choice-made",
+						"size": { "x": 1.0, "y": 1.0 },
+						"horizontalConstraint": "father-h",
+						"verticalConstraint": "father-v",
+						"subElements": [
+							{
+								"type": "ELEMENT",
+								"id": "choice-made-title",
+								"size": { "x": 1.0, "y": 0.113 },
+								"horizontalConstraint": { "start": "father-start" },
+								"verticalConstraint": { "start": "father-top" },
+								"subElements": [
+									{
+										"type": "TEXT",
+										"id": "choice-made-title-text",
+										"size": { "x": 0.4, "y": 1.0 },
+										"innerMargin": [ 4, 4, 4, 4 ],
+										"horizontalConstraint": { "start": "father-start" },
+										"verticalConstraint": "father-v",
+										"text": "CHOICE MADE",
+										"textAnchor": "LEFT",
+										"innerColor": "BLANK"
+									}, {
+										"type": "ELEMENT",
+										"id": "choice-made-title-fill",
+										"size": { "x": 0.56, "y": 1.0 },
+										"horizontalConstraint": { "end": "father-end" },
+										"verticalConstraint": "father-v"
+									}
+								]
+							}, {
+								"type": "BOX",
+								"id": "choice-made-content",
+								"size": { "x": 1.0, "y": 0.83 },
+								"horizontalConstraint": { "start": "father-start" },
+								"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "choice-made-title" } },
+								"style": "TEXTBOX8",
+								"subElements": [
+									{
+										"type": "DATAARRAY",
+										"id": "choice-made-options",
+										"size": { "x": 1.0, "y": 0.75 },
+										"horizontalConstraint": "father-h",
+										"verticalConstraint": "father-v",
+										"dataPath": "disruption-options",
+										"childTemplate": {
+											"type": "BUTTON",
+											"size": { "x": 0.9, "y": 0.2 },
+											"horizontalConstraint": "father-h",
+											"verticalConstraint": { "start": { "type": "element", "side": "bottom" }, "offset": 5 },
+											"text": "{@disruption-options-{$choice-made-options}-name}",
+											"innerColors": [ "BGMED", "BGMED", "BGLGT", "BGMED" ],
+											"borderThickness": 2
+										},
+										"style": "BLANK"
+									}
+								]
+							}
+						],
+						"visible": false
 					}
 				]
 			}

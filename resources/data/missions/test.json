@@ -99,9 +99,9 @@
 					{
 						"name": "Absorb it!",
 						"type": "HERO",
-						"hero": "Flambae",
+						"hero": "Crumple",
 						"success": {
-							"message": "Hot as ever!"
+							"message": "Nom Nom!"
 						}
 					}
 				]

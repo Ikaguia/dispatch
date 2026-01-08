@@ -80,7 +80,7 @@ public:
 	void changeStatus(Status newStatus);
 	void update(float deltaTime);
 
-	void renderUI(bool full=false);
+	void renderUI();
 	void handleInput();
 
 	void setupLayout(Dispatch::UI::Layout& layout);
@@ -133,7 +133,7 @@ namespace nlohmann {
 	};
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Disruption::Option::Type, {
-		{ Disruption::Option::Type::HERO, "hero" },
-		{ Disruption::Option::Type::ATTRIBUTE, "attribute" },
+		{ Disruption::Option::Type::HERO, "HERO" },
+		{ Disruption::Option::Type::ATTRIBUTE, "ATTRIBUTE" },
 	});
 }

@@ -222,351 +222,60 @@ void Mission::update(float deltaTime) {
 	}
 }
 
-void Mission::renderUI(bool full) {
+void Mission::renderUI() {
 	float progress = 0.0f;
-	if (full) {
-		// MAIN BACKGROUND PANEL
-		raylib::Rectangle mainRect{(GetScreenWidth() - 800.0f) / 2, 10, 800, 400};
-
-		// LEFT PANEL (incident source)
-		raylib::Rectangle leftRect{mainRect.x + 10, mainRect.y + 50, 220, 320};
-		raylib::Rectangle{leftRect.GetPosition() + raylib::Vector2{5,5}, leftRect.GetSize()}.Draw(Dispatch::UI::shadow);
-		leftRect.DrawGradient(Dispatch::UI::bgMed, Dispatch::UI::bgMed, Dispatch::UI::bgDrk, Dispatch::UI::bgMed);
-		// Type
-		auto typeRect = Utils::drawTextAnchored(type, leftRect, Utils::Anchor::topLeft, Dispatch::UI::fontText, Dispatch::UI::textColor, 18, 1, {10.0f, 10.0f});
-		auto linePos = Utils::anchorPos(typeRect, Utils::Anchor::topRight, {4.0f, 0.0f});
-		for (int i = 1; i <= 5; i++) {
-			linePos.DrawLine({leftRect.x + leftRect.width - 4, linePos.y}, (i*i)%3 + 1, Dispatch::UI::bgDrk);
-			linePos.y += 5;
-		}
-		// Image
-		raylib::Rectangle imgRect{leftRect.x + 5, typeRect.y + 30, leftRect.width - 10, 100};
-		imgRect.Draw(Dispatch::UI::bgDrk);
-		imgRect.DrawLines(BLACK);
-		// Caller
-		raylib::Rectangle callerBox{leftRect.x + 5, imgRect.y + imgRect.height, leftRect.width - 10, 40};
-		callerBox.DrawLines(BLACK);
-		Utils::drawTextAnchored("Caller: " + caller, callerBox, Utils::Anchor::left, Dispatch::UI::fontText, Dispatch::UI::textColor, 18.0f, 2.0f, {5.0f, 0.0f}, callerBox.width-10.0f);
-		// Description
-		raylib::Rectangle descriptionBox{leftRect.x + 5, callerBox.y + callerBox.height, leftRect.width - 10, leftRect.y + leftRect.height - (callerBox.y + callerBox.height) - 5};
-		descriptionBox.DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt, Dispatch::UI::bgMed);
-		descriptionBox.DrawLines(BLACK);
-		Utils::drawTextAnchored(description, descriptionBox, Utils::Anchor::center, Dispatch::UI::fontText, Dispatch::UI::textColor, 14.0f, 2.0f, {}, descriptionBox.width);
-
-		// CENTER PANEL (title + radar + heroes + buttons)
-		raylib::Rectangle centerRect{leftRect.x + leftRect.width + 10, leftRect.y-44, 340, 380};
-		raylib::Rectangle{centerRect.GetPosition() + raylib::Vector2{5,5}, centerRect.GetSize()}.Draw(Dispatch::UI::shadow);
-		centerRect.Draw(Dispatch::UI::bgMed);
-		centerRect = Utils::inset(centerRect, 4);
-		// Title Bar
-		raylib::Rectangle titleRect{centerRect.x, centerRect.y, centerRect.width, 40.0f};
-		titleRect.DrawGradient(ORANGE, ORANGE, ORANGE, ColorLerp(ORANGE, YELLOW, 0.7));
-		titleRect.DrawLines(BLACK);
-		Utils::drawTextCentered(name, Utils::center(titleRect), Dispatch::UI::fontTitle, 24);
-		// BUTTONS
-		auto btnsRect = Utils::anchorRect(centerRect, {centerRect.width, 28}, Utils::Anchor::bottom, {0.0f, -2.0f});
-		std::vector<std::pair<std::string, raylib::Rectangle&>> btns{{"CLOSE", btnCancel}};
-		if (status == Mission::SELECTED) btns.emplace_back("DISPATCH", btnStart);
-		auto rects = Utils::splitRect(btnsRect, 1, btns.size(), {2.0f, 0.0f});
-		for (int i = 0; i < (int)btns.size(); i++) {
-			auto [hero_name, rect] = btns[i];
-			rect = rects[i];
-			rect.Draw(Dispatch::UI::bgLgt);
-			rect.DrawLines(BLACK);
-			Utils::drawTextCentered(hero_name, Utils::center(rect), Dispatch::UI::fontText, 18, BLACK);
-		}
-		if (status == Mission::SELECTED && assignedHeroes.empty()) btnStart.Draw(Fade(Dispatch::UI::bgDrk, 0.6f));
-
-		// Main panel
-		raylib::Rectangle mainPanel{centerRect.x, titleRect.y + titleRect.height, centerRect.width, btnsRect.y - (titleRect.y + titleRect.height) - 4};
-		mainPanel.DrawLines(BLACK);
-		Utils::inset(mainPanel, 2).DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt);
-		if (status == Mission::DISRUPTION_MENU) {
-			auto& disruption = disruptions[curDisruption];
-
-			Utils::drawTextAnchored(disruption.description, mainPanel, Utils::Anchor::top, Dispatch::UI::fontText, Dispatch::UI::textColor, 24, 2, {0.0f, 8.0f}, mainPanel.width-8.0f);
-
-			if (disruption.selected_option == -1) {
-				btnCancel.Draw(Fade(Dispatch::UI::bgDrk, 0.6f));
-
-				int sz = disruption.options.size();
-				raylib::Vector2 totalSize{0.0f, 0.0f};
-				for (auto& option : disruption.options) {
-					if (totalSize.y != 0) totalSize.y += 20;
-					std::string text = std::format("{} ({})", option.name, option.type == Disruption::Option::HERO ? option.disabled ? "???" : option.hero : option.attribute);
-					auto size = Dispatch::UI::fontText.MeasureText(text, 16, 2);
-					totalSize.x = std::max(totalSize.x, size.x);
-					totalSize.y += size.y;
-				}
-				raylib::Vector2 offset{0.0f, -(totalSize.y/2.0f)};
-				for (int i=0; i<sz; i++) {
-					auto& option = disruption.options[i];
-					auto& button = disruption.optionButtons[i];
-					std::string text = std::format("{} ({})", option.name, option.type == Disruption::Option::HERO ? option.disabled ? "???" : option.hero : option.attribute);
-
-					raylib::Rectangle optionButtonText = Utils::positionTextAnchored(text, mainPanel, Utils::Anchor::center, Dispatch::UI::fontText, 16, 2, offset, mainPanel.width-8.0f);
-					button = Utils::inset(optionButtonText, {-8.0f, -4.0f});
-					button.x -= (totalSize.x - optionButtonText.width) / 2; button.width = totalSize.x+16;
-					button.Draw(Dispatch::UI::bgMed);
-					button.DrawLines(BLACK);
-					Dispatch::UI::fontText.DrawText(text, optionButtonText.GetPosition(), 16, 2, Dispatch::UI::textColor);
-					if (option.disabled) button.Draw(ColorAlpha(GRAY, 0.6));
-
-					offset.y += optionButtonText.height + 20;
-				}
-			} else {
-				auto opt = disruption.options[disruption.selected_option];
-				bool success = isDisruptionSuccessful();
-				if (opt.type == Disruption::Option::HERO) {
-					auto& hero_name = opt.hero;
-					raylib::Rectangle heroText = Utils::positionTextAnchored(hero_name, mainRect, Utils::Anchor::center, Dispatch::UI::fontText, 36, 2, {0.0f,0.0f}, mainRect.width-8.0f);
-					raylib::Rectangle heroRect = Utils::inset(heroText, {-8.0f, -4.0f});
-					heroRect.Draw(Dispatch::UI::bgLgt);
-					heroRect.DrawLines(BLACK);
-					Dispatch::UI::fontText.DrawText(hero_name, heroText.GetPosition(), 36, 2, Dispatch::UI::textColor);
-				} else {
-					raylib::Vector2 radarCenter = Utils::center(mainRect) + raylib::Vector2{0.0f, 30.0f};
-					auto totalAttributes = getTotalAttributes();
-					float radius = 90.0f;
-					Utils::drawRadarGraph(radarCenter, radius, {}, Dispatch::UI::textColor, BROWN);
-					std::vector<raylib::Vector2> points, pts, val, req;
-					Attribute attribute{opt.attribute};
-					const int sides = Attribute::COUNT;
-					for (int i = 0; i < sides; i++) {
-						Attribute attr{i};
-						if (attr == attribute) {
-							raylib::Vector2 prev, cur, next;
-							prev = raylib::Vector2{0.0f, -radius}.Rotate((i-1)*2.0f*PI/sides);
-							cur = raylib::Vector2{0.0f, -radius}.Rotate(i*2.0f*PI/sides);
-							next = raylib::Vector2{0.0f, -radius}.Rotate((i+1)*2.0f*PI/sides);
-							points.push_back(radarCenter + (prev + cur) / 2); pts.push_back((prev + cur) / 2);
-							points.push_back(radarCenter);                    pts.push_back(cur);
-							points.push_back(radarCenter + (cur + next) / 2); pts.push_back((cur + next) / 2);
-						}
-						else points.push_back(radarCenter + raylib::Vector2{0.0f, -radius}.Rotate(i*2.0f*PI/sides));
-					}
-					points.push_back(points.front());
-					points.push_back(radarCenter);
-					std::reverse(points.begin(), points.end());
-					DrawTriangleFan(points.data(), points.size(), ColorAlpha(DARKGRAY, 0.8f));
-
-					for (auto& pt : pts) {
-						val.push_back(radarCenter + pt * std::min(10, totalAttributes[attribute]) / 10.0f);
-						req.push_back(radarCenter + pt * opt.value / 10.0f);
-					}
-					val.push_back(val.front());
-					req.push_back(req.front());
-					val.push_back(radarCenter);
-					req.push_back(radarCenter);
-					std::reverse(val.begin(), val.end());
-					std::reverse(req.begin(), req.end());
-					if (success) {
-						DrawTriangleFan(val.data(), val.size(), ColorAlpha(ORANGE, 0.5f));
-						DrawTriangleFan(req.data(), req.size(), ColorAlpha(GREEN, 0.5f));
-					} else {
-						DrawTriangleFan(req.data(), req.size(), ColorAlpha(LIGHTGRAY, 0.5f));
-						DrawTriangleFan(val.data(), val.size(), ColorAlpha(RED, 0.5f));
-					}
-					val[2].DrawLine(val[3], ORANGE);
-					req[2].DrawLine(req[3], LIGHTGRAY);
-					val[3].DrawLine(val[4], ORANGE);
-					req[3].DrawLine(req[4], LIGHTGRAY);
-				}
-				const std::string& text = success ? opt.successMessage : opt.failureMessage;
-				raylib::Rectangle resultText = Utils::positionTextAnchored(text, mainRect, Utils::Anchor::bottom, Dispatch::UI::fontText, 16, 2, {0.0f, -14.0f}, mainRect.width-8.0f);
-				raylib::Rectangle resultRect = Utils::inset(resultText, {-8.0f, -4.0f});
-				resultRect.Draw(Dispatch::UI::bgMed);
-				resultRect.DrawLines(BLACK);
-				Dispatch::UI::fontText.DrawText(text, resultText.GetPosition(), 16, 2, Dispatch::UI::textColor);
-			}
-		} else {
-			// Radar graph
-			auto radarCenter = Utils::anchorPos(mainPanel, Utils::Anchor::center); if (status==Mission::SELECTED) radarCenter.y -= mainPanel.height/7;
-			auto totalAttributes = getTotalAttributes();
-			float radarRadius = status==Mission::SELECTED ? 60.0f : 90.0f;
-			std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attrs{};
-			if (!disrupted) attrs.emplace_back(totalAttributes, ORANGE, true);
-			if (status != Mission::SELECTED) {
-				attrs.emplace_back(requiredAttributes, LIGHTGRAY, true);
-				AttrMap<int> intersect; for (auto& [k, v] : requiredAttributes) intersect[k] = std::min(v, totalAttributes[k]);
-				if (!disrupted) attrs.emplace_back(intersect, status == Mission::REVIEWING_SUCESS ? GREEN : RED, false);
-			}
-			Utils::drawRadarGraph(radarCenter, radarRadius, attrs, Dispatch::UI::textColor, BROWN);
-			if (disrupted) {
-				std::string disruptedText = "Failed to help heroes";
-				auto disruptedBox = Utils::positionTextAnchored(disruptedText, mainPanel, Utils::Anchor::center, Dispatch::UI::fontText, 24.0f, 2.0f, {0.0f, 2*radarRadius/3});
-				auto _disruptedBox_ = Utils::inset(disruptedBox, {-8.0f, -4.0f});
-				_disruptedBox_.Draw(Dispatch::UI::bgMed);
-				_disruptedBox_.DrawLines(BLACK);
-				Dispatch::UI::fontText.DrawText(disruptedText, disruptedBox.GetPosition(), 24.0f, 2.0f, Dispatch::UI::textColor);
-			}
-			if (status == Mission::SELECTED) {
-				// Hero portraits
-				float start = mainPanel.x + (mainPanel.width - (slots*74 - 10)) / 2;
-				raylib::Rectangle heroRect{start, mainPanel.y + mainPanel.height - 74, 64, 64};
-				for (const auto& hero_name : assignedHeroes) {
-					heroRect.Draw(Fade(DARKGRAY, 0.5f));
-					heroRect.DrawLines(GRAY);
-					Utils::drawTextCentered(hero_name.substr(0, 9), Utils::center(heroRect), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
-					// TODO: Draw hero portrait
-					heroRect.x += 74;
-				}
-				for (size_t i = assignedHeroes.size(); i < static_cast<size_t>(slots); i++) {
-					heroRect.Draw(Fade(LIGHTGRAY, 0.4f));
-					heroRect.DrawLines(GRAY);
-					Utils::drawTextCentered("Empty Slot", Utils::center(heroRect), Dispatch::UI::fontText, 14, Dispatch::UI::textColor);
-					heroRect.x += 74;
-				}
-			} else {
-				bool success = status == Mission::REVIEWING_SUCESS;
-				raylib::Rectangle reviewRect{mainPanel.x + 6, mainPanel.y + mainPanel.height - 35, mainPanel.width - 12, 32};
-				raylib::Rectangle chanceRect{mainPanel.x + mainPanel.width/2 - 45, mainPanel.y + mainPanel.height - 72, 90, 34};
-				reviewRect.Draw(Dispatch::UI::bgDrk);
-				chanceRect.Draw(success ? GOLD : RED);
-				Utils::inset(reviewRect, 1).DrawLines(WHITE);
-				Utils::inset(chanceRect, 1).DrawLines(WHITE);
-				reviewRect.DrawLines(Dispatch::UI::bgDrk);
-				chanceRect.DrawLines(Dispatch::UI::bgDrk);
-				std::string reviewText = success ? successMsg : failureMsg;
-				std::string chanceText = std::format("{}%", getSuccessChance());
-				std::vector<std::tuple<std::string, raylib::Font&, int, raylib::Color, int, raylib::Color, float>> chanceTexts = {
-					{std::string{"🎯"}, Dispatch::UI::emojiFont, 32, success ? WHITE : Dispatch::UI::bgDrk, 2, raylib::Color{0,0,0,0}, 0.0f},
-					{chanceText, Dispatch::UI::defaultFont, 20, success ? WHITE : Dispatch::UI::bgDrk, 2, raylib::Color{0,0,0,0}, 0.0f}
-				};
-				Utils::drawTextCentered(reviewText, Utils::center(reviewRect), Dispatch::UI::fontText, 20, WHITE);
-				Utils::drawTextSequence(chanceTexts, Utils::center(chanceRect), true, true, 2, true);
-			}
-			centerRect = Utils::inset(centerRect, -4);
-		}
-
-		// RIGHT PANEL
-		raylib::Rectangle rightRect{centerRect.x + centerRect.width + 10, leftRect.y, 210, 320};
-		raylib::Rectangle{rightRect.GetPosition() + raylib::Vector2{5,5}, rightRect.GetSize()}.Draw(Dispatch::UI::shadow);
-		rightRect.Draw(Dispatch::UI::bgMed);
-
-		// Title
-		std::string title = status == Mission::DISRUPTION_MENU ? disruptions[curDisruption].selected_option == -1 ? "Assigned Heroes Stats" : "Selected Option" : "Requirements";
-		raylib::Vector2 rightTitlePos = rightRect.GetPosition() + raylib::Vector2{10, 5};
-		Dispatch::UI::fontText.DrawText(title, rightTitlePos, 18, 1, Dispatch::UI::textColor);
-		linePos = raylib::Vector2{rightTitlePos.x + Dispatch::UI::fontText.MeasureText(title, 18, 1).x + 4, rightRect.y + 10};
-		for (int i = 1; i <= 5; i++) {
-			linePos.DrawLine({rightRect.x + rightRect.width - 4, linePos.y}, (i*i*i)%3 + 1, Dispatch::UI::bgDrk);
-			linePos.y += 5;
-		}
-
-		// Content Rect
-		raylib::Rectangle rightContentRec = Utils::inset(rightRect, {4, 30}); rightContentRec.y += 10;
-		rightContentRec.DrawLines(BLACK);
-		Utils::inset(rightContentRec, 2).DrawGradient(Dispatch::UI::bgLgt, Dispatch::UI::bgLgt, Dispatch::UI::bgMed, Dispatch::UI::bgLgt);
-
-		if (status == Mission::DISRUPTION_MENU) {
-			auto& disruption = disruptions[curDisruption];
-			if (disruption.selected_option == -1) {
-				// Assigned Heroes Stats
-				auto radarCenter = Utils::anchorPos(rightContentRec, Utils::Anchor::center);
-				std::vector<std::tuple<AttrMap<int>, raylib::Color, bool>> attrs{{getTotalAttributes(), ORANGE, true}};
-				Utils::drawRadarGraph(radarCenter, 60.0f, attrs, Dispatch::UI::textColor, BROWN);
-			} else {
-				// Selected Option
-				int sz = disruption.options.size();
-				raylib::Vector2 totalSize{0.0f, 0.0f};
-				for (auto& option : disruption.options) {
-					if (totalSize.y != 0) totalSize.y += 20;
-					std::string text = std::format("{} ({})", option.name, option.type == Disruption::Option::HERO ? option.disabled ? "???" : option.hero : option.attribute);
-					auto size = Dispatch::UI::fontText.MeasureText(text, 16, 2);
-					totalSize.x = std::max(totalSize.x, size.x);
-					totalSize.y += size.y;
-				}
-				raylib::Vector2 offset{0.0f, -(totalSize.y/2.0f)};
-				for (int i=0; i<sz; i++) {
-					auto& option = disruption.options[i];
-					auto& button = disruption.optionButtons[i];
-					std::string text = std::format("{} ({})", option.name, option.type == Disruption::Option::HERO ? option.hero : option.attribute);
-
-					raylib::Rectangle optionButtonText = Utils::positionTextAnchored(text, rightContentRec, Utils::Anchor::center, Dispatch::UI::fontText, 16, 2, offset, mainRect.width-8.0f);
-					button = Utils::inset(optionButtonText, {-8.0f, -4.0f});
-					button.x -= (totalSize.x - optionButtonText.width) / 2; button.width = totalSize.x+16;
-					button.Draw(i == disruption.selected_option ? GOLD : Dispatch::UI::bgMed);
-					button.DrawLines(BLACK);
-					Dispatch::UI::fontText.DrawText(text, optionButtonText.GetPosition(), 16, 2, Dispatch::UI::textColor);
-					if (i != disruption.selected_option) button.Draw(ColorAlpha(GRAY, 0.6));
-
-					offset.y += optionButtonText.height + 20;
-				}
-			}
-		} else {
-			// Requirements
-			std::vector<std::pair<std::string, float>> reqs;
-			for (const auto& req : requirements) reqs.emplace_back(req, 0.0f);
-			float indentSize = Dispatch::UI::fontText.MeasureText("> ", 16, 1).x, totalH=0;
-			for (auto& [txt, h] : reqs) {
-				txt = Utils::addLineBreaks(txt, rightContentRec.width - 8 - indentSize, Dispatch::UI::fontText, 16, 1);
-				h = Dispatch::UI::fontText.MeasureText(txt, 16, 1).y;
-				if (totalH) totalH += 10;
-				totalH += h;
-			}
-			// raylib::Vector2 reqPos = {rightContentRec.x + 4 + indentSize, rightContentRec.y + (rightContentRec.height - totalH) / 2 + 4 };
-			auto reqPos = Utils::anchorPos(rightContentRec, Utils::Anchor::left, {indentSize+4.0f, -totalH/2.0f + 4.0f});
-			for (auto& [txt, h] : reqs) {
-				Dispatch::UI::fontText.DrawText("> ", {reqPos.x - indentSize, reqPos.y}, 16, 1, Dispatch::UI::textColor);
-				Dispatch::UI::fontText.DrawText(txt, reqPos, 16, 1, Dispatch::UI::textColor);
-				reqPos.y += h + 10;
-			}
-		}
-	} else {
-		std::string text = "!";
-		raylib::Font* font = &Dispatch::UI::defaultFont;
-		raylib::Color textColor{RED}, backgroundColor{ORANGE}, timeRemainingColor{LIGHTGRAY}, timeElapsedColor{GRAY};
-		switch (status) {
-			case Mission::PENDING:
-				progress = timeElapsed / failureTime;
-				break;
-			case Mission::SELECTED:
-				progress = timeElapsed / failureTime;
-				textColor = WHITE;
-				backgroundColor = SKYBLUE;
-				timeElapsedColor = BLUE;
-				timeRemainingColor = WHITE;
-				break;
-			case Mission::PROGRESS:
-				progress = timeElapsed / missionDuration;
-				// fallthrough
-			case Mission::TRAVELLING:
-				text = "🏃";
-				font = &Dispatch::UI::emojiFont;
-				textColor = WHITE;
-				backgroundColor = SKYBLUE;
-				timeElapsedColor = BLUE;
-				timeRemainingColor = WHITE;
-				break;
-			case Mission::AWAITING_REVIEW:
-				text = "✔";
-				font = &Dispatch::UI::symbolsFont;
-				textColor = WHITE;
-				backgroundColor = ColorLerp(ORANGE, YELLOW, 0.5f);
-				timeRemainingColor = DARKGRAY;
-				break;
-			case Mission::DISRUPTION:
-			case Mission::DISRUPTION_MENU:
-				text = "🛑";
-				font = &Dispatch::UI::emojiFont;
-				textColor = WHITE;
-				backgroundColor = RED;
-				timeRemainingColor = WHITE;
-				timeElapsedColor = RED;
-				progress = disruptions[curDisruption].elapsedTime / disruptions[curDisruption].timeout;
-				break;
-			default:
-				textColor = LIGHTGRAY;
-				break;
-		}
-		position.DrawCircle(28, BLACK);
-		position.DrawCircle(27, timeRemainingColor);
-		DrawCircleSector(position, 27, 0.0f, 360.0f * progress, 180, timeElapsedColor);
-		position.DrawCircle(24, BLACK);
-		position.DrawCircle(23, backgroundColor);
-		Utils::drawTextCentered(text, position, *font, 36, WHITE);
+	std::string text = "!";
+	raylib::Font* font = &Dispatch::UI::defaultFont;
+	raylib::Color textColor{RED}, backgroundColor{ORANGE}, timeRemainingColor{LIGHTGRAY}, timeElapsedColor{GRAY};
+	switch (status) {
+		case Mission::PENDING:
+			progress = timeElapsed / failureTime;
+			break;
+		case Mission::SELECTED:
+			progress = timeElapsed / failureTime;
+			textColor = WHITE;
+			backgroundColor = SKYBLUE;
+			timeElapsedColor = BLUE;
+			timeRemainingColor = WHITE;
+			break;
+		case Mission::PROGRESS:
+			progress = timeElapsed / missionDuration;
+			// fallthrough
+		case Mission::TRAVELLING:
+			text = "🏃";
+			font = &Dispatch::UI::emojiFont;
+			textColor = WHITE;
+			backgroundColor = SKYBLUE;
+			timeElapsedColor = BLUE;
+			timeRemainingColor = WHITE;
+			break;
+		case Mission::AWAITING_REVIEW:
+			text = "✔";
+			font = &Dispatch::UI::symbolsFont;
+			textColor = WHITE;
+			backgroundColor = ColorLerp(ORANGE, YELLOW, 0.5f);
+			timeRemainingColor = DARKGRAY;
+			break;
+		case Mission::DISRUPTION:
+		case Mission::DISRUPTION_MENU:
+			text = "🛑";
+			font = &Dispatch::UI::emojiFont;
+			textColor = WHITE;
+			backgroundColor = RED;
+			timeRemainingColor = WHITE;
+			timeElapsedColor = RED;
+			progress = disruptions[curDisruption].elapsedTime / disruptions[curDisruption].timeout;
+			break;
+		default:
+			textColor = LIGHTGRAY;
+			break;
 	}
+	position.DrawCircle(28, BLACK);
+	position.DrawCircle(27, timeRemainingColor);
+	DrawCircleSector(position, 27, 0.0f, 360.0f * progress, 180, timeElapsedColor);
+	position.DrawCircle(24, BLACK);
+	position.DrawCircle(23, backgroundColor);
+	Utils::drawTextCentered(text, position, *font, 36, WHITE);
 }
 
 void Mission::handleInput() {
@@ -578,19 +287,6 @@ void Mission::handleInput() {
 			if (mousePos.CheckCollision(position, 28)) changeStatus(isSuccessful() ? Mission::REVIEWING_SUCESS : Mission::REVIEWING_FAILURE);
 		} else if (status == Mission::DISRUPTION) {
 			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::DISRUPTION_MENU);
-		} else if (status == Mission::DISRUPTION_MENU) {
-			auto& disruption = disruptions[curDisruption];
-			if (disruption.selected_option == -1) {
-				int sz = static_cast<int>(disruption.options.size());
-				for (int idx = 0; idx < sz; idx++) {
-					auto& option = disruption.options[idx];
-					auto& button = disruption.optionButtons[idx];
-					if (!option.disabled && mousePos.CheckCollision(button)) disruption.selected_option = idx;
-				}
-			// } else if (mousePos.CheckCollision(btnCancel)) {
-			// 	disrupted |= !isDisruptionSuccessful();
-			// 	if (++curDisruption == (int)disruptions.size()) changeStatus(Mission::DONE);
-			}
 		}
 	}
 	if (isMenuOpen()) {
@@ -613,13 +309,15 @@ void Mission::handleInput() {
 		} else if (status == Mission::DISRUPTION_MENU) {
 			auto& disruption = disruptions[curDisruption];
 			if (disruption.selected_option == -1) {
-				// int sz = static_cast<int>(disruption.options.size());
-				// for (int idx = 0; idx < sz; idx++) {
-				// 	auto& option = disruption.options[idx];
-				// 	auto& button = disruption.optionButtons[idx];
-				// 	if (!option.disabled && mousePos.CheckCollision(button)) disruption.selected_option = idx;
-				// }
-			} else if (layout.clicked.contains("close")) {
+				int sz = static_cast<int>(disruption.options.size());
+				for (int idx = 0; idx < sz; idx++) {
+					auto& option = disruption.options[idx];
+					if (!option.disabled && layout.clicked.contains(std::format("disruption-options.children.{}", option.name))) {
+						disruption.selected_option = idx;
+						updateLayout(layout, "status");
+					}
+				}
+			} else if (layout.clicked.contains("close-centered")) {
 				disrupted |= !isDisruptionSuccessful();
 				if (++curDisruption == (int)disruptions.size()) {
 					changeStatus(Mission::DONE);
@@ -642,19 +340,6 @@ void Mission::setupLayout(Dispatch::UI::Layout& layout) {
 	layout.updateSharedData("overlap-attributes", overlap);
 	layout.updateSharedData("success-chance", std::format("{}%", getSuccessChance())); // TODO: Add icon "🎯"
 	layout.updateSharedData("review-message", status == Status::REVIEWING_SUCESS ? successMsg : failureMsg);
-
-	layout["main-selected"]->visible = status == Status::SELECTED;
-	layout["main-reviewing"]->visible = (status == Status::REVIEWING_SUCESS) || (status == Status::REVIEWING_FAILURE);
-
-	layout["dispatch"]->visible = status == Status::SELECTED;
-	layout["close"]->visible = status == Status::SELECTED;
-	layout["close-centered"]->visible = status != Status::SELECTED;
-
-	auto* attrGraph = layout.get<Dispatch::UI::AttrGraph>("result-attrs");
-	attrGraph->overlap.color = status == Status::REVIEWING_SUCESS ? GREEN : RED;
-
-	auto* dispatch = layout.get<Dispatch::UI::Button>("dispatch");
-	dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);
 
 	updateLayout(layout, "");
 }
@@ -683,7 +368,71 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 		if (!assignedHeroes.empty() && isDisabled) dispatch->changeStatus(Dispatch::UI::Element::Status::REGULAR);
 	}
 	if (changed == "status" || changed == "") {
-		// ??
+		layout["main-selected"]->visible = status == Status::SELECTED;
+		layout["main-reviewing"]->visible = (status == Status::REVIEWING_SUCESS) || (status == Status::REVIEWING_FAILURE);
+		layout["dispatch"]->visible = status == Status::SELECTED;
+		layout["close"]->visible = status == Status::SELECTED;
+		layout["close-centered"]->visible = status != Status::SELECTED;
+
+		layout["right-requirements"]->visible = status == Status::SELECTED || status == Status::REVIEWING_SUCESS || status == Status::REVIEWING_FAILURE;
+		layout["right-assigned-stats"]->visible = status == Status::DISRUPTION_MENU;
+
+		auto* attrGraph = layout.get<Dispatch::UI::AttrGraph>("result-attrs");
+		attrGraph->overlap.color = status == Status::REVIEWING_SUCESS ? GREEN : RED;
+
+		auto* dispatch = layout.get<Dispatch::UI::Button>("dispatch");
+		dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);
+
+		if (status != Status::DISRUPTION_MENU) {
+			layout["main-disruption"]->visible = false;
+			layout["main-disruption-result"]->visible = false;
+			layout["buttons"]->visible = true;
+			layout["right-assigned-stats"]->visible = false;
+			layout["right-choice-made"]->visible = false;
+		} else {
+			auto& disruption = disruptions[curDisruption];
+			bool result = disruption.selected_option != -1;
+			if (result) {
+				auto selOpt = disruption.options[disruption.selected_option];
+				bool success = isDisruptionSuccessful();
+				bool isHero = selOpt.type == Disruption::Option::HERO;
+				if (isHero) layout.updateSharedData("disruption-hero-image-key", std::format("hero-{}-portrait", selOpt.hero));
+				else {
+					AttrMap<int> required, total;
+					for (Attribute::Value attr : Attribute::Values) {
+						required[attr] = selOpt.value;
+						total[attr] = getTotalAttribute(selOpt.attribute);
+					}
+					layout.updateSharedData("required-attributes", required);
+					layout.updateSharedData("total-attributes", total);
+					layout.updateSharedData("disruption-attribute", selOpt.attribute);
+				}
+				layout.updateSharedData("disruption-result-msg", success ? selOpt.successMessage : selOpt.failureMessage);
+
+				for (auto [idx, opt] : Utils::enumerate(disruption.options)) {
+					auto* btn = layout.get<Dispatch::UI::Button>(std::format("choice-made-options.children.{}", opt.name));
+					btn->changeStatus((int)idx == disruption.selected_option ? btn->SELECTED : btn->DISABLED);
+				}
+
+				layout["disruption-result-hero"]->visible = isHero;
+				layout["disruption-result-regular"]->visible = !isHero;
+				layout.get<Dispatch::UI::AttrGraph>("disruption-result-regular-stats")->overlap.color = success ? GREEN : RED;
+			} else {
+				layout.updateSharedData("disruption-description", disruption.description);
+				std::vector<std::string> options;
+				for (auto& option : disruption.options) {
+					options.push_back(option.name);
+					layout.updateSharedData(std::format("disruption-options-{}-name", option.name), option.type == Disruption::Option::HERO ? option.disabled ? "???" : option.hero : option.attribute);
+					layout.updateSharedData(std::format("disruption-options-{}-disabled", option.name), option.disabled);
+				}
+				layout.updateSharedData("disruption-options", options);
+			}
+			layout["main-disruption"]->visible = !result;
+			layout["main-disruption-result"]->visible = result;
+			layout["buttons"]->visible = result;
+			layout["right-assigned-stats"]->visible = !result;
+			layout["right-choice-made"]->visible = result;
+		}
 	}
 }
 
