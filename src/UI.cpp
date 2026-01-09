@@ -760,20 +760,19 @@ namespace Dispatch::UI {
 	}
 	// RadioButton
 	void RadioButton::preInit() {
-		Button::preInit();
+		TextButton::preInit();
 		if (orig.contains("selected")) {
 			layout->updateSharedData(key, id);
 			changeStatus(Status::SELECTED);
 		}
 		layout->registerSharedDataListener(key, id);
 	}
-
 	void RadioButton::_handleInput(raylib::Vector2 offset) {
-		Button::_handleInput(offset);
+		TextButton::_handleInput(offset);
 		if (release) layout->updateSharedData(key, id);
 	}
 	void RadioButton::onSharedDataUpdate(const std::string& k, const nlohmann::json& value) {
-		Button::onSharedDataUpdate(k, value);
+		TextButton::onSharedDataUpdate(k, value);
 		if (key != k) return;
 		if (value == id) changeStatus(Status::SELECTED);
 		else if (status == Status::SELECTED) changeStatus(Status::REGULAR);
@@ -1336,12 +1335,12 @@ namespace Dispatch::UI {
 	}
 	void RadioButton::to_json(nlohmann::json& j) const {
 		auto& inst = *this;
-		Button::to_json(j);
+		TextButton::to_json(j);
 		WRITE(key);
 	}
 	void RadioButton::from_json(const nlohmann::json& j) {
 		auto& inst = *this;
-		Button::from_json(j);
+		TextButton::from_json(j);
 		READ(j, key);
 	}
 	void Circle::to_json(json& j) const {

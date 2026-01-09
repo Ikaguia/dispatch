@@ -23,7 +23,7 @@ public:
 	std::map<std::string, std::string> bio;
 	std::unordered_map<std::string, std::string> img_paths;
 	AttrMap<int> unconfirmed_attributes;
-	std::vector<Power> powers;
+	std::vector<std::string> powers;
 	enum Status {
 		ASSIGNED,
 		TRAVELLING,

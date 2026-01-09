@@ -9,6 +9,7 @@
 #include <MissionsHandler.hpp>
 #include <HeroesHandler.hpp>
 #include <TextureManager.hpp>
+#include <PowersManager.hpp>
 #include <CityMap.hpp>
 #include <UI.hpp>
 
@@ -27,6 +28,7 @@ int main() {
 		HeroesHandler& heroesHandler = HeroesHandler::inst();
 		MissionsHandler& missionsHandler = MissionsHandler::inst();
 		TextureManager& textureManager = TextureManager::inst();
+		PowersManager& powersManager = PowersManager::inst();
 		CityMap& cityMap = CityMap::inst();
 		std::string paused = "";
 
@@ -128,6 +130,7 @@ int main() {
 		missionsHandler.missions.clear();
 		heroesHandler.heroes.clear();
 		textureManager.clear();
+		powersManager.clear();
 	} catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		throw e;

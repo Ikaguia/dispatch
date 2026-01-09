@@ -9,6 +9,7 @@
 #include <HeroesHandler.hpp>
 #include <MissionsHandler.hpp>
 #include <UI.hpp>
+#include <PowersManager.hpp>
 
 #include <nlohmann/json.hpp>
 using nlohmann::json;
@@ -202,8 +203,10 @@ void HeroesHandler::selectHero(const std::string& name) {
 		const Hero& hero = getRef(selected);
 		const AttrMap<int>& attrs = hero.attributes();
 		std::vector<std::string> powerNames;
-		for (const auto& power : hero.powers) powerNames.push_back(power.name);
-		for (const auto& power : hero.powers) {
+		auto& ph = PowersManager::inst();
+		for (auto& key : hero.powers) {
+			auto& power = ph[key];
+			powerNames.push_back(power.name);
 			layoutHeroDetails.updateSharedData("powers." + power.name + ".name", power.unlocked ? power.name : "???");
 			layoutHeroDetails.updateSharedData("powers." + power.name + ".description", power.unlocked ? power.description : "???");
 		}
@@ -211,7 +214,6 @@ void HeroesHandler::selectHero(const std::string& name) {
 		layoutHeroDetails.updateSharedData("name", hero.name);
 		layoutHeroDetails.updateSharedData("bio", hero.bio);
 		layoutHeroDetails.updateSharedData("tags", hero.tags);
-		layoutHeroDetails.updateSharedData("powers", hero.powers);
 		layoutHeroDetails.updateSharedData("powerNames", powerNames);
 		layoutHeroDetails.updateSharedData("full-image-key", std::format("hero-{}-full", hero.name));
 		layoutHeroDetails.updateSharedData("mugshot-image-key", std::format("hero-{}-mugshot", hero.name));

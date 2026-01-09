@@ -9,7 +9,7 @@
 #include <Mission.hpp>
 #include <CityMap.hpp>
 #include <HeroesHandler.hpp>
-#include <Power.hpp>
+#include <PowersManager.hpp>
 #include <Attribute.hpp>
 #include <MissionsHandler.hpp>
 #include <TextureManager.hpp>
@@ -276,7 +276,7 @@ void Hero::to_json(nlohmann::json& j, const Hero& hero) {
 		{"images", hero.img_paths},
 		{"attributes", hero.real_attributes},
 		// {"unconfirmed_attributes", hero.unconfirmed_attributes},
-		{"powers", hero.powers},
+		{"powers", json::array()},
 		// {"status", hero.status},
 		{"health", hero.health},
 		{"travelSpeedMult", hero.travelSpeedMult},
@@ -292,6 +292,11 @@ void Hero::to_json(nlohmann::json& j, const Hero& hero) {
 		// {"pos", hero.pos},
 		// {"path", hero.path},
 	};
+	auto& ph = PowersManager::inst();
+	for (auto& key : hero.powers) {
+		auto& power = ph[key];
+		j["powers"].emplace_back(power);
+	}
 }
 void Hero::from_json(const nlohmann::json& j, Hero& hero) {
 	READREQ(j, name);
@@ -315,7 +320,15 @@ void Hero::from_json(const nlohmann::json& j, Hero& hero) {
 
 	READREQ2(j, real_attributes, attributes);
 	// READ(j, unconfirmed_attributes);
-	READ(j, powers);
+	if (j.contains("powers")) {
+	auto& ph = PowersManager::inst();
+		for (auto& jp : j["powers"]) {
+			auto pName = jp.at("name").get<std::string>();
+			auto key = std::format("{}-{}", hero.name, pName);
+			ph.load(jp, key);
+			hero.powers.push_back(key);
+		}
+	}
 	// READ(j, status);
 	READ(j, health);
 	READ(j, travelSpeedMult);
