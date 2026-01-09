@@ -190,7 +190,24 @@ namespace Dispatch::UI {
 
 	class TextBox : public virtual Box, public virtual Text {};
 
-	class Button : public virtual TextBox {
+	class Image : public virtual Element {
+	public:
+		std::string imgPath, imgKey, placeholderPath, placeholderKey;
+		Utils::FillType fillType = Utils::FillType::fill;
+		Utils::Anchor imageAnchor = Utils::Anchor::center;
+		raylib::Color tintColor = WHITE;
+
+		virtual void init() override;
+		virtual void _render() override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+		virtual std::string sharedDataDefault() const override;
+
+		virtual void from_json(const nlohmann::json& j) override;
+		virtual void to_json(nlohmann::json& j) const override;
+	};
+
+	class Button : public virtual Box {
 	public:
 		struct StatusChanges {
 			std::vector<raylib::Color> inner, outter;
@@ -201,9 +218,10 @@ namespace Dispatch::UI {
 			StatusChanges() = default;
 		};
 		std::unordered_map<Status, StatusChanges> statusChanges;
+		std::string disabledPath;
 		float size_mult = 1.0f;
 
-		Button() : TextBox() {
+		Button() : Box() {
 			statusChanges = std::unordered_map<Status, StatusChanges>{
 				{Status::REGULAR, {{bgLgt, bgLgt, bgMed, bgLgt}, {bgMed}, {BLACK}, textColor, 1.0f, 0}},
 				{Status::HOVERED, {{SKYBLUE}, {BLUE}, {BLACK}, textColor, 1.1f, 30}},
@@ -213,15 +231,41 @@ namespace Dispatch::UI {
 			};
 		}
 
+		virtual void init() override;
 		virtual void solveSize() override;
 		virtual void changeStatus(Status st, bool force=false) override;
 		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
 
 		virtual void to_json(nlohmann::json& j) const override;
 		virtual void from_json(const nlohmann::json& j) override;
 	};
 
-	class RadioButton : public virtual Button {
+	class TextButton : public virtual Button, public virtual Text {
+	public:
+		TextButton(): Button(), Text() {}
+
+		virtual void changeStatus(Status st, bool force=false) override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+
+		virtual void to_json(nlohmann::json& j) const override;
+		virtual void from_json(const nlohmann::json& j) override;
+	};
+
+	class ImageButton : public virtual Button, public virtual Image {
+	public:
+		ImageButton(): Button(), Image() {}
+
+		virtual void init() override;
+		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
+		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
+
+		virtual void to_json(nlohmann::json& j) const override;
+		virtual void from_json(const nlohmann::json& j) override;
+	};
+
+	class RadioButton : public virtual TextButton {
 	public:
 		std::string key;
 
@@ -246,22 +290,6 @@ namespace Dispatch::UI {
 
 	class TextCircle : public virtual Circle, public virtual Text {
 	public:
-		virtual void from_json(const nlohmann::json& j) override;
-		virtual void to_json(nlohmann::json& j) const override;
-	};
-
-	class Image : public virtual Element {
-	public:
-		std::string imgPath, imgKey, placeholderPath, placeholderKey;
-		Utils::FillType fillType = Utils::FillType::fill;
-		Utils::Anchor imageAnchor = Utils::Anchor::center;
-		raylib::Color tintColor = WHITE;
-
-		virtual void init() override;
-		virtual void _render() override;
-		virtual bool applyStylePart(const std::string& key, const nlohmann::json& value) override;
-		virtual void onSharedDataUpdate(const std::string& key, const nlohmann::json& value) override;
-		virtual std::string sharedDataDefault() const override;
 		virtual void from_json(const nlohmann::json& j) override;
 		virtual void to_json(nlohmann::json& j) const override;
 	};

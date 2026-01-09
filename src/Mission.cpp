@@ -279,16 +279,6 @@ void Mission::renderUI() {
 }
 
 void Mission::handleInput() {
-	if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
-		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
-		if (status == Mission::PENDING) {
-			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::SELECTED);
-		} else if (status == Mission::AWAITING_REVIEW) {
-			if (mousePos.CheckCollision(position, 28)) changeStatus(isSuccessful() ? Mission::REVIEWING_SUCESS : Mission::REVIEWING_FAILURE);
-		} else if (status == Mission::DISRUPTION) {
-			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::DISRUPTION_MENU);
-		}
-	}
 	if (isMenuOpen()) {
 		auto& layout = MissionsHandler::inst().layoutMissionDetails;
 
@@ -296,10 +286,17 @@ void Mission::handleInput() {
 			if (layout.clicked.contains("close")) {
 				changeStatus(Mission::PENDING);
 				layout.resetInput();
-			}
-			else if (layout.clicked.contains("dispatch") && !assignedHeroes.empty()) {
+			} else if (layout.clicked.contains("dispatch") && !assignedHeroes.empty()) {
 				changeStatus(Mission::TRAVELLING);
 				layout.resetInput();
+			} else {
+				for (int i = 0; i < slots; i++) {
+					auto& heroName = assignedSlots[i];
+					if (!heroName.empty()) {
+						std::string s_key = std::format("slots.children.{}-{}", i, heroName);
+						if (layout.clicked.contains(s_key)) unassignHero(heroName);
+					}
+				}
 			}
 		} else if (status == Mission::REVIEWING_SUCESS || status == Mission::REVIEWING_FAILURE) {
 			if (layout.clicked.contains("close-centered")) {
@@ -324,6 +321,15 @@ void Mission::handleInput() {
 					layout.resetInput();
 				}
 			}
+		}
+	} else if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
+		raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
+		if (status == Mission::PENDING) {
+			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::SELECTED);
+		} else if (status == Mission::AWAITING_REVIEW) {
+			if (mousePos.CheckCollision(position, 28)) changeStatus(isSuccessful() ? Mission::REVIEWING_SUCESS : Mission::REVIEWING_FAILURE);
+		} else if (status == Mission::DISRUPTION) {
+			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::DISRUPTION_MENU);
 		}
 	}
 }
@@ -351,11 +357,13 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 				std::string s_key = std::format("{}-empty", i);
 				slotNames.push_back(s_key);
 				layout.deleteSharedData(s_key + "-image-key");
+				layout.updateSharedData(s_key + "-disabled", true);
 			} else {
 				auto& hero = HeroesHandler::inst()[assignedSlots[i]];
 				std::string s_key = std::format("{}-{}", i, hero.name);
 				slotNames.push_back(s_key);
 				layout.updateSharedData(s_key + "-image-key", std::format("hero-{}-portrait", hero.name));
+				layout.updateSharedData(s_key + "-disabled", false);
 			}
 		}
 		layout.updateSharedData("slot-names", slotNames);

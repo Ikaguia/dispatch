@@ -142,15 +142,15 @@
 								"verticalConstraint": { "end": "father-bottom" },
 								"dataPath": "slot-names",
 								"childTemplate": {
-									"type": "IMAGE",
-									"id": "slot-{$slots}-image",
+									"type": "IMAGEBUTTON",
 									"size": { "x": 0.24, "y": 1.0 },
 									"horizontalConstraint": { "start": "father-start", "end": "father-end", "ratio": "{$slots|spread}" },
 									"verticalConstraint": { "start": "father-top", "end": "father-bottom" },
 									"imgKey": "{@{$slots}-image-key}",
 									"borderColor": "BLACK",
 									"borderThickness": 1,
-									"innerColor": "GRAY"
+									"innerColor": "GRAY",
+									"disabledPath": "{$slots}-disabled"
 								},
 								"style": "BLANK"
 							}
@@ -215,14 +215,14 @@
 								"verticalConstraint": { "end": "father-bottom" },
 								"dataPath": "disruption-options",
 								"childTemplate": {
-									"type": "BUTTON",
+									"type": "TEXTBUTTON",
 									"size": { "x": 0.9, "y": 0.25 },
 									"horizontalConstraint": "father-h",
 									"verticalConstraint": { "start": { "type": "element", "side": "bottom" }, "offset": 5 },
 									"text": "{@disruption-options-{$disruption-options}-name}",
 									"innerColors": [ "BGMED", "BGMED", "BGLGT", "BGMED" ],
 									"borderThickness": 2,
-									"disabled": "{@disruption-options-{$disruption-options}-disabled}"
+									"disabledPath": "disruption-options-{$disruption-options}-disabled"
 								},
 								"style": "BLANK"
 							}
@@ -308,7 +308,7 @@
 						"verticalConstraint": { "end": "father-bottom" },
 						"subElements": [
 							{
-								"type": "BUTTON",
+								"type": "TEXTBUTTON",
 								"id": "close-centered",
 								"father_id": "mapRect",
 								"size": { "x": 0.495, "y": 1.0 },
@@ -317,7 +317,7 @@
 								"text": "CLOSE",
 								"visible": false
 							}, {
-								"type": "BUTTON",
+								"type": "TEXTBUTTON",
 								"id": "close",
 								"father_id": "mapRect",
 								"size": { "x": 0.495, "y": 1.0 },
@@ -325,7 +325,7 @@
 								"verticalConstraint": { "end": "father-bottom" },
 								"text": "CLOSE"
 							}, {
-								"type": "BUTTON",
+								"type": "TEXTBUTTON",
 								"id": "dispatch",
 								"father_id": "mapRect",
 								"size": { "x": 0.495, "y": 1.0 },
@@ -496,7 +496,7 @@
 										"verticalConstraint": "father-v",
 										"dataPath": "disruption-options",
 										"childTemplate": {
-											"type": "BUTTON",
+											"type": "TEXTBUTTON",
 											"size": { "x": 0.9, "y": 0.2 },
 											"horizontalConstraint": "father-h",
 											"verticalConstraint": { "start": { "type": "element", "side": "bottom" }, "offset": 5 },

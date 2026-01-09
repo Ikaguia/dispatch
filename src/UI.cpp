@@ -19,6 +19,8 @@ namespace Dispatch::UI {
 		else if (type == "TEXT") return std::make_unique<Text>();
 		else if (type == "TEXTBOX") return std::make_unique<TextBox>();
 		else if (type == "BUTTON") return std::make_unique<Button>();
+		else if (type == "TEXTBUTTON") return std::make_unique<TextButton>();
+		else if (type == "IMAGEBUTTON") return std::make_unique<ImageButton>();
 		else if (type == "RADIOBUTTON") return std::make_unique<RadioButton>();
 		else if (type == "CIRCLE") return std::make_unique<Circle>();
 		else if (type == "TEXTCIRCLE") return std::make_unique<TextCircle>();
@@ -605,87 +607,6 @@ namespace Dispatch::UI {
 		else return false;
 		return true;
 	}
-	// Button
-	void Button::solveSize() {
-		Element::solveSize();
-		size.x *= size_mult;
-		size.y *= size_mult;
-		boundsMap[Bound::REGULAR].width *= size_mult;
-		boundsMap[Bound::REGULAR].height *= size_mult;
-	}
-	void Button::changeStatus(Status st, bool force) {
-		Status oldStatus = status;
-		float oldSizeMult = size_mult;
-		Element::changeStatus(st);
-		if (force || (status != oldStatus)) {
-			StatusChanges& oldSc = statusChanges[oldStatus];
-			StatusChanges& sc = statusChanges[status];
-			innerColors = sc.inner;
-			outterColors = sc.outter;
-			borderColor = sc.border;
-			fontColor = sc.text;
-			size_mult = sc.size_mult;
-			if (oldSc.z_order_offset != sc.z_order_offset) {
-				z_order -= oldSc.z_order_offset;
-				z_order += sc.z_order_offset;
-				if (!father_id.empty()) (*layout)[father_id]->resortSub = true;
-			}
-			if (initialized && (size_mult != oldSizeMult)) solveLayout();
-		}
-	}
-	bool Button::applyStylePart(const std::string& key, const nlohmann::json& value) {
-		if (TextBox::applyStylePart(key, value)) ;
-		else if (key == "statusChanges") value.get_to(statusChanges);
-		else if (key == "size_mult") value.get_to(size_mult);
-		else {
-			for (Status st : statuses) {
-				if (key == std::format("statusChanges.{}", json{st}.dump())) {
-					value.get_to(statusChanges[st]);
-					return true;
-				} else if (key == std::format("statusChanges.{}.inner", json{st}.dump())) {
-					value.get_to(statusChanges[st].inner);
-					return true;
-				} else if (key == std::format("statusChanges.{}.outter", json{st}.dump())) {
-					value.get_to(statusChanges[st].outter);
-					return true;
-				} else if (key == std::format("statusChanges.{}.border", json{st}.dump())) {
-					value.get_to(statusChanges[st].border);
-					return true;
-				} else if (key == std::format("statusChanges.{}.text", json{st}.dump())) {
-					value.get_to(statusChanges[st].text);
-					return true;
-				} else if (key == std::format("statusChanges.{}.size_mult", json{st}.dump())) {
-					value.get_to(statusChanges[st].size_mult);
-					return true;
-				} else if (key == std::format("statusChanges.{}.z_order_offset", json{st}.dump())) {
-					value.get_to(statusChanges[st].z_order_offset);
-					return true;
-				}
-			}
-			return false;
-		}
-		return true;
-	}
-	// RadioButton
-	void RadioButton::preInit() {
-		Button::preInit();
-		if (orig.contains("selected")) {
-			layout->updateSharedData(key, id);
-			changeStatus(Status::SELECTED);
-		}
-		layout->registerSharedDataListener(key, id);
-	}
-
-	void RadioButton::_handleInput(raylib::Vector2 offset) {
-		Button::_handleInput(offset);
-		if (release) layout->updateSharedData(key, id);
-	}
-	void RadioButton::onSharedDataUpdate(const std::string& k, const nlohmann::json& value) {
-		Button::onSharedDataUpdate(k, value);
-		if (key != k) return;
-		if (value == id) changeStatus(Status::SELECTED);
-		else if (status == Status::SELECTED) changeStatus(Status::REGULAR);
-	}
 	// Image
 	void Image::init() {
 		Element::init();
@@ -731,6 +652,132 @@ namespace Dispatch::UI {
 		else if (!placeholderKey.empty()) { if (!TM.has(placeholderKey)) TM.load(placeholderPath, placeholderKey); }
 	}
 	std::string Image::sharedDataDefault() const { return ""; }
+	// Button
+	void Button::init() {
+		if (!disabledPath.empty()) {
+			layout->registerSharedDataListener(disabledPath, id);
+			onSharedDataUpdate(disabledPath, layout->sharedData[disabledPath]);
+		}
+	}
+	void Button::solveSize() {
+		Element::solveSize();
+		size.x *= size_mult;
+		size.y *= size_mult;
+		boundsMap[Bound::REGULAR].width *= size_mult;
+		boundsMap[Bound::REGULAR].height *= size_mult;
+	}
+	void Button::changeStatus(Status st, bool force) {
+		Status oldStatus = status;
+		float oldSizeMult = size_mult;
+		Element::changeStatus(st);
+		if (force || (status != oldStatus)) {
+			StatusChanges& oldSc = statusChanges[oldStatus];
+			StatusChanges& sc = statusChanges[status];
+			innerColors = sc.inner;
+			outterColors = sc.outter;
+			borderColor = sc.border;
+			size_mult = sc.size_mult;
+			if (oldSc.z_order_offset != sc.z_order_offset) {
+				z_order -= oldSc.z_order_offset;
+				z_order += sc.z_order_offset;
+				if (!father_id.empty()) (*layout)[father_id]->resortSub = true;
+			}
+			if (initialized && (size_mult != oldSizeMult)) solveLayout();
+		}
+	}
+	bool Button::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (Box::applyStylePart(key, value)) ;
+		else if (key == "statusChanges") value.get_to(statusChanges);
+		else if (key == "size_mult") value.get_to(size_mult);
+		else {
+			for (Status st : statuses) {
+				if (key == std::format("statusChanges.{}", json{st}.dump())) {
+					value.get_to(statusChanges[st]);
+					return true;
+				} else if (key == std::format("statusChanges.{}.inner", json{st}.dump())) {
+					value.get_to(statusChanges[st].inner);
+					return true;
+				} else if (key == std::format("statusChanges.{}.outter", json{st}.dump())) {
+					value.get_to(statusChanges[st].outter);
+					return true;
+				} else if (key == std::format("statusChanges.{}.border", json{st}.dump())) {
+					value.get_to(statusChanges[st].border);
+					return true;
+				} else if (key == std::format("statusChanges.{}.text", json{st}.dump())) {
+					value.get_to(statusChanges[st].text);
+					return true;
+				} else if (key == std::format("statusChanges.{}.size_mult", json{st}.dump())) {
+					value.get_to(statusChanges[st].size_mult);
+					return true;
+				} else if (key == std::format("statusChanges.{}.z_order_offset", json{st}.dump())) {
+					value.get_to(statusChanges[st].z_order_offset);
+					return true;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+	void Button::onSharedDataUpdate(const std::string& key, const json& value) {
+		if (key == disabledPath) {
+			if (value.is_null()) return;
+			bool d;
+			value.get_to(d);
+			if (d && status != Status::DISABLED) changeStatus(Status::DISABLED);
+			else if (!d && status == Status::DISABLED) changeStatus(Status::REGULAR);
+		}
+	}
+	// TextButton
+	void TextButton::changeStatus(Status st, bool force) {
+		Status oldStatus = status;
+		Button::changeStatus(st, force);
+		if (force || (status != oldStatus)) fontColor = statusChanges[status].text;
+	}
+	bool TextButton::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (Button::applyStylePart(key, value)) {}
+		else if (Text::applyStylePart(key, value)) {}
+		// else if (key == "aaa") value.get_to(aaa);
+		return false;
+	}
+	void TextButton::onSharedDataUpdate(const std::string& key, const json& value) {
+		Button::onSharedDataUpdate(key, value);
+		Text::onSharedDataUpdate(key, value);
+	}
+	// ImageButton
+	void ImageButton::init() {
+		Button::init();
+		Image::init();
+	}
+	bool ImageButton::applyStylePart(const std::string& key, const nlohmann::json& value) {
+		if (Button::applyStylePart(key, value)) {}
+		else if (Image::applyStylePart(key, value)) {}
+		// else if (key == "aaa") value.get_to(aaa);
+		return false;
+	}
+	void ImageButton::onSharedDataUpdate(const std::string& key, const json& value) {
+		Button::onSharedDataUpdate(key, value);
+		Image::onSharedDataUpdate(key, value);
+	}
+	// RadioButton
+	void RadioButton::preInit() {
+		Button::preInit();
+		if (orig.contains("selected")) {
+			layout->updateSharedData(key, id);
+			changeStatus(Status::SELECTED);
+		}
+		layout->registerSharedDataListener(key, id);
+	}
+
+	void RadioButton::_handleInput(raylib::Vector2 offset) {
+		Button::_handleInput(offset);
+		if (release) layout->updateSharedData(key, id);
+	}
+	void RadioButton::onSharedDataUpdate(const std::string& k, const nlohmann::json& value) {
+		Button::onSharedDataUpdate(k, value);
+		if (key != k) return;
+		if (value == id) changeStatus(Status::SELECTED);
+		else if (status == Status::SELECTED) changeStatus(Status::REGULAR);
+	}
 	// RadarGraph
 	void RadarGraph::init() {
 		for (auto& [v,_] : groups) if (v.size() != segments.size()) v.resize(segments.size());
@@ -1232,19 +1279,60 @@ namespace Dispatch::UI {
 		READ(j, fontColor);
 		READ(j, textAnchor);
 	}
+	void Image::to_json(json& j) const {
+		auto& inst = *this;
+		Element::to_json(j);
+		if (!imgPath.empty()) WRITE(imgPath);
+		if (!imgKey.empty()) WRITE(imgKey);
+		if (!placeholderPath.empty()) WRITE(placeholderPath);
+		if (!placeholderKey.empty()) WRITE(placeholderKey);
+		WRITE(fillType);
+		WRITE(imageAnchor);
+		WRITE(tintColor);
+	}
+	void Image::from_json(const json& j) {
+		auto& inst = *this;
+		Element::from_json(j);
+		READ(j, imgPath);
+		READREQ(j, imgKey);
+		READ(j, placeholderPath);
+		READ(j, placeholderKey);
+		READ(j, fillType);
+		READ(j, imageAnchor);
+		READ(j, tintColor);
+	}
 	void Button::to_json(nlohmann::json& j) const {
 		auto& inst = *this;
-		Text::to_json(j);
+		Box::to_json(j);
 		WRITE(statusChanges);
+		WRITE(disabledPath);
 	}
 	void Button::from_json(const nlohmann::json& j) {
-		Text::from_json(j);
+		auto& inst = *this;
+		Box::from_json(j);
 		if (j.contains("statusChanges")) {
 			for (Element::Status st : Element::statuses) {
 				std::string sts{json{st}.dump()}; sts = sts.substr(2, sts.size()-4);
 				if (j["statusChanges"].contains(sts)) j["statusChanges"][sts].get_to(statusChanges[st]);
 			}
 		}
+		READ(j, disabledPath);
+	}
+	void TextButton::to_json(nlohmann::json& j) const {
+		Text::to_json(j);
+		Button::to_json(j);
+	}
+	void TextButton::from_json(const nlohmann::json& j) {
+		Text::from_json(j);
+		Button::from_json(j);
+	}
+	void ImageButton::to_json(nlohmann::json& j) const {
+		Image::to_json(j);
+		Button::to_json(j);
+	}
+	void ImageButton::from_json(const nlohmann::json& j) {
+		Image::from_json(j);
+		Button::from_json(j);
 	}
 	void RadioButton::to_json(nlohmann::json& j) const {
 		auto& inst = *this;
@@ -1287,28 +1375,6 @@ namespace Dispatch::UI {
 			j_copy["size"] = raylib::Vector2{radius, radius};
 		}
 		Text::from_json(j_copy);
-	}
-	void Image::to_json(json& j) const {
-		auto& inst = *this;
-		Element::to_json(j);
-		if (!imgPath.empty()) WRITE(imgPath);
-		if (!imgKey.empty()) WRITE(imgKey);
-		if (!placeholderPath.empty()) WRITE(placeholderPath);
-		if (!placeholderKey.empty()) WRITE(placeholderKey);
-		WRITE(fillType);
-		WRITE(imageAnchor);
-		WRITE(tintColor);
-	}
-	void Image::from_json(const json& j) {
-		auto& inst = *this;
-		Element::from_json(j);
-		READ(j, imgPath);
-		READREQ(j, imgKey);
-		READ(j, placeholderPath);
-		READ(j, placeholderKey);
-		READ(j, fillType);
-		READ(j, imageAnchor);
-		READ(j, tintColor);
 	}
 	void RadarGraph::to_json(json& j) const {
 		auto& inst = *this;
