@@ -379,46 +379,46 @@ namespace Dispatch::UI {
 
 namespace nlohmann {
 	// JSON Serialization
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Style& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Style& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Box& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Box& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Text& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Text& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::TextBox& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::TextBox& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Button& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadioButton& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadioButton& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Circle& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Circle& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::TextCircle& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::TextCircle& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Image& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Image& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::AttrGraph& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::AttrGraph& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::ScrollBox& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::ScrollBox& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::DataInspector& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::DataInspector& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::DataArray& inst) { j = nlohmann::json(); inst.to_json(j); }
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::DataArray& inst) { inst.from_json(j); }
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint& inst);
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst);
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst);
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst);
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Button::StatusChanges& inst);
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button::StatusChanges& inst);
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Segment& inst);
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Segment& inst);
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Group& inst);
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Group& inst);
+	inline void to_json(json& j, const Dispatch::UI::Style& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::Style& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::Element& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::Element& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::Box& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::Box& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::Text& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::Text& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::TextBox& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::TextBox& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::Button& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::Button& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::RadioButton& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::RadioButton& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::Circle& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::Circle& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::TextCircle& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::TextCircle& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::Image& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::Image& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::RadarGraph& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::RadarGraph& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::AttrGraph& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::AttrGraph& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::ScrollBox& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::ScrollBox& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::DataInspector& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::DataInspector& inst) { inst.from_json(j); }
+	inline void to_json(json& j, const Dispatch::UI::DataArray& inst) { j = json(); inst.to_json(j); }
+	inline void from_json(const json& j, Dispatch::UI::DataArray& inst) { inst.from_json(j); }
+	void to_json(json& j, const Dispatch::UI::Element::Constraint& inst);
+	void from_json(const json& j, Dispatch::UI::Element::Constraint& inst);
+	void to_json(json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst);
+	void from_json(const json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst);
+	void to_json(json& j, const Dispatch::UI::Button::StatusChanges& inst);
+	void from_json(const json& j, Dispatch::UI::Button::StatusChanges& inst);
+	void to_json(json& j, const Dispatch::UI::RadarGraph::Segment& inst);
+	void from_json(const json& j, Dispatch::UI::RadarGraph::Segment& inst);
+	void to_json(json& j, const Dispatch::UI::RadarGraph::Group& inst);
+	void from_json(const json& j, Dispatch::UI::RadarGraph::Group& inst);
 
 	NLOHMANN_JSON_SERIALIZE_ENUM( Dispatch::UI::Side, {
 		{Dispatch::UI::Side::INVALID, "invalid"},

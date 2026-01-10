@@ -76,7 +76,7 @@ void HeroesHandler::renderUI() {
 	if (paused()) layoutHeroDetails.render();
 }
 
-void updateLayoutStatsData(Dispatch::UI::Layout& layout, const Hero& hero) {
+void updateLayoutStatsData(Dispatch::UI::Layout& layout, Hero& hero) {
 	auto* confirm = layout.get<Dispatch::UI::Button>("stats-confirm");
 	auto* reset = layout.get<Dispatch::UI::Button>("stats-reset");
 	if (!confirm) throw std::runtime_error("Hero details layout is missing 'stats-confirm' element or it is of the wrong type.");
@@ -200,7 +200,7 @@ void HeroesHandler::selectHero(const std::string& name) {
 	selected = name;
 
 	if (paused()) {
-		const Hero& hero = getRef(selected);
+		Hero& hero = getRef(selected);
 		const AttrMap<int>& attrs = hero.attributes();
 		std::vector<std::string> powerNames;
 		auto& ph = PowersManager::inst();

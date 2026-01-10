@@ -1478,13 +1478,13 @@ namespace Dispatch::UI {
 }
 
 namespace nlohmann {
-	inline void to_json(json& j, const Dispatch::UI::Element::Constraint& inst) {
+	void to_json(json& j, const Dispatch::UI::Element::Constraint& inst) {
 		WRITE(offset);
 		WRITE(ratio);
 		WRITE(start);
 		WRITE(end);
 	};
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst) {
+	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint& inst) {
 		if (j.is_object()) {
 			READ(j, offset);
 			READ(j, ratio);
@@ -1509,12 +1509,12 @@ namespace nlohmann {
 		} else if (j.is_array() && (int)j.size() == 1) j[0].get_to(inst);
 		else throw std::runtime_error("Invalid type for Element Constraint");
 	}
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
+	void to_json(nlohmann::json& j, const Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
 		WRITE(type);
 		WRITE(element_id);
 		WRITE(side);
 	}
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
+	void from_json(const nlohmann::json& j, Dispatch::UI::Element::Constraint::ConstraintPart& inst) {
 		if (j.is_object()) {
 			READREQ(j, type);
 			READ(j, element_id);
@@ -1537,23 +1537,23 @@ namespace nlohmann {
 		} else if (j.is_array() && (int)j.size() == 1) j[0].get_to(inst);
 		else throw std::runtime_error("Invalid type for Element Constraint Part");
 	}
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Segment& inst) {
+	void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Segment& inst) {
 		WRITE(label);
 		WRITE(icon);
 	}
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Segment& inst) {
+	void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Segment& inst) {
 		READREQ(j, label);
 		READ(j, icon);
 	}
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Group& inst) {
+	void to_json(nlohmann::json& j, const Dispatch::UI::RadarGraph::Group& inst) {
 		WRITE(values);
 		WRITE(color);
 	}
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Group& inst) {
+	void from_json(const nlohmann::json& j, Dispatch::UI::RadarGraph::Group& inst) {
 		READREQ(j, values);
 		READ(j, color);
 	}
-	inline void to_json(nlohmann::json& j, const Dispatch::UI::Button::StatusChanges& inst) {
+	void to_json(nlohmann::json& j, const Dispatch::UI::Button::StatusChanges& inst) {
 		WRITE(inner);
 		WRITE(outter);
 		WRITE(border);
@@ -1561,7 +1561,7 @@ namespace nlohmann {
 		WRITE(size_mult);
 		WRITE(z_order_offset);
 	}
-	inline void from_json(const nlohmann::json& j, Dispatch::UI::Button::StatusChanges& inst) {
+	void from_json(const nlohmann::json& j, Dispatch::UI::Button::StatusChanges& inst) {
 		READ(j, inner);
 		READ(j, outter);
 		READ(j, border);

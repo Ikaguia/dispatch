@@ -13,6 +13,7 @@
 #include <Attribute.hpp>
 #include <MissionsHandler.hpp>
 #include <TextureManager.hpp>
+#include <PowersManager.hpp>
 
 using nlohmann::json;
 
@@ -22,17 +23,27 @@ Hero::Hero(const json& data) {
 	Hero::from_json(data, *this);
 }
 
-AttrMap<int> Hero::attributes() const {
-	if (health == Health::NORMAL) return real_attributes;
-	AttrMap<int> attrs = real_attributes;
-	for (auto& [key, val] : attrs) {
-		if (health == Health::WOUNDED) if (val > 1) val--;
-		if (health == Health::DOWNED) val = 1;
+AttrMap<int> Hero::attributes() {
+	if (needsAttrCalc) {
+		memo_attributes = real_attributes;
+		auto& pm = PowersManager::inst();
+		EventData ed;
+		HeroCalcAttrData ad;
+		ad.name = name;
+		for (auto& [key, val] : memo_attributes) {
+			ad.attr = key;
+			ad.val = &val;
+			ed = ad;
+			pm.callAll(Event::HERO_CALC_ATTR, ed);
+			if (health == Health::WOUNDED) { if (val > 1) val--; }
+			else if (health == Health::DOWNED) val = 1;
+		}
+		needsAttrCalc = false;
 	}
-	return attrs;
+	return memo_attributes;
 }
 
-float Hero::travelSpeed() const { return travelSpeedMult * (50 + 2.5f*attributes()[Attribute::MOBILITY]); }
+float Hero::travelSpeed() { return travelSpeedMult * (50 + 2.5f*attributes()[Attribute::MOBILITY]); }
 
 bool Hero::canFly() const {
 	if (flies) return true;
@@ -172,10 +183,12 @@ void Hero::changeStatus(Status st, std::string msn, float fnTime) {
 	updatePath();
 }
 void Hero::wound(){
+	if (health != Health::DOWNED) needsAttrCalc = true;
 	if (health == Health::NORMAL) health = Health::WOUNDED;
 	else health = Health::DOWNED;
 }
 void Hero::heal(){
+	if (health != Health::NORMAL) needsAttrCalc = true;
 	if (health == Health::DOWNED) health = Health::WOUNDED;
 	else health = Health::NORMAL;
 }
@@ -196,6 +209,7 @@ void Hero::applyAttributeChanges() {
 		real_attributes[attr] += unconfirmed_attributes[attr];
 		unconfirmed_attributes[attr] = 0;
 	}
+	needsAttrCalc = true;
 }
 void Hero::resetAttributeChanges() {
 	for (int i = 0; i < Attribute::COUNT; i++) {
@@ -321,11 +335,12 @@ void Hero::from_json(const nlohmann::json& j, Hero& hero) {
 	READREQ2(j, real_attributes, attributes);
 	// READ(j, unconfirmed_attributes);
 	if (j.contains("powers")) {
-	auto& ph = PowersManager::inst();
+		auto& ph = PowersManager::inst();
 		for (auto& jp : j["powers"]) {
 			auto pName = jp.at("name").get<std::string>();
 			auto key = std::format("{}-{}", hero.name, pName);
 			ph.load(jp, key);
+			ph[key].hero = hero.name;
 			hero.powers.push_back(key);
 		}
 	}

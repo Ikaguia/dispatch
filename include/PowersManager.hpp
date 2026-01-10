@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -12,8 +13,8 @@ class PowersManager {
 private:
 	PowersManager();
 	std::unordered_map<std::string, std::unique_ptr<Power>> powers;
-	std::unordered_map<Event, std::unordered_set<std::string>> listeners;
-	std::unordered_map<Event, std::vector<std::string>> toListen, toUnlisten;
+	std::map<Event, std::unordered_set<std::string>> listeners;
+	std::map<Event, std::vector<std::string>> toListen, toUnlisten;
 	void updateListeners();
 public:
 	static PowersManager& inst();

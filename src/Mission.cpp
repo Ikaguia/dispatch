@@ -14,6 +14,7 @@ using nlohmann::json;
 #include <Hero.hpp>
 #include <MissionsHandler.hpp>
 #include <HeroesHandler.hpp>
+#include <PowersManager.hpp>
 
 Mission::Mission(
 	const std::string& new_name,
@@ -126,6 +127,7 @@ void Mission::unassignHero(const std::string& hero_name) {
 }
 
 void Mission::changeStatus(Status newStatus) {
+	auto& pm = PowersManager::inst();
 	Status oldStatus = status;
 	status = newStatus;
 	if (newStatus != Mission::PENDING && newStatus != Mission::SELECTED && newStatus != Mission::DISRUPTION && oldStatus != Mission::DISRUPTION) timeElapsed = 0.0f;
@@ -136,6 +138,11 @@ void Mission::changeStatus(Status newStatus) {
 		assignedHeroes.clear();
 		for (auto& slot : assignedSlots) if (!slot.empty()) slot.clear();
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) {
+		MissionStartData md;
+		md.assignedSlots = &assignedSlots;
+		md.name = name;
+		EventData ed{md};
+		pm.callAll(Event::MISSION_START, ed);
 		for (auto hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::TRAVELLING);
 	} else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::DISRUPTION) {
@@ -152,8 +159,25 @@ void Mission::changeStatus(Status newStatus) {
 		disrupted = true;
 		curDisruption = disruptions.size();
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::RETURNING);
-	else if (oldStatus == Mission::AWAITING_REVIEW) Utils::println("Mission {} completed, it was a {}", name, newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure");
-	else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
+	else if (oldStatus == Mission::AWAITING_REVIEW) {
+		EventData ed;
+		Event ev;
+		if (newStatus == Mission::REVIEWING_SUCESS) {
+			MissionSuccessData md;
+			md.assignedSlots = &assignedSlots;
+			md.name = name;
+			ed = md;
+			ev = Event::MISSION_SUCCESS;
+		} else {
+			MissionFailureData md;
+			md.assignedSlots = &assignedSlots;
+			md.name = name;
+			ed = md;
+			ev = Event::MISSION_FAILURE;
+		}
+		pm.callAll(ev, ed);
+		Utils::println("Mission {} completed, it was a {}", name, newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure");
+	} else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		if (oldStatus == Mission::REVIEWING_SUCESS && !disrupted) {
 			float successChance = getSuccessChance();
 			float chanceMult = 10.0f / std::sqrt(successChance ? successChance : 1);

@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <variant>
 
+#include <nlohmann/json.hpp>
+
 #include <Attribute.hpp>
 
 #define EVENT_LIST(V)  \
@@ -45,6 +47,7 @@ public:
 private:
 	Type value;
 public:
+	Event() : value(UNKNOWN) {}
 	Event(Type v) : value(v) {}
 	Event(int i) : value(static_cast<Type>(i)) {}
 	Event(std::string s) {
@@ -87,4 +90,9 @@ public:
 namespace std {
 	template <>
 	struct hash<Event> { std::size_t operator()(const Event& e) const { return std::hash<int>{}(static_cast<int>(e)); } };
+}
+
+namespace nlohmann {
+	inline void to_json(nlohmann::json& j, const Event& inst) { j = static_cast<std::string>(inst); }
+	inline void from_json(const nlohmann::json& j, Event& inst) { inst = j.get<std::string>(); }
 }

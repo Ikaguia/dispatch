@@ -22,6 +22,7 @@ PowersManager& PowersManager::inst() {
 void PowersManager::load(const json& data, const std::string& key) {
 	try {
 		auto power = Power::power_factory(data);
+		for (Event ev : power->getEventList()) on(ev, key);
 		powers[key] = std::move(power);
 	} catch (std::exception& e) {
 		std::cerr << "Key: " << key << ", data: " << data.dump(4) << std::endl;

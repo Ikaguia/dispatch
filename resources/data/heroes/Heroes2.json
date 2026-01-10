@@ -28,12 +28,10 @@
 				"name": "Bass Drop",
 				"description": "If placed in the first slot of a multi-hero call, Feedback grants +1 Combat to all other heroes in the squad.",
 				"unlocked": true
-			},
-			{
+			}, {
 				"name": "Remix",
 				"description": "If Feedback fails a call, he instantly reattempts it, temporarily swapping his Combat and Charisma stats."
-			},
-			{
+			}, {
 				"name": "Encore",
 				"description": "After a successful call, Feedback has a 50% chance to skip his 'Resting' phase entirely."
 			}
@@ -68,16 +66,13 @@
 				"name": "Calculated Angle",
 				"description": "Ricochet grants a buff based on his position: +1 Intellect if placed in the first slot, or +1 Mobility if placed in the last slot.",
 				"unlocked": true
-			},
-			{
+			}, {
 				"name": "Running the Table",
 				"description": "Boosts 'Calculated Angle' by +1 for every hero assigned to his right (if Slot 1) or left (if Last Slot). On success, these buffs persist for the shift."
-			},
-			{
+			}, {
 				"name": "Bank Shot",
 				"description": "If a call fails, Ricochet reattempts it, adding +2 Intellect to his own score for the calculation."
-			},
-			{
+			}, {
 				"name": "Human Pinball",
 				"description": "Ricochet bounces off buildings to travel, effectively flying to the location and bypassing ground obstacles."
 			}
@@ -112,12 +107,10 @@
 				"name": "The Downline",
 				"description": "Miasma gains +1 Charisma for every unique hero she has been dispatched with this shift.",
 				"unlocked": true
-			},
-			{
+			}, {
 				"name": "Detoxify",
 				"description": "If sent with an Injured hero, Miasma removes their Injury status upon completion, but the healed hero loses 1 Intellect for the next call."
-			},
-			{
+			}, {
 				"name": "Aromatherapy",
 				"description": "If Miasma is sent on a call where all available slots (1-4) are filled, the 'Resting' time for the entire squad is reduced by 50% upon return."
 			}
@@ -136,32 +129,26 @@
 		},
 		"appearance": "Extremely pale skin with severe dark circles under his eyes. He wears an oversized, charcoal grey hoodie with the hood constantly up, obscuring most of his face. He has fingerless gloves covered in subtle wiring that connects to a gauntlet on his left arm housing a small screen. His expensive, limited-edition gaming sneakers are impeccably clean because he never goes outside.",
 		"flies": true,
-		"tags": [
-			"HACKER",
-			"GEN-Z"
-		],
-		"attributes": {
-			"combat": 1,
-			"vigor": 1,
-			"mobility": 2,
-			"charisma": 1,
-			"intelligence": 5
-		},
+		"tags": [ "HACKER", "GEN-Z" ],
+		"attributes": { "combat": 1, "vigor": 1, "mobility": 2, "charisma": 1, "intelligence": 5 },
 		"powers": [
 			{
 				"name": "Algorithm",
 				"description": "Zero gains +1 Intellect after every successful dispatch. This effect stacks up to +3 but resets if he fails a call or gets injured.",
-				"unlocked": true
-			},
-			{
+				"unlocked": true,
+				"type": "AttrBonusPower",
+				"operations": {
+					"mission_success": [ ["INTELLIGENCE", "+", 1] ],
+					"mission_failure": [ ["INTELLIGENCE", "=", 0] ]
+				},
+				"limit": [ 0, 3 ]
+			}, {
 				"name": "DDoS",
 				"description": "Once per shift, Zero automatically pauses the expiration timer of a critical call for 30 seconds."
-			},
-			{
+			}, {
 				"name": "Overclock",
 				"description": "Zero doubles his Intelligence stat for one call, but he requires triple the rest time afterward to recharge his mental battery."
-			},
-			{
+			}, {
 				"name": "Remote Access",
 				"description": "Zero projects a hologram to the scene, effectively flying to the location and bypassing physical obstacles."
 			}
@@ -196,12 +183,10 @@
 				"name": "Scrap Shield",
 				"description": "Crumple is unaffected by Injuries. If he succeds on a call while Injured, he gains a stacking +1 to that call's highest required stat.",
 				"unlocked": true
-			},
-			{
+			}, {
 				"name": "Heavy Load",
 				"description": "If placed in Slot 1, Crumple gains +2 Vigor for this call, but Travel Time is doubled."
-			},
-			{
+			}, {
 				"name": "Demolition",
 				"description": "Crumple gains +3 Combat, but he automatically fails any Intervention option that relies on Intellect or Stealth."
 			}
@@ -236,16 +221,13 @@
 				"name": "Blue Steel",
 				"description": "Vogue gains +1 Charisma. If placed in the middle slot of a 3-slot call, he gains +2 Charisma instead.",
 				"unlocked": true
-			},
-			{
+			}, {
 				"name": "Pose",
 				"description": "Vogue distracts enemies with a pose, excess charisma is instead added as combat."
-			},
-			{
+			}, {
 				"name": "Fashionably Late",
 				"description": "Vogue arrives at the scene last (increasing Travel Time), but his 'Resting' time is reduced by 50%."
-			},
-			{
+			}, {
 				"name": "Charter Jet",
 				"description": "Vogue flies to call locations in his private helicopter, greatly reducing Travel Time."
 			}
@@ -280,16 +262,13 @@
 				"name": "Nitro",
 				"description": "Joyride gains +1 Mobility. If placed in Slot 1, she also reduces Travel Time by 25%.",
 				"unlocked": true
-			},
-			{
+			}, {
 				"name": "Getaway",
 				"description": "When travelling to or returning from a mission, the entire squad uses Joyride's travel speed."
-			},
-			{
+			}, {
 				"name": "Adrenaline Junkie",
 				"description": "Joyride cannot be assigned to 'Low Danger' calls, but gains +2 to all stats on 'High Danger' calls."
-			},
-			{
+			}, {
 				"name": "Highway Star",
 				"description": "Joyride runs at vehicle speeds, effectively counting as 'Flying' for travel calculation."
 			}
@@ -324,16 +303,13 @@
 				"name": "Mycelium Network",
 				"description": "While Spore is 'Resting', all other Resting heroes recover 25% faster.",
 				"unlocked": true
-			},
-			{
+			}, {
 				"name": "Mitosis",
 				"description": "Spore fills 2 slots in a single dispatch. His stats are applied twice to the total sum, but his Rest Time is doubled."
-			},
-			{
+			}, {
 				"name": "Symbiosis",
 				"description": "If a call fails, Spore prevents the 'Injury' status for the entire squad by absorbing the damage."
-			},
-			{
+			}, {
 				"name": "Tunneling",
 				"description": "Spore travels underground to the call location, bypassing obstacles and effectively counting as flying."
 			}

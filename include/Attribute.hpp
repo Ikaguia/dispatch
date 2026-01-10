@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include <nlohmann/json.hpp>
+#include <nlohmann/detail/macro_scope.hpp>
 
 namespace AttributeUtils {
 	inline constexpr char toLower(char c) { return (c >= 'A' && c <= 'Z') ? static_cast<char>(c + ('a' - 'A')) : c; }
@@ -118,6 +119,17 @@ public:
 namespace Utils { std::string toLower(std::string); }
 
 namespace nlohmann {
+	NLOHMANN_JSON_SERIALIZE_ENUM( Attribute::Value, {
+		{ Attribute::Value::COMBAT, "COMBAT" },
+		{ Attribute::Value::VIGOR, "VIGOR" },
+		{ Attribute::Value::MOBILITY, "MOBILITY" },
+		{ Attribute::Value::CHARISMA, "CHARISMA" },
+		{ Attribute::Value::INTELLIGENCE, "INTELLIGENCE" },
+	});
+	inline void to_json(nlohmann::json& j, const Attribute& inst) { j = static_cast<Attribute::Value>(inst); }
+	inline void from_json(const nlohmann::json& j, Attribute& inst) { inst = j.get<Attribute::Value>(); }
+
+
 	template <typename ValueType>
 	struct adl_serializer<AttrMap<ValueType>> {
 		static void to_json(json& j, const AttrMap<ValueType>& attrs) {

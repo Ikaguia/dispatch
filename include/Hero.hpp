@@ -16,7 +16,7 @@ class Hero;
 
 class Hero {
 private:
-	AttrMap<int> real_attributes;
+	AttrMap<int> real_attributes, memo_attributes;
 public:
 	std::string name, nickname{"?"};
 	std::vector<std::string> tags;
@@ -41,7 +41,7 @@ public:
 		DOWNED
 	} health{NORMAL};
 	float travelSpeedMult=1.0f, elapsedTime=0.0f, finishTime=0.0f, restingTime=10.0f;
-	bool flies=false;
+	bool flies=false, needsAttrCalc=true;
 	int level=1, exp=0, skillPoints=3, expOffset=0;
 	std::string mission;
 	raylib::Vector2 pos{500, 200}, path;
@@ -54,8 +54,8 @@ public:
 	Hero(Hero&&) noexcept = default;
 	Hero& operator=(Hero&&) noexcept = default;
 
-	AttrMap<int> attributes() const;
-	float travelSpeed() const;
+	AttrMap<int> attributes();
+	float travelSpeed();
 	bool canFly() const;
 	int maxExp() const;
 
