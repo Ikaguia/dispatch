@@ -41,20 +41,30 @@ bool PowersManager::has(const std::string& key) const { return powers.contains(k
 const Power& PowersManager::operator[](const std::string& key) const { return *(powers.at(key)); }
 Power& PowersManager::operator[](const std::string& key) { return *(powers.at(key)); }
 
-bool PowersManager::call(Event event, EventData& args) {
+bool PowersManager::check(Event event, EventData& args, const std::unordered_set<std::string>& heroes) {
 	updateListeners();
 	bool result = true;
 	auto& lis = listeners[event];
-	for (auto& key : lis) if (!(*this)[key].preEvent(event, args)) {
-		result = false;
-		break;
+	for (auto& key : lis) {
+		auto& power = (*this)[key];
+		if (!heroes.empty() && !heroes.contains(power.hero)) continue;
+		if (!power.onCheck(event, args)) {
+			result = false;
+			break;
+		}
 	}
+	if (event.is_base() && !heroes.empty()) result = result && check(event.to_any(), args, {});
 	return result;
 }
-void PowersManager::callAll(Event event, EventData& args) {
+void PowersManager::call(Event event, EventData& args, const std::unordered_set<std::string>& heroes) {
 	updateListeners();
 	auto& lis = listeners[event];
-	for (auto& key : lis) (*this)[key].onEvent(event, args);
+	for (auto& key : lis) {
+		auto& power = (*this)[key];
+		if (!heroes.empty() && !heroes.contains(power.hero)) continue;
+		power.onEvent(event, args);
+	}
+	if (event.is_base() && !heroes.empty()) call(event.to_any(), args, {});
 }
 
 void PowersManager::on(Event event, const std::string& key) { toListen[event].push_back(key); }

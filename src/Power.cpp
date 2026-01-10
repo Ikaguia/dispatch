@@ -28,13 +28,13 @@ std::set<Event> Power::getEventList() const { return {}; }
 
 std::set<Event> AttrBonusPower::getEventList() const {
 	auto list = Power::getEventList();
-	list.insert(Event::HERO_CALC_ATTR);
+	list.insert(Event::HeroCalcAttr);
 	for (auto& [ev, _] : operations) list.insert(ev);
 	return list;
 }
 void AttrBonusPower::onEvent(Event event, EventData& args) {
 	Power::onEvent(event, args);
-	if (event == Event::HERO_CALC_ATTR) return;
+	if (event == Event::HeroCalcAttr || event.is_any()) return;
 
 	auto& ops = operations[event];
 	for (auto& [attr, oper, value] : ops) {
@@ -59,9 +59,8 @@ void AttrBonusPower::onEvent(Event event, EventData& args) {
 	}
 	HeroesHandler::inst()[hero].needsAttrCalc = true;
 }
-bool AttrBonusPower::preHeroCalcAttrData(HeroCalcAttrData&) { return true; }
-void AttrBonusPower::onHeroCalcAttrData(HeroCalcAttrData& d) {
-	Power::onHeroCalcAttrData(d);
+void AttrBonusPower::onHeroCalcAttr(Event event, HeroCalcAttrData& d) {
+	Power::onHeroCalcAttr(event, d);
 	(*d.val) += bonus[d.attr];
 }
 

@@ -142,7 +142,7 @@ void Mission::changeStatus(Status newStatus) {
 		md.assignedSlots = &assignedSlots;
 		md.name = name;
 		EventData ed{md};
-		pm.callAll(Event::MISSION_START, ed);
+		pm.call(Event::MissionStart, ed, assignedHeroes);
 		for (auto hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::TRAVELLING);
 	} else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::DISRUPTION) {
@@ -167,15 +167,15 @@ void Mission::changeStatus(Status newStatus) {
 			md.assignedSlots = &assignedSlots;
 			md.name = name;
 			ed = md;
-			ev = Event::MISSION_SUCCESS;
+			ev = Event::MissionSuccess;
 		} else {
 			MissionFailureData md;
 			md.assignedSlots = &assignedSlots;
 			md.name = name;
 			ed = md;
-			ev = Event::MISSION_FAILURE;
+			ev = Event::MissionFailure;
 		}
-		pm.callAll(ev, ed);
+		pm.call(ev, ed, assignedHeroes);
 		Utils::println("Mission {} completed, it was a {}", name, newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure");
 	} else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		if (oldStatus == Mission::REVIEWING_SUCESS && !disrupted) {

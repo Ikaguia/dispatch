@@ -138,8 +138,8 @@
 				"unlocked": true,
 				"type": "AttrBonusPower",
 				"operations": {
-					"mission_success": [ ["INTELLIGENCE", "+", 1] ],
-					"mission_failure": [ ["INTELLIGENCE", "=", 0] ]
+					"MissionSuccess": [ ["INTELLIGENCE", "+", 1] ],
+					"MissionFailure": [ ["INTELLIGENCE", "=", 0] ]
 				},
 				"limit": [ 0, 3 ]
 			}, {

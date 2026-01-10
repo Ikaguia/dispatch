@@ -34,7 +34,7 @@ AttrMap<int> Hero::attributes() {
 			ad.attr = key;
 			ad.val = &val;
 			ed = ad;
-			pm.callAll(Event::HERO_CALC_ATTR, ed);
+			pm.call(Event::HeroCalcAttr, ed, {name});
 			if (health == Health::WOUNDED) { if (val > 1) val--; }
 			else if (health == Health::DOWNED) val = 1;
 		}

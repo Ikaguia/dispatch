@@ -11,18 +11,11 @@
 
 #include <Attribute.hpp>
 
-#define EVENT_LIST(V)  \
-	V(MISSION_START)   \
-	V(MISSION_SUCCESS) \
-	V(MISSION_FAILURE) \
-	V(HERO_CALC_ATTR)
-
-#define EVENT_DATA_LIST(V) \
-	V(MissionStartData)    \
-	V(MissionSuccessData)  \
-	V(MissionFailureData)  \
-	V(HeroCalcAttrData)    \
-	V(GlobalData)
+#define BASE_EVENT_LIST(V) \
+    V(MissionStart,   MissionStartData) \
+    V(MissionSuccess, MissionSuccessData) \
+    V(MissionFailure, MissionFailureData) \
+    V(HeroCalcAttr,  HeroCalcAttrData)
 
 struct MissionStartData { std::string name; const std::vector<std::string>* assignedSlots; };
 struct MissionSuccessData { std::string name; const std::vector<std::string>* assignedSlots; };
@@ -31,17 +24,22 @@ struct HeroCalcAttrData { std::string name; Attribute attr{Attribute::COMBAT}; i
 struct GlobalData {};
 
 using EventData = std::variant<
-	#define AS_VARIANT(TYPE) TYPE,
-	EVENT_DATA_LIST(AS_VARIANT)
+	#define AS_VARIANT(NAME, DATA) DATA,
+	BASE_EVENT_LIST(AS_VARIANT)
 	#undef AS_VARIANT
-std::monostate>;
+GlobalData, std::monostate>;
 
 class Event {
 public:
 	enum Type {
-		#define AS_ENUM(NAME) NAME,
-		EVENT_LIST(AS_ENUM)
+		BASE_START = 0,
+		#define AS_ENUM(NAME, DATA) NAME,
+		BASE_EVENT_LIST(AS_ENUM)
 		#undef AS_ENUM
+		ANY_START,
+		#define AS_ANY_ENUM(NAME, DATA) ANY_##NAME,
+		BASE_EVENT_LIST(AS_ANY_ENUM)
+		#undef AS_ANY_ENUM
 		UNKNOWN = -1
 	};
 private:
@@ -53,9 +51,13 @@ public:
 	Event(std::string s) {
 		std::transform(s.begin(), s.end(), s.begin(), ::toupper);
 		static std::unordered_map<std::string, Type> toString {
-			#define AS_MAP(NAME) {#NAME, NAME},
-			EVENT_LIST(AS_MAP)
+			#define AS_MAP(NAME, DATA) {#NAME, NAME},
+			BASE_EVENT_LIST(AS_MAP)
 			#undef AS_MAP
+
+			#define AS_ANY_MAP(NAME, DATA) {"ANY_"#NAME, ANY_##NAME},
+			BASE_EVENT_LIST(AS_ANY_MAP)
+			#undef AS_ANY_MAP
 		};
 		value = toString.contains(s) ? toString[s] : UNKNOWN;
 	}
@@ -63,25 +65,54 @@ public:
 	operator int() const { return static_cast<int>(value); }
 	operator std::string() const {
 		switch(value) {
-			#define AS_STRING(NAME) case NAME: return #NAME;
-			EVENT_LIST(AS_STRING)
+			#define AS_STRING(NAME, DATA) case NAME: return #NAME;
+			BASE_EVENT_LIST(AS_STRING)
 			#undef AS_STRING
+			#define AS_ANY_STRING(NAME, DATA) case ANY_##NAME: return "ANY_" #NAME;
+			BASE_EVENT_LIST(AS_ANY_STRING)
+			#undef AS_ANY_STRING
 			default: return "UNKNOWN";
 		}
 	}
 
+	#define AS_VECTOR(NAME, DATA) NAME,
+	#define AS_ANY_VECTOR(NAME, DATA) ANY_##NAME,
 	static inline const std::vector<Type> ALL = {
-		#define AS_VECTOR(NAME) NAME,
-		EVENT_LIST(AS_VECTOR)
-		#undef AS_VECTOR
+		BASE_EVENT_LIST(AS_VECTOR)
+		BASE_EVENT_LIST(AS_ANY_VECTOR)
+	}, ALL_BASE = {
+		BASE_EVENT_LIST(AS_VECTOR)
+	}, ALL_ANY = {
+		BASE_EVENT_LIST(AS_ANY_VECTOR)
 	};
+	#undef AS_VECTOR
+	#undef AS_ANY_VECTOR
+
+	bool is_base() const { return value > BASE_START && value < ANY_START; }
+	bool is_any() const { return value > ANY_START; }
+
+	Event to_base() const {
+		if (is_base()) return value;
+		if (is_any()) return value - ANY_START + BASE_START;
+		throw std::runtime_error("Invalid Event::to_base conversion");
+	}
+
+	Event to_any() const {
+		if (is_any()) return value;
+		if (is_base()) return value + ANY_START - BASE_START;
+		throw std::runtime_error("Invalid Event::to_any conversion");
+	}
 
 	static EventData CreateData(Type t) {
 		switch(t) {
-			case MISSION_START: return MissionStartData{};
-			case MISSION_SUCCESS: return MissionSuccessData{};
-			case MISSION_FAILURE: return MissionFailureData{};
-			case HERO_CALC_ATTR: return HeroCalcAttrData{};
+			#define AS_DATA(NAME, DATA) \
+				case NAME:              \
+				/* fallthrough */       \
+				case ANY_##NAME:        \
+				return DATA{};
+			BASE_EVENT_LIST(AS_DATA)
+			#undef AS_DATA
+
 			default: return GlobalData{};
 		}
 	}

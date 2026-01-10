@@ -29,9 +29,9 @@ public:
 	Power& operator[](const std::string& key);
 
 	// If any listener returns false, the event returns false immediatelly, otherwise, returns true
-	bool call(Event event, EventData& data);
+	bool check(Event event, EventData& data, const std::unordered_set<std::string>& heroes={});
 	// Always calls all listeners
-	void callAll(Event event, EventData& data);
+	void call(Event event, EventData& data, const std::unordered_set<std::string>& heroes={});
 
 	void on(Event event, const std::string& key);
 	void off(Event event, const std::string& key);
