@@ -20,7 +20,7 @@
 struct MissionStartData { std::string name; const std::vector<std::string>* assignedSlots; };
 struct MissionSuccessData { std::string name; const std::vector<std::string>* assignedSlots; };
 struct MissionFailureData { std::string name; const std::vector<std::string>* assignedSlots; };
-struct HeroCalcAttrData { std::string name; Attribute attr{Attribute::COMBAT}; int* val; };
+struct HeroCalcAttrData { std::string name; AttrMap<int>* attrs; };
 struct GlobalData {};
 
 using EventData = std::variant<
@@ -37,7 +37,7 @@ public:
 		BASE_EVENT_LIST(AS_ENUM)
 		#undef AS_ENUM
 		ANY_START,
-		#define AS_ANY_ENUM(NAME, DATA) ANY_##NAME,
+		#define AS_ANY_ENUM(NAME, DATA) Any##NAME,
 		BASE_EVENT_LIST(AS_ANY_ENUM)
 		#undef AS_ANY_ENUM
 		UNKNOWN = -1
@@ -49,13 +49,13 @@ public:
 	Event(Type v) : value(v) {}
 	Event(int i) : value(static_cast<Type>(i)) {}
 	Event(std::string s) {
-		std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+		s = Utils::toUpper(s);
 		static std::unordered_map<std::string, Type> toString {
-			#define AS_MAP(NAME, DATA) {#NAME, NAME},
+			#define AS_MAP(NAME, DATA) {Utils::toUpper(#NAME), NAME},
 			BASE_EVENT_LIST(AS_MAP)
 			#undef AS_MAP
 
-			#define AS_ANY_MAP(NAME, DATA) {"ANY_"#NAME, ANY_##NAME},
+			#define AS_ANY_MAP(NAME, DATA) {Utils::toUpper("Any"#NAME), Any##NAME},
 			BASE_EVENT_LIST(AS_ANY_MAP)
 			#undef AS_ANY_MAP
 		};
@@ -68,7 +68,7 @@ public:
 			#define AS_STRING(NAME, DATA) case NAME: return #NAME;
 			BASE_EVENT_LIST(AS_STRING)
 			#undef AS_STRING
-			#define AS_ANY_STRING(NAME, DATA) case ANY_##NAME: return "ANY_" #NAME;
+			#define AS_ANY_STRING(NAME, DATA) case Any##NAME: return "Any" #NAME;
 			BASE_EVENT_LIST(AS_ANY_STRING)
 			#undef AS_ANY_STRING
 			default: return "UNKNOWN";
@@ -76,7 +76,7 @@ public:
 	}
 
 	#define AS_VECTOR(NAME, DATA) NAME,
-	#define AS_ANY_VECTOR(NAME, DATA) ANY_##NAME,
+	#define AS_ANY_VECTOR(NAME, DATA) Any##NAME,
 	static inline const std::vector<Type> ALL = {
 		BASE_EVENT_LIST(AS_VECTOR)
 		BASE_EVENT_LIST(AS_ANY_VECTOR)
@@ -108,7 +108,7 @@ public:
 			#define AS_DATA(NAME, DATA) \
 				case NAME:              \
 				/* fallthrough */       \
-				case ANY_##NAME:        \
+				case Any##NAME:         \
 				return DATA{};
 			BASE_EVENT_LIST(AS_DATA)
 			#undef AS_DATA
@@ -116,14 +116,21 @@ public:
 			default: return GlobalData{};
 		}
 	}
+
+	template<Event::Type T> struct TypeToData;
+
 };
+
+#define LINK_TYPES(NAME, DATA) \
+	template<> struct Event::TypeToData<Event::NAME> { using Type = DATA; }; \
+	template<> struct Event::TypeToData<Event::Any##NAME> { using Type = DATA; };
+BASE_EVENT_LIST(LINK_TYPES)
+#undef LINK_TYPES
 
 namespace std {
 	template <>
 	struct hash<Event> { std::size_t operator()(const Event& e) const { return std::hash<int>{}(static_cast<int>(e)); } };
 }
 
-namespace nlohmann {
-	inline void to_json(nlohmann::json& j, const Event& inst) { j = static_cast<std::string>(inst); }
-	inline void from_json(const nlohmann::json& j, Event& inst) { inst = j.get<std::string>(); }
-}
+inline void to_json(nlohmann::json& j, const Event& inst) { j = static_cast<std::string>(inst); }
+inline void from_json(const nlohmann::json& j, Event& inst) { inst = j.get<std::string>(); }

@@ -27,14 +27,8 @@ AttrMap<int> Hero::attributes() {
 	if (needsAttrCalc) {
 		memo_attributes = real_attributes;
 		auto& pm = PowersManager::inst();
-		EventData ed;
-		HeroCalcAttrData ad;
-		ad.name = name;
-		for (auto& [key, val] : memo_attributes) {
-			ad.attr = key;
-			ad.val = &val;
-			ed = ad;
-			pm.call(Event::HeroCalcAttr, ed, {name});
+		pm.emit<Event::HeroCalcAttr>({name}, name, &memo_attributes);
+		for (auto& [attr, val] : memo_attributes) {
 			if (health == Health::WOUNDED) { if (val > 1) val--; }
 			else if (health == Health::DOWNED) val = 1;
 		}

@@ -23,28 +23,28 @@ public:
 	virtual std::set<Event> getEventList() const;
 
 	template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-	virtual bool onCheck(Event event, EventData& args) {
+	virtual bool onCheck(Event event, const EventData& args) {
 		if (!unlocked) return true;
 		return std::visit(overloaded {
-			#define GEN_VISIT(NAME, DATA) [this, event](DATA& d) { \
-				if (event == Event::NAME) return check##NAME(event, d);   \
-				else return checkANY_##NAME(event, d);             \
+			#define GEN_VISIT(NAME, DATA) [this, event](const DATA& d) { \
+				if (event == Event::NAME) return check##NAME(event, d);  \
+				else return checkAny##NAME(event, d);                    \
 			},
 			BASE_EVENT_LIST(GEN_VISIT)
 			#undef GEN_VISIT
 			[](auto& /* ignore */) { return true; }
 		}, args);
 	}
-	virtual void onEvent(Event event, EventData& args) {
+	virtual void onEvent(Event event, const EventData& args) {
 		if (!unlocked) return;
 		std::visit(overloaded {
-			#define GEN_VISIT(NAME, DATA) [this, event](DATA& d) { \
-				if (event == Event::NAME) on##NAME(event, d);             \
-				else return onANY_##NAME(event, d);                \
+			#define GEN_VISIT(NAME, DATA) [this, event](const DATA& d) { \
+				if (event == Event::NAME) on##NAME(event, d);            \
+				else onAny##NAME(event, d);                              \
 			},
 			BASE_EVENT_LIST(GEN_VISIT)
 			#undef GEN_VISIT
-			[](auto& /* ignore */) {}
+			[](const auto& /* ignore */) {}
 		}, args);
 	}
 
@@ -55,10 +55,10 @@ public:
 	static std::unique_ptr<Power> power_factory(const nlohmann::json& data);
 protected:
 	#define GEN_VIRTUALS(NAME, DATA) \
-		virtual bool check##NAME(Event, DATA&) { return true; } \
-		virtual bool checkANY_##NAME(Event, DATA&) { return true; } \
-		virtual void on##NAME(Event, DATA&) { Utils::println("Event {} called, for power {} of hero {}", #NAME, name, hero); } \
-		virtual void onANY_##NAME(Event, DATA&) { Utils::println("Event ANY_{} called, for power {} of hero {}", #NAME, name, hero); }
+		virtual bool check##NAME(Event, const DATA&) { return true; } \
+		virtual bool checkAny##NAME(Event, const DATA&) { return true; } \
+		virtual void on##NAME(Event, const DATA&) { Utils::println("Event {} called, for power {} of hero {}", #NAME, name, hero); } \
+		virtual void onAny##NAME(Event, const DATA&) { Utils::println("Event Any{} called, for power {} of hero {}", #NAME, name, hero); }
 	BASE_EVENT_LIST(GEN_VIRTUALS)
 	#undef GEN_VIRTUALS
 };
@@ -81,11 +81,27 @@ public:
 	std::map<Event, std::vector<Operation>> operations;
 	AttrMap<int> bonus;
 	int lowerLimit=0, upperLimit=10;
+	enum AppliesTo {
+		SELF,
+		OTHERS,
+		LEFT,
+		RIGHT,
+		ALL,
+		ALL_LEFT,
+		ALL_RIGHT
+	} appliesTo = SELF;
 
 	virtual std::set<Event> getEventList() const override;
 
-	virtual void onEvent(Event event, EventData& args) override;
-	virtual void onHeroCalcAttr(Event event, HeroCalcAttrData&) override;
+	virtual void onEvent(Event event, const EventData& args) override;
+	virtual void onHeroCalcAttr(Event event, const HeroCalcAttrData&) override;
+	virtual void onAnyHeroCalcAttr(Event event, const HeroCalcAttrData&) override;
+	virtual void onMissionStart(Event event, const MissionStartData&) override;
+	virtual void onMissionSuccess(Event event, const MissionSuccessData&) override;
+	virtual void onMissionFailure(Event event, const MissionFailureData&) override;
+
+	void onMission(std::vector<std::string> assignedSlots);
+	bool applies(int mySlot, int otherSlot);
 
 	virtual void to_json(nlohmann::json& j) const override;
 	virtual void from_json(const nlohmann::json& j) override;
@@ -94,6 +110,14 @@ public:
 void to_json(nlohmann::json& j, const ::AttrBonusPower::Operation& inst);
 void from_json(const nlohmann::json& j, ::AttrBonusPower::Operation& inst);
 
+NLOHMANN_JSON_SERIALIZE_ENUM( ::AttrBonusPower::AppliesTo, {
+	{ ::AttrBonusPower::AppliesTo::SELF, "SELF"},
+	{ ::AttrBonusPower::AppliesTo::OTHERS, "OTHERS"},
+	{ ::AttrBonusPower::AppliesTo::LEFT, "LEFT"},
+	{ ::AttrBonusPower::AppliesTo::RIGHT, "RIGHT"},
+	{ ::AttrBonusPower::AppliesTo::ALL_LEFT, "ALL_LEFT"},
+	{ ::AttrBonusPower::AppliesTo::ALL_RIGHT, "ALL_RIGHT"},
+});
 NLOHMANN_JSON_SERIALIZE_ENUM( ::AttrBonusPower::Operator, {
 	{ ::AttrBonusPower::Operator::PLUS, "+" },
 	{ ::AttrBonusPower::Operator::MINUS, "-" },

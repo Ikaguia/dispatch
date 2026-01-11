@@ -31,7 +31,15 @@ public:
 	// If any listener returns false, the event returns false immediatelly, otherwise, returns true
 	bool check(Event event, EventData& data, const std::unordered_set<std::string>& heroes={});
 	// Always calls all listeners
-	void call(Event event, EventData& data, const std::unordered_set<std::string>& heroes={});
+	void call(Event event, const EventData& data, const std::unordered_set<std::string>& heroes={});
+
+	// Variadic function to automatically construct the proper EventData type
+	template <Event::Type T, typename... Args>
+	void emit(const std::unordered_set<std::string>& targets, Args&&... args) {
+		using DataType = typename Event::TypeToData<T>::Type;
+		DataType d{ std::forward<Args>(args)... };
+		call(T, d, targets);
+	}
 
 	void on(Event event, const std::string& key);
 	void off(Event event, const std::string& key);

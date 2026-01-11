@@ -138,10 +138,7 @@ void Mission::changeStatus(Status newStatus) {
 		assignedHeroes.clear();
 		for (auto& slot : assignedSlots) if (!slot.empty()) slot.clear();
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) {
-		MissionStartData md;
-		md.assignedSlots = &assignedSlots;
-		md.name = name;
-		EventData ed{md};
+		EventData ed = MissionStartData{name, &assignedSlots};
 		pm.call(Event::MissionStart, ed, assignedHeroes);
 		for (auto hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::TRAVELLING);
 	} else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {
@@ -160,22 +157,9 @@ void Mission::changeStatus(Status newStatus) {
 		curDisruption = disruptions.size();
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::RETURNING);
 	else if (oldStatus == Mission::AWAITING_REVIEW) {
-		EventData ed;
-		Event ev;
-		if (newStatus == Mission::REVIEWING_SUCESS) {
-			MissionSuccessData md;
-			md.assignedSlots = &assignedSlots;
-			md.name = name;
-			ed = md;
-			ev = Event::MissionSuccess;
-		} else {
-			MissionFailureData md;
-			md.assignedSlots = &assignedSlots;
-			md.name = name;
-			ed = md;
-			ev = Event::MissionFailure;
-		}
-		pm.call(ev, ed, assignedHeroes);
+		bool success = newStatus == Mission::REVIEWING_SUCESS;
+		if (success) pm.emit<Event::MissionSuccess>(assignedHeroes, name, &assignedSlots);
+		else pm.emit<Event::MissionFailure>(assignedHeroes, name, &assignedSlots);
 		Utils::println("Mission {} completed, it was a {}", name, newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure");
 	} else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		if (oldStatus == Mission::REVIEWING_SUCESS && !disrupted) {

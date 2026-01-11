@@ -27,7 +27,14 @@
 			{
 				"name": "Bass Drop",
 				"description": "If placed in the first slot of a multi-hero call, Feedback grants +1 Combat to all other heroes in the squad.",
-				"unlocked": true
+				"unlocked": true,
+				"type": "AttrBonusPower",
+				"operations": {
+					"MissionStart": [ ["COMBAT", "=", 1] ],
+					"MissionSuccess": [ ["COMBAT", "=", 0] ],
+					"MissionFailure": [ ["COMBAT", "=", 0] ]
+				},
+				"appliesTo": "OTHERS"
 			}, {
 				"name": "Remix",
 				"description": "If Feedback fails a call, he instantly reattempts it, temporarily swapping his Combat and Charisma stats."

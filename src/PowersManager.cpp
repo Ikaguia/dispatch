@@ -56,7 +56,7 @@ bool PowersManager::check(Event event, EventData& args, const std::unordered_set
 	if (event.is_base() && !heroes.empty()) result = result && check(event.to_any(), args, {});
 	return result;
 }
-void PowersManager::call(Event event, EventData& args, const std::unordered_set<std::string>& heroes) {
+void PowersManager::call(Event event, const EventData& args, const std::unordered_set<std::string>& heroes) {
 	updateListeners();
 	auto& lis = listeners[event];
 	for (auto& key : lis) {

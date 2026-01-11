@@ -3,6 +3,7 @@
 #include <Power.hpp>
 #include <PowersManager.hpp>
 #include <HeroesHandler.hpp>
+#include <MissionsHandler.hpp>
 #include <Attribute.hpp>
 
 using nlohmann::json;
@@ -28,13 +29,14 @@ std::set<Event> Power::getEventList() const { return {}; }
 
 std::set<Event> AttrBonusPower::getEventList() const {
 	auto list = Power::getEventList();
-	list.insert(Event::HeroCalcAttr);
+	if (appliesTo == SELF) list.insert(Event::HeroCalcAttr);
+	else list.merge(std::set<Event>{Event::AnyHeroCalcAttr, Event::MissionStart, Event::MissionSuccess, Event::MissionFailure});
 	for (auto& [ev, _] : operations) list.insert(ev);
 	return list;
 }
-void AttrBonusPower::onEvent(Event event, EventData& args) {
+void AttrBonusPower::onEvent(Event event, const EventData& args) {
 	Power::onEvent(event, args);
-	if (event == Event::HeroCalcAttr || event.is_any()) return;
+	if (event == Event::HeroCalcAttr || event.is_any() || !operations.contains(event)) return;
 
 	auto& ops = operations[event];
 	for (auto& [attr, oper, value] : ops) {
@@ -59,9 +61,75 @@ void AttrBonusPower::onEvent(Event event, EventData& args) {
 	}
 	HeroesHandler::inst()[hero].needsAttrCalc = true;
 }
-void AttrBonusPower::onHeroCalcAttr(Event event, HeroCalcAttrData& d) {
+void AttrBonusPower::onHeroCalcAttr(Event event, const HeroCalcAttrData& d) {
 	Power::onHeroCalcAttr(event, d);
-	(*d.val) += bonus[d.attr];
+	(*d.attrs) += bonus;
+}
+void AttrBonusPower::onAnyHeroCalcAttr(Event event, const HeroCalcAttrData& d) {
+	Power::onAnyHeroCalcAttr(event, d);
+
+	auto& hh = HeroesHandler::inst();
+	auto& mh = MissionsHandler::inst();
+
+	if (hero.empty() || d.name.empty()) return;
+	Hero& myHero = hh[hero];
+	Hero& dHero = hh[d.name];
+
+	std::string& myMissionName = myHero.mission;
+	std::string& dMissionName = dHero.mission;
+	if (myMissionName.empty() || dMissionName.empty() || myMissionName != dMissionName) return;
+	Mission& mission = mh[myMissionName];
+
+	int mySlot, dSlot;
+	for (int i=0; i<mission.slots; i++) {
+		if (mission.assignedSlots[i] == hero) mySlot = i;
+		if (mission.assignedSlots[i] == d.name) dSlot = i;
+	}
+
+	if (applies(mySlot, dSlot)) (*d.attrs) += bonus;
+}
+void AttrBonusPower::onMissionStart(Event event, const MissionStartData& d) {
+	Power::onMissionStart(event, d);
+	onMission(*d.assignedSlots);
+}
+void AttrBonusPower::onMissionSuccess(Event event, const MissionSuccessData& d) {
+	Power::onMissionSuccess(event, d);
+	onMission(*d.assignedSlots);
+}
+void AttrBonusPower::onMissionFailure(Event event, const MissionFailureData& d) {
+	Power::onMissionFailure(event, d);
+	onMission(*d.assignedSlots);
+}
+void AttrBonusPower::onMission(std::vector<std::string> assignedSlots) {
+	auto& hh = HeroesHandler::inst();
+	auto it = std::find_if(BEGEND(assignedSlots), [&](const std::string& heroName) { return hero == heroName; });
+	if (it != assignedSlots.end()) {
+		int mySlot = it - assignedSlots.begin();
+		for (int slot=0; slot < (int)assignedSlots.size(); slot++) {
+			auto& heroName = assignedSlots[slot];
+			if (!heroName.empty() && applies(mySlot, slot)) hh[heroName].needsAttrCalc = true;
+		}
+	}
+}
+bool AttrBonusPower::applies(int mySlot, int otherSlot) {
+	switch (appliesTo) {
+		case SELF:
+			return otherSlot == mySlot;
+		case OTHERS:
+			return otherSlot != mySlot;
+		case LEFT:
+			return otherSlot == (mySlot-1);
+		case RIGHT:
+			return otherSlot == (mySlot+1);
+		case ALL:
+			return true;
+		case ALL_LEFT:
+			return otherSlot < mySlot;
+		case ALL_RIGHT:
+			return otherSlot > mySlot;
+		default:
+			return false;
+	}
 }
 
 
@@ -98,12 +166,16 @@ void Power::from_json(const json& j) {
 
 void AttrBonusPower::to_json(json& j) const {
 	Power::to_json(j);
-	j["operations"] = operations;
-	j["lowerLimit"] = lowerLimit;
-	j["upperLimit"] = upperLimit;
+	WRITE(operations);
+	WRITE(lowerLimit);
+	WRITE(upperLimit);
+	WRITE(appliesTo);
 }
 void AttrBonusPower::from_json(const json& j) {
 	Power::from_json(j);
+	READ(j, lowerLimit);
+	READ(j, upperLimit);
+	READ(j, appliesTo);
 	operations.clear();
 	const auto& jops = j.at("operations");
 	for (auto& [eventName, _] : jops.items()) {
@@ -111,8 +183,6 @@ void AttrBonusPower::from_json(const json& j) {
 		Event e = static_cast<Event>(eventName);
 		operations[e] = arr.get<std::vector<AttrBonusPower::Operation>>();
 	}
-	lowerLimit = j.value("lowerLimit", lowerLimit);
-	upperLimit = j.value("upperLimit", upperLimit);
 	if (j.contains("limit")) {
 		if (j["limit"].is_array() && j["limit"].size() == 2) {
 			lowerLimit = j["limit"][0].get<int>();
