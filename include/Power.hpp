@@ -18,13 +18,16 @@ public:
 	virtual ~Power()=default;
 
 	std::string name, description, hero;
-	bool unlocked=false, flight=false;
+	bool unlocked=false, flight=false, disabled=false;
+	std::array<std::set<int>, 4> slotRestriction;
 
 	virtual std::set<Event> getEventList() const;
+	virtual bool active() const;
+	virtual bool checkSlotRestriction(const EventData& args);
 
 	template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 	virtual bool onCheck(Event event, const EventData& args) {
-		if (!unlocked) return true;
+		if (!active()) return true;
 		return std::visit(overloaded {
 			#define GEN_VISIT(NAME, DATA) [this, event](const DATA& d) { \
 				if (event == Event::NAME) return check##NAME(event, d);  \
@@ -100,7 +103,7 @@ public:
 	virtual void onMissionSuccess(Event event, const MissionSuccessData&) override;
 	virtual void onMissionFailure(Event event, const MissionFailureData&) override;
 
-	void onMission(std::vector<std::string> assignedSlots);
+	void onMission(const std::vector<std::string>& assignedSlots);
 	bool applies(int mySlot, int otherSlot);
 
 	virtual void to_json(nlohmann::json& j) const override;

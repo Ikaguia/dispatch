@@ -11,11 +11,19 @@
 
 #include <Attribute.hpp>
 
-#define BASE_EVENT_LIST(V) \
-    V(MissionStart,   MissionStartData) \
+#define BASE_EVENT_LIST(V)                \
+    V(MissionStart,   MissionStartData)   \
     V(MissionSuccess, MissionSuccessData) \
     V(MissionFailure, MissionFailureData) \
-    V(HeroCalcAttr,  HeroCalcAttrData)
+    V(HeroCalcAttr,   HeroCalcAttrData)
+
+#define MISSION_EVENTS(V) \
+	V(MissionStart)       \
+	V(MissionSuccess)     \
+	V(MissionFailure)
+
+#define HERO_EVENTS(V) \
+	V(HeroCalcAttr)
 
 struct MissionStartData { std::string name; const std::vector<std::string>* assignedSlots; };
 struct MissionSuccessData { std::string name; const std::vector<std::string>* assignedSlots; };
@@ -102,6 +110,23 @@ public:
 		if (is_base()) return value + ANY_START - BASE_START;
 		throw std::runtime_error("Invalid Event::to_any conversion");
 	}
+
+	#define AS_SWITCH(NAME) \
+		case NAME:      return true; \
+		case Any##NAME: return true;
+	bool is_mission() const {
+		switch (value) {
+			MISSION_EVENTS(AS_SWITCH)
+			default: return false;
+		}
+	}
+	bool is_hero() const {
+		switch (value) {
+			HERO_EVENTS(AS_SWITCH)
+			default: return false;
+		}
+	}
+	#undef AS_SWITCH
 
 	static EventData CreateData(Type t) {
 		switch(t) {

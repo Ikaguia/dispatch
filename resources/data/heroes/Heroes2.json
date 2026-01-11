@@ -34,6 +34,7 @@
 					"MissionSuccess": [ ["COMBAT", "=", 0] ],
 					"MissionFailure": [ ["COMBAT", "=", 0] ]
 				},
+				"slotRestriction": 0,
 				"appliesTo": "OTHERS"
 			}, {
 				"name": "Remix",
@@ -71,8 +72,15 @@
 		"powers": [
 			{
 				"name": "Calculated Angle",
-				"description": "Ricochet grants a buff based on his position: +1 Intellect if placed in the first slot, or +1 Mobility if placed in the last slot.",
-				"unlocked": true
+				"description": "Ricochet grants a buff based on his position: +1 Intelligence if placed in the first slot, or +1 Mobility if placed in the last slot.",
+				"unlocked": true,
+				"type": "AttrBonusPower",
+				"operations": {
+					"MissionStart": [ ["INTELLIGENCE", "=", 1] ],
+					"MissionSuccess": [ ["INTELLIGENCE", "=", 0] ],
+					"MissionFailure": [ ["INTELLIGENCE", "=", 0] ]
+				},
+				"slotRestriction": 0
 			}, {
 				"name": "Running the Table",
 				"description": "Boosts 'Calculated Angle' by +1 for every hero assigned to his right (if Slot 1) or left (if Last Slot). On success, these buffs persist for the shift."

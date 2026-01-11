@@ -8,6 +8,7 @@
 
 using nlohmann::json;
 
+// Power
 std::unique_ptr<Power> Power::power_factory(const std::string& t) {
 	auto type = Utils::toLower(t);
 	if (type == "power") return std::make_unique<Power>();
@@ -24,9 +25,29 @@ std::unique_ptr<Power> Power::power_factory(const json& data) {
 	catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Error: Failed to deserialize power '{}' of type '{}'. {}", name, type, e.what())); }
 	return power;
 }
-
 std::set<Event> Power::getEventList() const { return {}; }
+bool Power::active() const { return unlocked && !disabled; }
+bool Power::checkSlotRestriction(const EventData& args) {
+	const std::vector<std::string>* assignedSlots = std::visit([](auto& d) -> const std::vector<std::string>* {
+		if constexpr (requires { d.assignedSlots; }) { return d.assignedSlots; }
+		else return nullptr; 
+	}, args);
 
+	if (assignedSlots) {
+		const auto& slotsVec = *assignedSlots;
+		int slotsCount = static_cast<int>(slotsVec.size());
+
+		auto it = std::find(slotsVec.begin(), slotsVec.end(), hero);
+		int slot = (it != slotsVec.end()) ? std::distance(slotsVec.begin(), it) : -1;
+
+		if (slot != -1 && slotsCount > 0 && slotsCount <= slotRestriction.size()) {
+			disabled = !slotRestriction[slotsCount - 1].contains(slot);
+		}
+	}
+
+	return disabled;
+}
+// AttrBonusPower
 std::set<Event> AttrBonusPower::getEventList() const {
 	auto list = Power::getEventList();
 	if (appliesTo == SELF) list.insert(Event::HeroCalcAttr);
@@ -37,6 +58,8 @@ std::set<Event> AttrBonusPower::getEventList() const {
 void AttrBonusPower::onEvent(Event event, const EventData& args) {
 	Power::onEvent(event, args);
 	if (event == Event::HeroCalcAttr || event.is_any() || !operations.contains(event)) return;
+
+	if (!checkSlotRestriction(args)) return;
 
 	auto& ops = operations[event];
 	for (auto& [attr, oper, value] : ops) {
@@ -100,7 +123,7 @@ void AttrBonusPower::onMissionFailure(Event event, const MissionFailureData& d) 
 	Power::onMissionFailure(event, d);
 	onMission(*d.assignedSlots);
 }
-void AttrBonusPower::onMission(std::vector<std::string> assignedSlots) {
+void AttrBonusPower::onMission(const std::vector<std::string>& assignedSlots) {
 	auto& hh = HeroesHandler::inst();
 	auto it = std::find_if(BEGEND(assignedSlots), [&](const std::string& heroName) { return hero == heroName; });
 	if (it != assignedSlots.end()) {
@@ -147,12 +170,14 @@ bool AttrBonusPower::applies(int mySlot, int otherSlot) {
 #define WRITE(var)			j[#var] = var;
 #define WRITE2(var, key)	j[#key] = var;
 
+// Power
 void Power::to_json(json& j) const {
 	j = json{
 		{"name", name},
 		{"description", description},
 		{"unlocked", unlocked},
 		{"flight", flight},
+		{"slotRestriction", slotRestriction},
 	};
 }
 void Power::from_json(const json& j) {
@@ -161,9 +186,27 @@ void Power::from_json(const json& j) {
 		description = j.value("description", description);
 		unlocked = j.value("unlocked", unlocked);
 		flight = j.value("flight", flight);
+		if (j.contains("slotRestriction")) {
+			auto& js = j["slotRestriction"];
+			if (js.is_array() && js.size() <= 4) {
+				int i = 0;
+				for (auto& jsv : js) {
+					if (jsv.is_array()) slotRestriction[i] = jsv.get<std::set<int>>();
+					else if (jsv.is_number_integer()) {
+						int s = jsv.get<int>();
+						slotRestriction[i] = { s };
+					} else throw std::runtime_error("Invalid format for Power::slotRestriction: " + jsv.dump());
+					i++;
+				}
+				while(i < 4) slotRestriction[i++].clear();
+			} else if (js.is_number_integer()) {
+				int s = js.get<int>();
+				for (auto& v : slotRestriction) v = { s };
+			} else throw std::runtime_error("Invalid format for Power::slotRestriction: " + js.dump());
+		} else for (auto& v : slotRestriction) v = { 0, 1, 2, 3 };
 	} else throw std::runtime_error("Invalid format for Power");
 }
-
+// AttrBonusPower
 void AttrBonusPower::to_json(json& j) const {
 	Power::to_json(j);
 	WRITE(operations);
@@ -189,8 +232,10 @@ void AttrBonusPower::from_json(const json& j) {
 			upperLimit = j["limit"][1].get<int>();
 		} else throw std::runtime_error("Invalid format for AttrBonusPower limit: " + j["limit"].dump());
 	}
+	std::cerr << json{*this}.dump(4) << std::endl;
 }
 
+// Partial Structs
 void to_json(json& j, const AttrBonusPower::Operation& inst) {
 	j = json {
 		{ "attribute", inst.attribute },
