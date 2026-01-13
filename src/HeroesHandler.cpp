@@ -9,7 +9,7 @@
 #include <HeroesHandler.hpp>
 #include <MissionsHandler.hpp>
 #include <UI.hpp>
-#include <PowersManager.hpp>
+#include <Effect.hpp>
 
 #include <nlohmann/json.hpp>
 using nlohmann::json;
@@ -203,9 +203,7 @@ void HeroesHandler::selectHero(const std::string& name) {
 		Hero& hero = getRef(selected);
 		const AttrMap<int>& attrs = hero.attributes();
 		std::vector<std::string> powerNames;
-		auto& ph = PowersManager::inst();
-		for (auto& key : hero.powers) {
-			auto& power = ph[key];
+		for (auto& power : hero.powers) {
 			powerNames.push_back(power.name);
 			layoutHeroDetails.updateSharedData("powers." + power.name + ".name", power.unlocked ? power.name : "???");
 			layoutHeroDetails.updateSharedData("powers." + power.name + ".description", power.unlocked ? power.description : "???");

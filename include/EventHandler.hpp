@@ -1,30 +1,30 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <variant>
 
 #include <nlohmann/json.hpp>
 
-#include <Power.hpp>
+#include <Effect.hpp>
 #include <Event.hpp>
 
 #define LISTENER_TYPES(V) \
-		V(Power)
+	V(Effect)
 
 #define AS_WEAK_PTR(NAME) std::weak_ptr<NAME>,
 using Listener = std::variant< LISTENER_TYPES(AS_WEAK_PTR) std::monostate>;
 #undef AS_WEAK_PTR
+template<typename T>
+using Listeners = std::map<Event, std::set<std::weak_ptr<T>, std::owner_less<std::weak_ptr<T>>>>;
+template<typename T>
+using toListeners = std::vector<std::pair<Event, std::weak_ptr<T>>>;
 
 
 class EventHandler {
 private:
-	template<typename T>
-	using Listeners = std::map<Event, std::set<std::weak_ptr<T>, std::owner_less<std::weak_ptr<T>>>>;
-	template<typename T>
-	using toListeners = std::vector<std::pair<Event, std::weak_ptr<T>>>;
-
 	EventHandler();
 	#define AS_MAP(NAME) \
 		Listeners<NAME> NAME##Listeners; \

@@ -6,9 +6,9 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include <Hero.hpp>
-#include <Mission.hpp>
 #include <UI.hpp>
+
+class Hero;
 
 class HeroesHandler {
 private:

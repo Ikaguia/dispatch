@@ -55,11 +55,11 @@ namespace Dispatch::UI {
 
 		if (!data_array.empty() && rootElements.empty()) throw std::runtime_error("Layout Error: No root element found");
 
-		Utils::println("Pre-initializing layout '{}'", path);
+		// Utils::println("Pre-initializing layout '{}'", path);
 		for (auto& id : new_ids) elements.at(id)->preInit();
-		Utils::println("Solving layout '{}'", path);
+		// Utils::println("Solving layout '{}'", path);
 		for (auto& id : rootElements) elements.at(id)->solveLayout();
-		Utils::println("Initializing layout '{}'", path);
+		// Utils::println("Initializing layout '{}'", path);
 		for (auto& id : new_ids) elements.at(id)->init();
 	}
 	std::unordered_set<std::string> Layout::load(nlohmann::json& data_array) {
@@ -144,7 +144,7 @@ namespace Dispatch::UI {
 			std::string id = data.at("id").get<std::string>();
 			if (data.at("type").get<std::string>() != "STYLE") continue;
 			if (!styles.count(id)) throw std::runtime_error("Layout Reload Error: New styles cannot be added via hot reload.");
-			std::cout << "Reloading style " << id << std::endl;
+			// std::cout << "Reloading style " << id << std::endl;
 			auto& style = *(styles.at(id).get());
 			try { data.get_to(style); }
 			catch (const std::exception& e) { throw std::runtime_error(std::format("Layout Reload Error: Failed to deserialize style '{}'. {}", id, e.what())); }
@@ -156,7 +156,7 @@ namespace Dispatch::UI {
 			if (type == "STYLE") continue;
 			if (type == "DATAARRAY" || type == "DATAINSPECTOR") continue; // TODO: Make reload work with these two
 			if (!elements.count(id)) throw std::runtime_error("Layout Reload Error: New elements cannot be added via hot reload.");
-			std::cout << "Reloading style " << id << std::endl;
+			// std::cout << "Reloading element " << id << std::endl;
 			auto& el = *(elements.at(id).get());
 			if (data.contains("subElements")) {
 				for (json& s_data : data.at("subElements")) {
@@ -215,11 +215,11 @@ namespace Dispatch::UI {
 		for (const std::string& id : sharedDataListeners[key]) elements.at(id)->onSharedDataUpdate(key, nullptr);
 	}
 	void Layout::registerSharedDataListener(const std::string& key, const std::string& element_id) {
-		Utils::println("Registering element '{}' as listener for shared data key '{}'", element_id, key);
+		// Utils::println("Registering element '{}' as listener for shared data key '{}'", element_id, key);
 		sharedDataListeners[key].insert(element_id);
 	}
 	void Layout::unregisterSharedDataListener(const std::string& key, const std::string& element_id) {
-		Utils::println("Unregistering element '{}' as listener for shared data key '{}'", element_id, key);
+		// Utils::println("Unregistering element '{}' as listener for shared data key '{}'", element_id, key);
 		sharedDataListeners[key].erase(element_id);
 	}
 	void Layout::removeElement(const std::string& id, const std::string& loop) {
@@ -971,7 +971,7 @@ namespace Dispatch::UI {
 		}
 
 		if (data.is_object() || data.is_array()) {
-			Utils::println("Loading dynamic children of element '{}'", id);
+			// Utils::println("Loading dynamic children of element '{}'", id);
 			for (auto& [key, value] : data.items()) {
 				std::string row_id = std::format("{}_row_{}", id, key), text;
 				if (data.is_object()) {
@@ -1037,11 +1037,11 @@ namespace Dispatch::UI {
 			}
 		} else return;
 
-		Utils::println("Pre-initializing dynamic children of element '{}'", id);
+		// Utils::println("Pre-initializing dynamic children of element '{}'", id);
 		for (auto& s_id : subElement_ids) (*layout)[s_id]->preInit();
-		Utils::println("Solving Layout of dynamic children of element '{}'", id);
+		// Utils::println("Solving Layout of dynamic children of element '{}'", id);
 		solveLayout();
-		Utils::println("Initializing dynamic children of element '{}'", id);
+		// Utils::println("Initializing dynamic children of element '{}'", id);
 		for (auto& s_id : subElement_ids) (*layout)[s_id]->init();
 	}
 	bool DataInspector::applyStylePart(const std::string& key, const nlohmann::json& value) {
@@ -1147,15 +1147,15 @@ namespace Dispatch::UI {
 			idx++;
 		}
 
-		Utils::println("Loading dynamic children of element '{}': {}", id, json{subElement_ids}.dump());
+		// Utils::println("Loading dynamic children of element '{}': {}", id, json{subElement_ids}.dump());
 		auto new_ids = layout->load(ja);
 		curChildren = children;
 
-		Utils::println("Pre-initializing dynamic children of element '{}'", id);
+		// Utils::println("Pre-initializing dynamic children of element '{}'", id);
 		for (auto& s_id : new_ids) (*layout)[s_id]->preInit();
-		Utils::println("Solving layout of dynamic children of element '{}'", id);
+		// Utils::println("Solving layout of dynamic children of element '{}'", id);
 		solveLayout();
-		Utils::println("Initializing dynamic children of element '{}'", id);
+		// Utils::println("Initializing dynamic children of element '{}'", id);
 		for (auto& s_id : new_ids) (*layout)[s_id]->init();
 	}
 

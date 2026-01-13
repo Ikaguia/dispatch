@@ -10,6 +10,7 @@
 #include <nlohmann/json.hpp>
 
 #include <Attribute.hpp>
+#include <Utils.hpp>
 
 #define BASE_EVENT_LIST(V)                \
     V(MissionStart,   MissionStartData)   \
@@ -159,3 +160,12 @@ namespace std {
 
 inline void to_json(nlohmann::json& j, const Event& inst) { j = static_cast<std::string>(inst); }
 inline void from_json(const nlohmann::json& j, Event& inst) { inst = j.get<std::string>(); }
+
+inline void to_json(nlohmann::json& j, const EventData& data) {
+	j = nlohmann::json{};
+	std::visit([&](auto&& d) {
+		if constexpr (requires { d.name; }) { j["name"] = nlohmann::json{d.name}; }
+		if constexpr (requires { *d.assignedSlots; }) { if (d.assignedSlots) j["assignedSlots"] = nlohmann::json{*d.assignedSlots}; }
+		if constexpr (requires { *d.attrs; }) { if (d.attrs) j["attrs"] = nlohmann::json{*d.attrs}; }
+	}, data);
+}

@@ -9,11 +9,11 @@
 #include <Mission.hpp>
 #include <CityMap.hpp>
 #include <HeroesHandler.hpp>
-#include <PowersManager.hpp>
+#include <EventHandler.hpp>
 #include <Attribute.hpp>
 #include <MissionsHandler.hpp>
 #include <TextureManager.hpp>
-#include <PowersManager.hpp>
+#include <Effect.hpp>
 
 using nlohmann::json;
 
@@ -26,8 +26,8 @@ Hero::Hero(const json& data) {
 AttrMap<int> Hero::attributes() {
 	if (needsAttrCalc) {
 		memo_attributes = real_attributes;
-		auto& pm = PowersManager::inst();
-		pm.emit<Event::HeroCalcAttr>({name}, name, &memo_attributes);
+		auto& eh = EventHandler::inst();
+		eh.emit<Event::HeroCalcAttr>({name}, name, &memo_attributes);
 		for (auto& [attr, val] : memo_attributes) {
 			if (health == Health::WOUNDED) { if (val > 1) val--; }
 			else if (health == Health::DOWNED) val = 1;
@@ -264,14 +264,14 @@ std::string_view Hero::HealthToString(Health hlt) {
 }
 
 
-#define READ(j, var)		hero.var = j.value(#var, hero.var)
+#define READ(j, var)		if (j.contains(#var)) j[#var].get_to(hero.var)
 #define READREQ(j, var) { \
-							if (j.contains(#var)) hero.var = j.at(#var).get<decltype(hero.var)>(); \
+							READ(j, var); \
 							else throw std::invalid_argument("Hero '" + std::string(#var) + "' cannot be empty"); \
 						}
-#define READ2(j, var, key)	hero.var = j.value(#key, hero.var)
+#define READ2(j, var, key)	if (j.contains(#key)) j[#key].get_to(hero.var)
 #define READREQ2(j, var, key) { \
-							if (j.contains(#key)) hero.var = j.at(#key).get<decltype(hero.var)>(); \
+							READ2(j, var, key); \
 							else throw std::invalid_argument("Hero '" + std::string(#key) + "' cannot be empty"); \
 						}
 
@@ -284,7 +284,7 @@ void Hero::to_json(nlohmann::json& j, const Hero& hero) {
 		{"images", hero.img_paths},
 		{"attributes", hero.real_attributes},
 		// {"unconfirmed_attributes", hero.unconfirmed_attributes},
-		{"powers", json::array()},
+		{"powers", hero.powers},
 		// {"status", hero.status},
 		{"health", hero.health},
 		{"travelSpeedMult", hero.travelSpeedMult},
@@ -300,11 +300,6 @@ void Hero::to_json(nlohmann::json& j, const Hero& hero) {
 		// {"pos", hero.pos},
 		// {"path", hero.path},
 	};
-	auto& ph = PowersManager::inst();
-	for (auto& key : hero.powers) {
-		auto& power = ph[key];
-		j["powers"].emplace_back(power);
-	}
 }
 void Hero::from_json(const nlohmann::json& j, Hero& hero) {
 	READREQ(j, name);
@@ -328,16 +323,6 @@ void Hero::from_json(const nlohmann::json& j, Hero& hero) {
 
 	READREQ2(j, real_attributes, attributes);
 	// READ(j, unconfirmed_attributes);
-	if (j.contains("powers")) {
-		auto& ph = PowersManager::inst();
-		for (auto& jp : j["powers"]) {
-			auto pName = jp.at("name").get<std::string>();
-			auto key = std::format("{}-{}", hero.name, pName);
-			ph.load(jp, key);
-			ph[key].hero = hero.name;
-			hero.powers.push_back(key);
-		}
-	}
 	// READ(j, status);
 	READ(j, health);
 	READ(j, travelSpeedMult);
@@ -352,4 +337,14 @@ void Hero::from_json(const nlohmann::json& j, Hero& hero) {
 	// READ(j, mission);
 	// READ(j, pos);
 	// READ(j, path);
+	if (j.contains("powers")) {
+		auto& jps = j["powers"];
+		hero.powers.resize(jps.size());
+		int i = 0;
+		for (auto& jp : jps) {
+			auto& p = hero.powers[i++];
+			p.hero = &hero;
+			p.from_json(jp);
+		}
+	}
 }

@@ -8,11 +8,9 @@
 #include <unordered_set>
 #include <unordered_map>
 
-class Hero;
-
 #include <Attribute.hpp>
-#include <Mission.hpp>
-#include <Power.hpp>
+
+class Power;
 
 class Hero {
 private:
@@ -23,7 +21,7 @@ public:
 	std::map<std::string, std::string> bio;
 	std::unordered_map<std::string, std::string> img_paths;
 	AttrMap<int> unconfirmed_attributes;
-	std::vector<std::string> powers;
+	std::vector<Power> powers;
 	enum Status {
 		ASSIGNED,
 		TRAVELLING,
@@ -105,3 +103,5 @@ namespace nlohmann {
 		{ Hero::Health::DOWNED, "downed" },
 	});
 }
+
+#include <Power.hpp>

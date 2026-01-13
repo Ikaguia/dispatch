@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include <EventHandler.hpp>
+#include <Effect.hpp>
+#include <Hero.hpp>
 
 using nlohmann::json;
 
@@ -25,7 +27,13 @@ void processListenersCheck(Listeners<T>& container, Event event, EventData& args
 			cleanup(event, weak);
 			continue;
 		}
-		if constexpr (requires { shared->hero; }) if (!targetHeroes.empty() && !targetHeroes.contains(shared->hero)) continue;
+		if constexpr (requires { { shared->hero } -> std::convertible_to<std::string>; }) {
+			if (!targetHeroes.empty() && !targetHeroes.contains(shared->hero)) continue;
+		} else if constexpr (requires { { shared->hero->name } -> std::convertible_to<std::string>; }) {
+			if (!targetHeroes.empty() && !targetHeroes.contains(shared->hero->name)) continue;
+		} else {
+			static_assert(sizeof(shared) == 0, "T must have a 'hero' string or a 'hero.name' string.");
+		}
 		if (!shared->onCheck(event, args)) {
 			result = false;
 			return;
@@ -59,7 +67,13 @@ void processListenersCall(Listeners<T>& container, Event event, const EventData&
 			cleanup(event, weak);
 			continue;
 		}
-		if constexpr (requires { shared->hero; }) if (!targetHeroes.empty() && !targetHeroes.contains(shared->hero)) continue;
+		if constexpr (requires { { shared->hero } -> std::convertible_to<std::string>; }) {
+			if (!targetHeroes.empty() && !targetHeroes.contains(shared->hero)) continue;
+		} else if constexpr (requires { { shared->hero->name } -> std::convertible_to<std::string>; }) {
+			if (!targetHeroes.empty() && !targetHeroes.contains(shared->hero->name)) continue;
+		} else {
+			static_assert(sizeof(shared) == 0, "T must have a 'hero' string or a 'hero->name' string.");
+		}
 		shared->onEvent(event, args);
 	}
 }

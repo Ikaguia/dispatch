@@ -14,7 +14,7 @@ using nlohmann::json;
 #include <Hero.hpp>
 #include <MissionsHandler.hpp>
 #include <HeroesHandler.hpp>
-#include <PowersManager.hpp>
+#include <EventHandler.hpp>
 
 Mission::Mission(
 	const std::string& new_name,
@@ -127,7 +127,7 @@ void Mission::unassignHero(const std::string& hero_name) {
 }
 
 void Mission::changeStatus(Status newStatus) {
-	auto& pm = PowersManager::inst();
+	auto& eh = EventHandler::inst();
 	Status oldStatus = status;
 	status = newStatus;
 	if (newStatus != Mission::PENDING && newStatus != Mission::SELECTED && newStatus != Mission::DISRUPTION && oldStatus != Mission::DISRUPTION) timeElapsed = 0.0f;
@@ -139,7 +139,7 @@ void Mission::changeStatus(Status newStatus) {
 		for (auto& slot : assignedSlots) if (!slot.empty()) slot.clear();
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) {
 		EventData ed = MissionStartData{name, &assignedSlots};
-		pm.call(Event::MissionStart, ed, assignedHeroes);
+		eh.emit<Event::MissionStart>(assignedHeroes, name, &assignedSlots);
 		for (auto hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::TRAVELLING);
 	} else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::DISRUPTION) {
@@ -158,8 +158,8 @@ void Mission::changeStatus(Status newStatus) {
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::RETURNING);
 	else if (oldStatus == Mission::AWAITING_REVIEW) {
 		bool success = newStatus == Mission::REVIEWING_SUCESS;
-		if (success) pm.emit<Event::MissionSuccess>(assignedHeroes, name, &assignedSlots);
-		else pm.emit<Event::MissionFailure>(assignedHeroes, name, &assignedSlots);
+		if (success) eh.emit<Event::MissionSuccess>(assignedHeroes, name, &assignedSlots);
+		else eh.emit<Event::MissionFailure>(assignedHeroes, name, &assignedSlots);
 		Utils::println("Mission {} completed, it was a {}", name, newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure");
 	} else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		if (oldStatus == Mission::REVIEWING_SUCESS && !disrupted) {

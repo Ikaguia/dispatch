@@ -28,14 +28,18 @@
 				"name": "Bass Drop",
 				"description": "If placed in the first slot of a multi-hero call, Feedback grants +1 Combat to all other heroes in the squad.",
 				"unlocked": true,
-				"type": "AttrBonusPower",
-				"operations": {
-					"MissionStart": [ ["COMBAT", "=", 1] ],
-					"MissionSuccess": [ ["COMBAT", "=", 0] ],
-					"MissionFailure": [ ["COMBAT", "=", 0] ]
-				},
-				"slotRestriction": 0,
-				"appliesTo": "OTHERS"
+				"effects": [
+					{
+						"type": "AttrBonusEffect",
+						"operations": {
+							"MissionStart": [ ["COMBAT", "=", 1] ],
+							"MissionSuccess": [ ["COMBAT", "=", 0] ],
+							"MissionFailure": [ ["COMBAT", "=", 0] ]
+						},
+						"slotRestriction": 0,
+						"appliesTo": "OTHERS"
+					}
+				]
 			}, {
 				"name": "Remix",
 				"description": "If Feedback fails a call, he instantly reattempts it, temporarily swapping his Combat and Charisma stats."
@@ -74,13 +78,25 @@
 				"name": "Calculated Angle",
 				"description": "Ricochet grants a buff based on his position: +1 Intelligence if placed in the first slot, or +1 Mobility if placed in the last slot.",
 				"unlocked": true,
-				"type": "AttrBonusPower",
-				"operations": {
-					"MissionStart": [ ["INTELLIGENCE", "=", 1] ],
-					"MissionSuccess": [ ["INTELLIGENCE", "=", 0] ],
-					"MissionFailure": [ ["INTELLIGENCE", "=", 0] ]
-				},
-				"slotRestriction": 0
+				"effects": [
+					{
+						"type": "AttrBonusEffect",
+						"operations": {
+							"MissionStart": [ ["INTELLIGENCE", "=", 1] ],
+							"MissionSuccess": [ ["INTELLIGENCE", "=", 0] ],
+							"MissionFailure": [ ["INTELLIGENCE", "=", 0] ]
+						},
+						"slotRestriction": 0
+					}, {
+						"type": "AttrBonusEffect",
+						"operations": {
+							"MissionStart": [ ["MOBILITY", "=", 1] ],
+							"MissionSuccess": [ ["MOBILITY", "=", 0] ],
+							"MissionFailure": [ ["MOBILITY", "=", 0] ]
+						},
+						"slotRestriction": [ 0, 1, 2, 3 ]
+					}
+				]
 			}, {
 				"name": "Running the Table",
 				"description": "Boosts 'Calculated Angle' by +1 for every hero assigned to his right (if Slot 1) or left (if Last Slot). On success, these buffs persist for the shift."
@@ -151,12 +167,16 @@
 				"name": "Algorithm",
 				"description": "Zero gains +1 Intellect after every successful dispatch. This effect stacks up to +3 but resets if he fails a call or gets injured.",
 				"unlocked": true,
-				"type": "AttrBonusPower",
-				"operations": {
-					"MissionSuccess": [ ["INTELLIGENCE", "+", 1] ],
-					"MissionFailure": [ ["INTELLIGENCE", "=", 0] ]
-				},
-				"limit": [ 0, 3 ]
+				"effects": [
+					{
+						"type": "AttrBonusEffect",
+						"operations": {
+							"MissionSuccess": [ ["INTELLIGENCE", "+", 1] ],
+							"MissionFailure": [ ["INTELLIGENCE", "=", 0] ]
+						},
+						"upperLimit": 3
+					}
+				]
 			}, {
 				"name": "DDoS",
 				"description": "Once per shift, Zero automatically pauses the expiration timer of a critical call for 30 seconds."
@@ -235,7 +255,25 @@
 			{
 				"name": "Blue Steel",
 				"description": "Vogue gains +1 Charisma. If placed in the middle slot of a 3-slot call, he gains +2 Charisma instead.",
-				"unlocked": true
+				"unlocked": true,
+				"effects": [
+					{
+						"type": "AttrBonusEffect",
+						"operations": {
+							"MissionStart": [ ["CHARISMA", "=", 1] ],
+							"MissionSuccess": [ ["CHARISMA", "=", 0] ],
+							"MissionFailure": [ ["CHARISMA", "=", 0] ]
+						}
+					}, {
+						"type": "AttrBonusEffect",
+						"operations": {
+							"MissionStart": [ ["CHARISMA", "=", 1] ],
+							"MissionSuccess": [ ["CHARISMA", "=", 0] ],
+							"MissionFailure": [ ["CHARISMA", "=", 0] ]
+						},
+						"slotRestriction": [ [], [], [1], [] ]
+					}
+				]
 			}, {
 				"name": "Pose",
 				"description": "Vogue distracts enemies with a pose, excess charisma is instead added as combat."
@@ -276,7 +314,17 @@
 			{
 				"name": "Nitro",
 				"description": "Joyride gains +1 Mobility. If placed in Slot 1, she also reduces Travel Time by 25%.",
-				"unlocked": true
+				"unlocked": true,
+				"effects": [
+					{
+						"type": "AttrBonusEffect",
+						"operations": {
+							"MissionStart": [ ["MOBILITY", "=", 1] ],
+							"MissionSuccess": [ ["MOBILITY", "=", 0] ],
+							"MissionFailure": [ ["MOBILITY", "=", 0] ]
+						}
+					}
+				]
 			}, {
 				"name": "Getaway",
 				"description": "When travelling to or returning from a mission, the entire squad uses Joyride's travel speed."
