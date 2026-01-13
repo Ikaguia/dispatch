@@ -200,9 +200,9 @@ CFLAGS += -MMD -MP     #recompile .cpp when included .hpp are changed.
 # CFLAGS += -DBUILD_RAYLIB_CPP_MODULES -fmodules-ts
 
 ifeq ($(BUILD_MODE),DEBUG)
-	CFLAGS += -g -O0
+	CFLAGS += -g -O0 -DDEBUG_BUILD
 else
-	CFLAGS += -s -O1
+	CFLAGS += -s -O1 -DRELEASE_BUILD
 endif
 
 # Additional flags for compiler (if desired)

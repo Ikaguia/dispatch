@@ -17,8 +17,11 @@
 
 using nlohmann::json;
 
-// raylib::Window window(1920, 1080, "raylib-cpp - basic window"); float bgScale;
+#ifdef RELEASE_BUILD
+raylib::Window window(GetScreenWidth(), GetScreenHeight(), "raylib-cpp - basic window"); float bgScale;
+#else // DEBUG_BUILD
 raylib::Window window(960, 540, "raylib-cpp - basic window"); float bgScale;
+#endif
 
 int main() {
 	AttachConsole();
@@ -68,6 +71,7 @@ int main() {
 			crtShader.SetValue(crtTimeLoc, &t, SHADER_UNIFORM_FLOAT);
 			cloudShader.SetValue(cloudsTimeLoc, &t, SHADER_UNIFORM_FLOAT);
 
+			#ifdef DEBUG_BUILD
 			if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
 				raylib::Vector2 mousePos = raylib::Mouse::GetPosition();
 				std::cout << "mousePos: " << mousePos.x << "," << mousePos.y << std::endl;
@@ -88,6 +92,7 @@ int main() {
 					std::cout << "	" << missionName << ": " << json{mission.status} << std::endl;
 				}
 			}
+			#endif
 
 			target.BeginMode();
 				ClearBackground(BLACK);
@@ -117,14 +122,18 @@ int main() {
 
 			BeginDrawing();
 				window.ClearBackground(BLACK);
-				// crtShader.BeginMode();
+				#ifdef RELEASE_BUILD
+				crtShader.BeginMode();
+				#endif
 					DrawTextureRec(
 						target.texture,
 						Rectangle{0, 0, (float)target.texture.width, -(float)target.texture.height},
 						Vector2{0, 0},
 						WHITE
 					);
-				// crtShader.EndMode();
+				#ifdef RELEASE_BUILD
+				crtShader.EndMode();
+				#endif
 			EndDrawing();
 		}
 

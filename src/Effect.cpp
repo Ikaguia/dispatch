@@ -84,8 +84,8 @@ void Effect::onEvent(Event event, const EventData& args) {
 #define GEN_VIRTUALS(NAME, DATA) \
 	bool Effect::check##NAME(Event, const DATA&) { return true; } \
 	bool Effect::checkAny##NAME(Event, const DATA&) { return true; } \
-	void Effect::on##NAME(Event, const DATA&) { Utils::println("	on{}: power {} of hero {}", #NAME, power->name, hero->name); } \
-	void Effect::onAny##NAME(Event, const DATA&) { Utils::println("	onAny{}: power {} of hero {}", #NAME, power->name, hero->name); }
+	void Effect::on##NAME(Event, const DATA&) { /* Utils::println("	on{}: power {} of hero {}", #NAME, power->name, hero->name); */ } \
+	void Effect::onAny##NAME(Event, const DATA&) { /* Utils::println("	onAny{}: power {} of hero {}", #NAME, power->name, hero->name); */ }
 BASE_EVENT_LIST(GEN_VIRTUALS)
 #undef GEN_VIRTUALS
 #endif
@@ -146,7 +146,7 @@ void AttrBonusEffect::onAnyHeroCalcAttr(Event event, const HeroCalcAttrData& d) 
 	if (myMissionName.empty() || dMissionName.empty() || myMissionName != dMissionName) return;
 	Mission& mission = mh[myMissionName];
 
-	int mySlot, dSlot;
+	int mySlot=-1, dSlot=-1;
 	for (int i=0; i<mission.slots; i++) {
 		if (mission.assignedSlots[i] == myHero.name) mySlot = i;
 		if (mission.assignedSlots[i] == d.name) dSlot = i;
