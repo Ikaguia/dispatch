@@ -105,7 +105,7 @@ void AttrBonusEffect::onEvent(Event event, const EventData& args) {
 
 	auto& ops = operations[event];
 	for (auto& [attr, oper, value] : ops) {
-		int oldBonus = bonus[attr];
+		// int oldBonus = bonus[attr];
 		switch (oper) {
 			case Operator::PLUS:
 				bonus[attr] += value;

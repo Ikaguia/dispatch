@@ -10,11 +10,11 @@
 			"PREVENT any sparks from igniting the fumes"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 8,
-			"MOBILITY": 6,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 9,
+			"vigor": 8,
+			"mobility": 6,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [
 			850,
@@ -40,11 +40,11 @@
 			"DISPERSE the crowd and clear traffic"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 4,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 6
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 4,
+			"charisma": 7,
+			"intelligence": 6
 		},
 		"position": [
 			550,
@@ -71,11 +71,11 @@
 			"LOCATE the missing student"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 4,
-			"MOBILITY": 6,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 8
+			"combat": 1,
+			"vigor": 4,
+			"mobility": 6,
+			"charisma": 5,
+			"intelligence": 8
 		},
 		"position": [
 			410,
@@ -102,11 +102,11 @@
 			"NEUTRALIZE all Red Ring resistance"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 7,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 4
+			"combat": 8,
+			"vigor": 7,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 4
 		},
 		"position": [
 			190,
@@ -132,11 +132,11 @@
 			"ANSWER questions from the audience"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 2,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 6
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 2,
+			"charisma": 7,
+			"intelligence": 6
 		},
 		"position": [
 			510,
@@ -163,11 +163,11 @@
 			"CLEAR the wreckage to open the highway"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 8,
-			"MOBILITY": 8,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 4
+			"combat": 6,
+			"vigor": 8,
+			"mobility": 8,
+			"charisma": 3,
+			"intelligence": 4
 		},
 		"position": [
 			700,
@@ -193,11 +193,11 @@
 			"DISTRACT the goose to get the phone"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 7,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 1
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 7,
+			"charisma": 5,
+			"intelligence": 1
 		},
 		"position": [
 			450,
@@ -224,11 +224,11 @@
 			"LOCATE and rescue Dr. Eldritch"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 9
+			"combat": 2,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 3,
+			"intelligence": 9
 		},
 		"position": [
 			760,
@@ -254,11 +254,11 @@
 			"APPREHEND the vandals"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 4,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 3
+			"combat": 3,
+			"vigor": 4,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 3
 		},
 		"position": [
 			580,
@@ -285,11 +285,11 @@
 			"APPREHEND the Red Ring cell leader"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 5,
-			"MOBILITY": 7,
-			"CHARISMA": 8,
-			"INTELLIGENCE": 7
+			"combat": 4,
+			"vigor": 5,
+			"mobility": 7,
+			"charisma": 8,
+			"intelligence": 7
 		},
 		"position": [
 			570,
@@ -316,11 +316,11 @@
 			"CONTAIN the fire before it destroys the server hub"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 9,
-			"MOBILITY": 8,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 4
+			"combat": 6,
+			"vigor": 9,
+			"mobility": 8,
+			"charisma": 3,
+			"intelligence": 4
 		},
 		"position": [
 			780,
@@ -346,11 +346,11 @@
 			"DISABLE the vehicle without destroying it"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 6,
-			"MOBILITY": 9,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 5,
+			"vigor": 6,
+			"mobility": 9,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [
 			580,
@@ -377,11 +377,11 @@
 			"PLANT a tracker on the Red Ring leader"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 5,
-			"MOBILITY": 8,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 6
+			"combat": 3,
+			"vigor": 5,
+			"mobility": 8,
+			"charisma": 7,
+			"intelligence": 6
 		},
 		"position": [
 			510,
@@ -408,11 +408,11 @@
 			"DISABLE the mech's primary power core"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 8,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 5
+			"combat": 7,
+			"vigor": 8,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 5
 		},
 		"position": [
 			200,
@@ -438,11 +438,11 @@
 			"RETURN the pack to the dog walker"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 5,
-			"MOBILITY": 6,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 2
+			"combat": 1,
+			"vigor": 5,
+			"mobility": 6,
+			"charisma": 5,
+			"intelligence": 2
 		},
 		"position": [
 			460,
@@ -469,11 +469,11 @@
 			"SHUT DOWN the experimental cryo-engine"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 9,
-			"MOBILITY": 7,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 5
+			"combat": 4,
+			"vigor": 9,
+			"mobility": 7,
+			"charisma": 3,
+			"intelligence": 5
 		},
 		"position": [
 			410,
@@ -499,11 +499,11 @@
 			"DEFEND the reputation of SDN and heroes"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 4,
-			"MOBILITY": 3,
-			"CHARISMA": 8,
-			"INTELLIGENCE": 6
+			"combat": 1,
+			"vigor": 4,
+			"mobility": 3,
+			"charisma": 8,
+			"intelligence": 6
 		},
 		"position": [
 			630,
@@ -530,11 +530,11 @@
 			"SECURE their intelligence and weapons"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 4
+			"combat": 9,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 2,
+			"intelligence": 4
 		},
 		"position": [
 			660,
@@ -561,11 +561,11 @@
 			"LOCATE and apprehend the pilots"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 5,
-			"MOBILITY": 9,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 7
+			"combat": 4,
+			"vigor": 5,
+			"mobility": 9,
+			"charisma": 1,
+			"intelligence": 7
 		},
 		"position": [
 			550,
@@ -591,11 +591,11 @@
 			"RESCUE the trapped civilian"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 8,
-			"MOBILITY": 2,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 8,
+			"mobility": 2,
+			"charisma": 4,
+			"intelligence": 1
 		},
 		"position": [
 			780,
@@ -622,11 +622,11 @@
 			"ACTIVATE the manual override lever"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 10,
-			"MOBILITY": 7,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 4
+			"combat": 5,
+			"vigor": 10,
+			"mobility": 7,
+			"charisma": 2,
+			"intelligence": 4
 		},
 		"position": [
 			830,
@@ -653,11 +653,11 @@
 			"RETURN it to VANDLABS containment"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 6,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 5
+			"combat": 7,
+			"vigor": 6,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 5
 		},
 		"position": [
 			760,
@@ -684,11 +684,11 @@
 			"AMBUSH and capture the Red Ring thugs"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 5,
-			"MOBILITY": 6,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 4
+			"combat": 6,
+			"vigor": 5,
+			"mobility": 6,
+			"charisma": 7,
+			"intelligence": 4
 		},
 		"position": [
 			390,
@@ -714,11 +714,11 @@
 			"PROVIDE security and crowd control"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 6,
-			"MOBILITY": 4,
-			"CHARISMA": 8,
-			"INTELLIGENCE": 2
+			"combat": 3,
+			"vigor": 6,
+			"mobility": 4,
+			"charisma": 8,
+			"intelligence": 2
 		},
 		"position": [
 			470,
@@ -745,11 +745,11 @@
 			"CALM the panicking passengers"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 9,
-			"MOBILITY": 8,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 3
+			"combat": 5,
+			"vigor": 9,
+			"mobility": 8,
+			"charisma": 3,
+			"intelligence": 3
 		},
 		"position": [
 			680,
@@ -776,11 +776,11 @@
 			"MANAGE the confused crowd"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 6,
-			"MOBILITY": 5,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 3
+			"combat": 4,
+			"vigor": 6,
+			"mobility": 5,
+			"charisma": 7,
+			"intelligence": 3
 		},
 		"position": [
 			430,
@@ -807,11 +807,11 @@
 			"NEUTRALIZE the Red Ring assault squad"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 8,
-			"MOBILITY": 6,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 9,
+			"vigor": 8,
+			"mobility": 6,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [
 			220,
@@ -838,11 +838,11 @@
 			"DETERMINE what happened to the crew"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 5,
-			"MOBILITY": 7,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 6
+			"combat": 1,
+			"vigor": 5,
+			"mobility": 7,
+			"charisma": 4,
+			"intelligence": 6
 		},
 		"position": [
 			230,
@@ -869,11 +869,11 @@
 			"APPREHEND the rogue chef-bot"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 7,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 6,
+			"vigor": 7,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [
 			700,
@@ -899,11 +899,11 @@
 			"LOCATE the 'Terrence' costume"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 6,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 5
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 6,
+			"charisma": 4,
+			"intelligence": 5
 		},
 		"position": [
 			400,
@@ -930,11 +930,11 @@
 			"RESTRAIN the historical figure"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 8,
-			"MOBILITY": 5,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 3
+			"combat": 8,
+			"vigor": 8,
+			"mobility": 5,
+			"charisma": 2,
+			"intelligence": 3
 		},
 		"position": [
 			500,
@@ -961,11 +961,11 @@
 			"SECURE the van and the hacker"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 5,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 7
+			"combat": 6,
+			"vigor": 5,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 7
 		},
 		"position": [
 			770,
@@ -992,11 +992,11 @@
 			"ANALYZE the 'space junk' for clues"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 8,
-			"MOBILITY": 6,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 6
+			"combat": 4,
+			"vigor": 8,
+			"mobility": 6,
+			"charisma": 3,
+			"intelligence": 6
 		},
 		"position": [
 			800,
@@ -1021,11 +1021,11 @@
 			"TRACK the hot dog thief"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 3,
-			"MOBILITY": 7,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 3,
+			"mobility": 7,
+			"charisma": 1,
+			"intelligence": 1
 		},
 		"position": [
 			600,
@@ -1052,11 +1052,11 @@
 			"SECURE the drone payloads"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 7,
-			"MOBILITY": 9,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 4
+			"combat": 3,
+			"vigor": 7,
+			"mobility": 9,
+			"charisma": 2,
+			"intelligence": 4
 		},
 		"position": [
 			530,
@@ -1083,11 +1083,11 @@
 			"NEGOTIATE a truce"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 8,
-			"MOBILITY": 5,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 3
+			"combat": 4,
+			"vigor": 8,
+			"mobility": 5,
+			"charisma": 7,
+			"intelligence": 3
 		},
 		"position": [
 			480,
@@ -1114,11 +1114,11 @@
 			"SECURE their operations map"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 7,
-			"MOBILITY": 7,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 5
+			"combat": 8,
+			"vigor": 7,
+			"mobility": 7,
+			"charisma": 1,
+			"intelligence": 5
 		},
 		"position": [
 			450,
@@ -1143,11 +1143,11 @@
 			"RETRIEVE the massive clump of balloons"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 7,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 1
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 7,
+			"charisma": 4,
+			"intelligence": 1
 		},
 		"position": [
 			500,
@@ -1174,11 +1174,11 @@
 			"CONFIRM or debunk the sighting"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 5
+			"combat": 3,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 2,
+			"intelligence": 5
 		},
 		"position": [
 			380,
@@ -1205,11 +1205,11 @@
 			"DECOMMISSION the rogue A.I."
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 4,
-			"MOBILITY": 6,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 8
+			"combat": 2,
+			"vigor": 4,
+			"mobility": 6,
+			"charisma": 5,
+			"intelligence": 8
 		},
 		"position": [
 			590,
@@ -1236,11 +1236,11 @@
 			"SECURE the truck and the chemicals"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 8,
-			"MOBILITY": 9,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 4
+			"combat": 7,
+			"vigor": 8,
+			"mobility": 9,
+			"charisma": 1,
+			"intelligence": 4
 		},
 		"position": [
 			740,
@@ -1267,11 +1267,11 @@
 			"RESCUE the trapped civilians"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 9,
-			"MOBILITY": 7,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 3
+			"combat": 4,
+			"vigor": 9,
+			"mobility": 7,
+			"charisma": 4,
+			"intelligence": 3
 		},
 		"position": [
 			360,
@@ -1298,11 +1298,11 @@
 			"NEUTRALIZE any assassins"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 5
+			"combat": 6,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 4,
+			"intelligence": 5
 		},
 		"position": [
 			510,
@@ -1329,11 +1329,11 @@
 			"SURVIVE the inevitable ambush"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 6,
-			"MOBILITY": 7,
-			"CHARISMA": 8,
-			"INTELLIGENCE": 7
+			"combat": 6,
+			"vigor": 6,
+			"mobility": 7,
+			"charisma": 8,
+			"intelligence": 7
 		},
 		"position": [
 			570,
@@ -1360,11 +1360,11 @@
 			"BRING him in for questioning"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 4,
-			"MOBILITY": 5,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 8
+			"combat": 1,
+			"vigor": 4,
+			"mobility": 5,
+			"charisma": 7,
+			"intelligence": 8
 		},
 		"position": [
 			500,
@@ -1391,11 +1391,11 @@
 			"PREVENT inter-galactic war"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 8,
-			"MOBILITY": 6,
-			"CHARISMA": 9,
-			"INTELLIGENCE": 7
+			"combat": 5,
+			"vigor": 8,
+			"mobility": 6,
+			"charisma": 9,
+			"intelligence": 7
 		},
 		"position": [
 			820,
@@ -1421,11 +1421,11 @@
 			"CONTAIN it without damage"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 6,
-			"MOBILITY": 9,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 5
+			"combat": 4,
+			"vigor": 6,
+			"mobility": 9,
+			"charisma": 2,
+			"intelligence": 5
 		},
 		"position": [
 			770,
@@ -1452,11 +1452,11 @@
 			"NEUTRALIZE the command structure"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 6,
-			"MOBILITY": 8,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 5
+			"combat": 4,
+			"vigor": 6,
+			"mobility": 8,
+			"charisma": 7,
+			"intelligence": 5
 		},
 		"position": [
 			510,
@@ -1483,11 +1483,11 @@
 			"APPREHEND the unusual thief"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 4,
-			"MOBILITY": 7,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 6
+			"combat": 3,
+			"vigor": 4,
+			"mobility": 7,
+			"charisma": 4,
+			"intelligence": 6
 		},
 		"position": [
 			590,
@@ -1513,11 +1513,11 @@
 			"PROVIDE a calming presence"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 5,
-			"MOBILITY": 3,
-			"CHARISMA": 6,
-			"INTELLIGENCE": 3
+			"combat": 2,
+			"vigor": 5,
+			"mobility": 3,
+			"charisma": 6,
+			"intelligence": 3
 		},
 		"position": [
 			410,
@@ -1543,11 +1543,11 @@
 			"CONVINCE the neighbor to desist"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 4,
-			"MOBILITY": 3,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 2
+			"combat": 1,
+			"vigor": 4,
+			"mobility": 3,
+			"charisma": 5,
+			"intelligence": 2
 		},
 		"position": [
 			680,
@@ -1573,11 +1573,11 @@
 			"RESCUE the scientist"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 7,
-			"MOBILITY": 9,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 4
+			"combat": 3,
+			"vigor": 7,
+			"mobility": 9,
+			"charisma": 2,
+			"intelligence": 4
 		},
 		"position": [
 			250,
@@ -1604,11 +1604,11 @@
 			"CAPTURE the Red Ring Mastermind"
 		],
 		"attributes": {
-			"COMBAT": 10,
-			"VIGOR": 9,
-			"MOBILITY": 8,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 6
+			"combat": 10,
+			"vigor": 9,
+			"mobility": 8,
+			"charisma": 3,
+			"intelligence": 6
 		},
 		"position": [
 			570,

@@ -8,6 +8,7 @@
 #include <map>
 #include <random>
 #include <regex>
+#include <filesystem>
 
 #include <Utils.hpp>
 #include <Common.hpp>
@@ -115,7 +116,7 @@ namespace Utils {
 	}
 
 	void drawCircularTexture(const raylib::Texture& tex, const raylib::Vector2& pos, float radius, float attenuation, raylib::Vector2 offset) {
-		static raylib::Shader circleMaskShader{0, "resources/shaders/circle-mask.fs"};
+		static raylib::Shader circleMaskShader{0, "resources/shaders/circle-mask.std::filesystem"};
 		static int resolutionUniform = circleMaskShader.GetLocation("resolution");
 		static int centerUniform = circleMaskShader.GetLocation("center");
 		static int radiusUniform = circleMaskShader.GetLocation("radius");
@@ -424,6 +425,22 @@ namespace Utils {
 
 	raylib::Rectangle inset(const raylib::Rectangle& rect, raylib::Vector2 inset) {
 		return {rect.x+inset.x, rect.y+inset.y, rect.width-(inset.x*2), rect.height-(inset.y*2)};
+	}
+
+	std::vector<std::string> getFilesInFolder(const std::string& path, const std::string& extension) {
+		std::vector<std::string> files;
+		try {
+			if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
+				for (const auto& entry : std::filesystem::directory_iterator(path)) {
+					if (entry.is_regular_file() && (extension.empty() || entry.path().extension() == extension)) {
+						files.push_back(entry.path().string());
+					}
+				}
+			}
+		} catch (const std::filesystem::filesystem_error& e) {
+			std::cerr << "Error: " << e.what() << std::endl;
+		}
+		return files;
 	}
 
 	std::string readFile(std::string path) {

@@ -10,11 +10,11 @@
 			"SURVIVE the automated defense systems"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 4
+			"combat": 9,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 1,
+			"intelligence": 4
 		},
 		"position": [850, 200],
 		"slots": 3,
@@ -37,11 +37,11 @@
 			"NAVIGATE the crowded pier without causing a scene"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 2,
-			"MOBILITY": 5,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 1
+			"combat": 1,
+			"vigor": 2,
+			"mobility": 5,
+			"charisma": 3,
+			"intelligence": 1
 		},
 		"position": [210, 270],
 		"slots": 1,
@@ -65,11 +65,11 @@
 			"SECURE the exhibit before guests arrive"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 2,
-			"MOBILITY": 4,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 6
+			"combat": 1,
+			"vigor": 2,
+			"mobility": 4,
+			"charisma": 3,
+			"intelligence": 6
 		},
 		"position": [500, 250],
 		"slots": 2,
@@ -93,11 +93,11 @@
 			"PROTECT any witnesses caught in the crossfire"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 8,
-			"MOBILITY": 5,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 8,
+			"vigor": 8,
+			"mobility": 5,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [600, 310],
 		"slots": 3,
@@ -121,11 +121,11 @@
 			"SECURE the perimeter from the unstable ground"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 9,
-			"MOBILITY": 6,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 2
+			"combat": 3,
+			"vigor": 9,
+			"mobility": 6,
+			"charisma": 4,
+			"intelligence": 2
 		},
 		"position": [470, 290],
 		"slots": 4,
@@ -148,11 +148,11 @@
 			"DE-ESCALATE the situation peacefully"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 4,
-			"MOBILITY": 3,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 4,
+			"mobility": 3,
+			"charisma": 5,
+			"intelligence": 1
 		},
 		"position": [620, 180],
 		"slots": 1,
@@ -176,11 +176,11 @@
 			"SECURE the VAND-CO cargo"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 5,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 6,
+			"vigor": 5,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [190, 220],
 		"slots": 2,
@@ -203,11 +203,11 @@
 			"FIELD 'The Bone Zone's' bizarre questions"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 2,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 4
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 2,
+			"charisma": 7,
+			"intelligence": 4
 		},
 		"position": [630, 270],
 		"slots": 1,
@@ -231,11 +231,11 @@
 			"RECOVER the stolen data drive"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 5,
-			"MOBILITY": 7,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 8
+			"combat": 4,
+			"vigor": 5,
+			"mobility": 7,
+			"charisma": 2,
+			"intelligence": 8
 		},
 		"position": [780, 230],
 		"slots": 3,
@@ -259,11 +259,11 @@
 			"LOCATE the missing Dr. Aris"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 6,
-			"MOBILITY": 4,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 9
+			"combat": 2,
+			"vigor": 6,
+			"mobility": 4,
+			"charisma": 3,
+			"intelligence": 9
 		},
 		"position": [750, 300],
 		"slots": 2,
@@ -287,11 +287,11 @@
 			"MONITOR for any suspicious activity"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 5,
-			"MOBILITY": 3,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 4
+			"combat": 3,
+			"vigor": 5,
+			"mobility": 3,
+			"charisma": 7,
+			"intelligence": 4
 		},
 		"position": [510, 240],
 		"slots": 2,
@@ -314,11 +314,11 @@
 			"APPREHEND them with non-lethal force"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 4,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 2
+			"combat": 3,
+			"vigor": 4,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 2
 		},
 		"position": [580, 300],
 		"slots": 1,
@@ -342,11 +342,11 @@
 			"ENSURE the sewer access is secure"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 6,
-			"MOBILITY": 5,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 5
+			"combat": 4,
+			"vigor": 6,
+			"mobility": 5,
+			"charisma": 2,
+			"intelligence": 5
 		},
 		"position": [390, 330],
 		"slots": 2,
@@ -369,11 +369,11 @@
 			"ESCORT them to a safe, public area"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 2,
-			"MOBILITY": 4,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 3
+			"combat": 1,
+			"vigor": 2,
+			"mobility": 4,
+			"charisma": 4,
+			"intelligence": 3
 		},
 		"position": [190, 190],
 		"slots": 1,
@@ -397,11 +397,11 @@
 			"BRING survivors to high ground"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 8,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 3
+			"combat": 4,
+			"vigor": 8,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 3
 		},
 		"position": [700, 340],
 		"slots": 3,
@@ -425,11 +425,11 @@
 			"BE PREPARED for an ambush"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 7,
-			"MOBILITY": 4,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 7,
+			"vigor": 7,
+			"mobility": 4,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [830, 220],
 		"slots": 2,
@@ -453,11 +453,11 @@
 			"CAPTURE the Red Ring squad leader"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 6,
-			"MOBILITY": 6,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 2
+			"combat": 8,
+			"vigor": 6,
+			"mobility": 6,
+			"charisma": 1,
+			"intelligence": 2
 		},
 		"position": [520, 280],
 		"slots": 3,
@@ -480,11 +480,11 @@
 			"ANSWER questions from the students"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 2,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 7
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 2,
+			"charisma": 5,
+			"intelligence": 7
 		},
 		"position": [400, 200],
 		"slots": 1,
@@ -508,11 +508,11 @@
 			"REBOOT the mall's central security hub"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 4,
-			"MOBILITY": 5,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 5
+			"combat": 6,
+			"vigor": 4,
+			"mobility": 5,
+			"charisma": 1,
+			"intelligence": 5
 		},
 		"position": [430, 260],
 		"slots": 3,
@@ -535,11 +535,11 @@
 			"REPLACE the tire quickly"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 6,
-			"MOBILITY": 2,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 6,
+			"mobility": 2,
+			"charisma": 3,
+			"intelligence": 1
 		},
 		"position": [490, 310],
 		"slots": 1,
@@ -563,11 +563,11 @@
 			"EXFILTRATE without leaving a trace"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 4,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 7
+			"combat": 2,
+			"vigor": 4,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 7
 		},
 		"position": [680, 300],
 		"slots": 2,
@@ -591,11 +591,11 @@
 			"SECURE the trucks before they crash"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 5,
-			"MOBILITY": 9,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 6,
+			"vigor": 5,
+			"mobility": 9,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [750, 250],
 		"slots": 3,
@@ -618,11 +618,11 @@
 			"FIELD awkward questions from the audience"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 6,
-			"MOBILITY": 3,
-			"CHARISMA": 8,
-			"INTELLIGENCE": 4
+			"combat": 2,
+			"vigor": 6,
+			"mobility": 3,
+			"charisma": 8,
+			"intelligence": 4
 		},
 		"position": [460, 270],
 		"slots": 2,
@@ -645,11 +645,11 @@
 			"MONITOR for any break-in attempts"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 4,
-			"MOBILITY": 6,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 6
+			"combat": 3,
+			"vigor": 4,
+			"mobility": 6,
+			"charisma": 2,
+			"intelligence": 6
 		},
 		"position": [510, 240],
 		"slots": 1,
@@ -672,11 +672,11 @@
 			"PROVIDE... 'advanced' scientific materials"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 2,
-			"MOBILITY": 1,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 5
+			"combat": 1,
+			"vigor": 2,
+			"mobility": 1,
+			"charisma": 3,
+			"intelligence": 5
 		},
 		"position": [380, 230],
 		"slots": 1,
@@ -700,11 +700,11 @@
 			"PREVENT the Gigaburger from collapsing"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 8,
-			"MOBILITY": 4,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 3
+			"combat": 8,
+			"vigor": 8,
+			"mobility": 4,
+			"charisma": 2,
+			"intelligence": 3
 		},
 		"position": [570, 320],
 		"slots": 3,
@@ -728,11 +728,11 @@
 			"PROTECT civilians from the panic"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 4
+			"combat": 7,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 3,
+			"intelligence": 4
 		},
 		"position": [480, 300],
 		"slots": 4,
@@ -756,11 +756,11 @@
 			"ENSURE the witness arrives safely"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 6,
-			"MOBILITY": 7,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 6
+			"combat": 5,
+			"vigor": 6,
+			"mobility": 7,
+			"charisma": 2,
+			"intelligence": 6
 		},
 		"position": [530, 290],
 		"slots": 2,
@@ -784,11 +784,11 @@
 			"EVACUATE the executive floors"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 5,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 9
+			"combat": 3,
+			"vigor": 5,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 9
 		},
 		"position": [790, 250],
 		"slots": 3,
@@ -811,11 +811,11 @@
 			"DE-ESCALATE any physical confrontations"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 7,
-			"MOBILITY": 3,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 3
+			"combat": 4,
+			"vigor": 7,
+			"mobility": 3,
+			"charisma": 5,
+			"intelligence": 3
 		},
 		"position": [500, 280],
 		"slots": 2,
@@ -839,11 +839,11 @@
 			"SECURE the damaged critical systems"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 6,
-			"MOBILITY": 5,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 4
+			"combat": 8,
+			"vigor": 6,
+			"mobility": 5,
+			"charisma": 1,
+			"intelligence": 4
 		},
 		"position": [840, 190],
 		"slots": 4,
@@ -866,11 +866,11 @@
 			"ANSWER grilling questions from skeptics"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 2,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 8
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 2,
+			"charisma": 7,
+			"intelligence": 8
 		},
 		"position": [500, 220],
 		"slots": 1,
@@ -894,11 +894,11 @@
 			"SECURE the contraband for the TPD"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 4,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 7,
+			"vigor": 4,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [170, 240],
 		"slots": 3,
@@ -921,11 +921,11 @@
 			"DON'T ask what the plants are"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 6,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 1
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 6,
+			"charisma": 2,
+			"intelligence": 1
 		},
 		"position": [440, 240],
 		"slots": 1,
@@ -949,11 +949,11 @@
 			"CONFRONT and detain the suspect"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 3,
-			"MOBILITY": 5,
-			"CHARISMA": 6,
-			"INTELLIGENCE": 7
+			"combat": 2,
+			"vigor": 3,
+			"mobility": 5,
+			"charisma": 6,
+			"intelligence": 7
 		},
 		"position": [770, 230],
 		"slots": 2,
@@ -977,11 +977,11 @@
 			"COORDINATE with Fire Department crews"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 9,
-			"MOBILITY": 6,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 2
+			"combat": 4,
+			"vigor": 9,
+			"mobility": 6,
+			"charisma": 3,
+			"intelligence": 2
 		},
 		"position": [550, 150],
 		"slots": 3,
@@ -1005,11 +1005,11 @@
 			"LIBERATE the hostages safely"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 7,
-			"MOBILITY": 5,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 3
+			"combat": 9,
+			"vigor": 7,
+			"mobility": 5,
+			"charisma": 4,
+			"intelligence": 3
 		},
 		"position": [320, 290],
 		"slots": 4,
@@ -1032,11 +1032,11 @@
 			"FOLLOW the director's chaotic instructions"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 4,
-			"MOBILITY": 5,
-			"CHARISMA": 6,
-			"INTELLIGENCE": 2
+			"combat": 3,
+			"vigor": 4,
+			"mobility": 5,
+			"charisma": 6,
+			"intelligence": 2
 		},
 		"position": [470, 280],
 		"slots": 1,
@@ -1060,11 +1060,11 @@
 			"HANDLE the media questions"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 2,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 6
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 2,
+			"charisma": 7,
+			"intelligence": 6
 		},
 		"position": [780, 260],
 		"slots": 1,
@@ -1088,11 +1088,11 @@
 			"MINIMIZE damage to the parking lot"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 8,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [800, 240],
 		"slots": 3,
@@ -1115,11 +1115,11 @@
 			"CALM the panicking Terrence"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 5,
-			"MOBILITY": 3,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 5,
+			"mobility": 3,
+			"charisma": 4,
+			"intelligence": 1
 		},
 		"position": [370, 210],
 		"slots": 1,
@@ -1143,11 +1143,11 @@
 			"ANALYZE its flight path for clues"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 3,
-			"MOBILITY": 9,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 7
+			"combat": 5,
+			"vigor": 3,
+			"mobility": 9,
+			"charisma": 1,
+			"intelligence": 7
 		},
 		"position": [800, 210],
 		"slots": 3,
@@ -1171,11 +1171,11 @@
 			"TRACE the source of the hack"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 4,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 9
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 4,
+			"charisma": 2,
+			"intelligence": 9
 		},
 		"position": [500, 230],
 		"slots": 2,
@@ -1198,11 +1198,11 @@
 			"APPREHEND the 'Peen Teens'"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 3,
-			"MOBILITY": 7,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 5
+			"combat": 2,
+			"vigor": 3,
+			"mobility": 7,
+			"charisma": 1,
+			"intelligence": 5
 		},
 		"position": [360, 270],
 		"slots": 1,
@@ -1226,11 +1226,11 @@
 			"ESCORT the band to safety"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 8,
-			"MOBILITY": 3,
-			"CHARISMA": 6,
-			"INTELLIGENCE": 2
+			"combat": 4,
+			"vigor": 8,
+			"mobility": 3,
+			"charisma": 6,
+			"intelligence": 2
 		},
 		"position": [440, 220],
 		"slots": 3,
@@ -1254,11 +1254,11 @@
 			"SECURE the advanced weapons"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 5,
-			"MOBILITY": 4,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 6
+			"combat": 7,
+			"vigor": 5,
+			"mobility": 4,
+			"charisma": 3,
+			"intelligence": 6
 		},
 		"position": [610, 330],
 		"slots": 2,
@@ -1281,11 +1281,11 @@
 			"LIFT the fallen pallet rack"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 6,
-			"MOBILITY": 5,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 1
+			"combat": 1,
+			"vigor": 6,
+			"mobility": 5,
+			"charisma": 2,
+			"intelligence": 1
 		},
 		"position": [390, 320],
 		"slots": 1,
@@ -1309,11 +1309,11 @@
 			"COORDINATE with TPD search crews"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 4,
-			"MOBILITY": 7,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 6
+			"combat": 2,
+			"vigor": 4,
+			"mobility": 7,
+			"charisma": 5,
+			"intelligence": 6
 		},
 		"position": [330, 250],
 		"slots": 2,
@@ -1337,11 +1337,11 @@
 			"CAPTURE the Red Ring Torrance 'Beefcake' leader"
 		],
 		"attributes": {
-			"COMBAT": 10,
-			"VIGOR": 9,
-			"MOBILITY": 7,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 5
+			"combat": 10,
+			"vigor": 9,
+			"mobility": 7,
+			"charisma": 1,
+			"intelligence": 5
 		},
 		"position": [860, 210],
 		"slots": 4,
@@ -1365,11 +1365,11 @@
 			"TRANSPORT the object to a VANDLABS container"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 7,
-			"MOBILITY": 4,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 8
+			"combat": 2,
+			"vigor": 7,
+			"mobility": 4,
+			"charisma": 3,
+			"intelligence": 8
 		},
 		"position": [410, 210],
 		"slots": 2,

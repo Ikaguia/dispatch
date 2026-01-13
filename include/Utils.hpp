@@ -129,6 +129,8 @@ namespace Utils {
 
 	inline void println(std::string_view text) { std::cout << text << '\n'; }
 
+	std::vector<std::string> getFilesInFolder(const std::string& path, const std::string& extension="");
+
 	std::string readFile(std::string path);
 
 	nlohmann::json readJsonFile(std::string path);

@@ -64,7 +64,7 @@
 							{
 								"type": "TEXT",
 								"id": "type-text",
-								"size": { "x": 0.5, "y": 1.0 },
+								"size": { "x": 0.8, "y": 1.0 },
 								"innerMargin": [ 4, 4, 4, 4 ],
 								"horizontalConstraint": { "start": "father-start" },
 								"verticalConstraint": { "start": "father-top" },
@@ -74,7 +74,7 @@
 							}, {
 								"type": "ELEMENT",
 								"id": "type-fill",
-								"size": { "x": 0.5, "y": 1.0 },
+								"size": { "x": 0.2, "y": 1.0 },
 								"horizontalConstraint": { "end": "father-end" },
 								"verticalConstraint": { "start": "father-top" }
 							}
@@ -93,7 +93,8 @@
 						"verticalConstraint": { "start": { "type": "element", "side": "bottom", "element_id": "image" } },
 						"text": "{@caller}",
 						"style": "TEXTBOX8",
-						"outterColor": "BLANK"
+						"outterColor": "BLANK",
+						"fontSize": 15
 					}, {
 						"type": "TEXTBOX",
 						"id": "description",

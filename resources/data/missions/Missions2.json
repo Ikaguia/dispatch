@@ -10,11 +10,11 @@
 			"ASSIST civilians trapped in the 'flash freeze'"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 6,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 7
+			"combat": 3,
+			"vigor": 6,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 7
 		},
 		"position": [
 			200,
@@ -40,11 +40,11 @@
 			"FEND off any interception attempts"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 5,
-			"MOBILITY": 7,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 7,
+			"vigor": 5,
+			"mobility": 7,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [
 			550,
@@ -70,11 +70,11 @@
 			"COAX the parrot back into its carrier"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 2,
-			"MOBILITY": 5,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 1
+			"combat": 1,
+			"vigor": 2,
+			"mobility": 5,
+			"charisma": 4,
+			"intelligence": 1
 		},
 		"position": [
 			360,
@@ -100,11 +100,11 @@
 			"EAT the... 'heroic' meal for the cameras"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 6,
-			"MOBILITY": 2,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 6,
+			"mobility": 2,
+			"charisma": 5,
+			"intelligence": 1
 		},
 		"position": [
 			570,
@@ -131,11 +131,11 @@
 			"DETAIN both gang leaders"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 8,
-			"MOBILITY": 4,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 2
+			"combat": 9,
+			"vigor": 8,
+			"mobility": 4,
+			"charisma": 1,
+			"intelligence": 2
 		},
 		"position": [
 			780,
@@ -162,11 +162,11 @@
 			"ESCAPE before reinforcements arrive"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 4,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 9
+			"combat": 6,
+			"vigor": 4,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 9
 		},
 		"position": [
 			450,
@@ -193,11 +193,11 @@
 			"RETURN the... 'pet'... to VANDLABS"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 5,
-			"MOBILITY": 8,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 7
+			"combat": 2,
+			"vigor": 5,
+			"mobility": 8,
+			"charisma": 3,
+			"intelligence": 7
 		},
 		"position": [
 			760,
@@ -224,11 +224,11 @@
 			"IDENTIFY the source of the remote signal"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 4,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 6
+			"combat": 5,
+			"vigor": 4,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 6
 		},
 		"position": [
 			230,
@@ -254,11 +254,11 @@
 			"PRESENT the 'Best in Show' award"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 2,
-			"MOBILITY": 3,
-			"CHARISMA": 6,
-			"INTELLIGENCE": 3
+			"combat": 1,
+			"vigor": 2,
+			"mobility": 3,
+			"charisma": 6,
+			"intelligence": 3
 		},
 		"position": [
 			500,
@@ -284,11 +284,11 @@
 			"PUSH the truck clear of the underpass"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 7,
-			"MOBILITY": 3,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 7,
+			"mobility": 3,
+			"charisma": 1,
+			"intelligence": 1
 		},
 		"position": [
 			420,
@@ -315,11 +315,11 @@
 			"RESCUE Mr. Vanderstenk"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 8,
-			"MOBILITY": 7,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 4
+			"combat": 9,
+			"vigor": 8,
+			"mobility": 7,
+			"charisma": 2,
+			"intelligence": 4
 		},
 		"position": [
 			790,
@@ -346,11 +346,11 @@
 			"DETERMINE the motive"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 5,
-			"MOBILITY": 4,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 7
+			"combat": 1,
+			"vigor": 5,
+			"mobility": 4,
+			"charisma": 3,
+			"intelligence": 7
 		},
 		"position": [
 			400,
@@ -377,11 +377,11 @@
 			"PROTECT the firefighters from falling debris"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 9,
-			"MOBILITY": 7,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 4
+			"combat": 5,
+			"vigor": 9,
+			"mobility": 7,
+			"charisma": 3,
+			"intelligence": 4
 		},
 		"position": [
 			360,
@@ -408,11 +408,11 @@
 			"SECURE the malfunctioning rocket-pack"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 4,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 6,
+			"vigor": 4,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [
 			580,
@@ -438,11 +438,11 @@
 			"RESCUE the stock boy"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 5,
-			"MOBILITY": 7,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 5,
+			"mobility": 7,
+			"charisma": 1,
+			"intelligence": 1
 		},
 		"position": [
 			290,
@@ -469,11 +469,11 @@
 			"IDENTIFY the head recruiter"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 3,
-			"MOBILITY": 6,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 8
+			"combat": 2,
+			"vigor": 3,
+			"mobility": 6,
+			"charisma": 7,
+			"intelligence": 8
 		},
 		"position": [
 			410,
@@ -500,11 +500,11 @@
 			"MITIGATE the catastrophic collateral damage"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 10,
-			"MOBILITY": 7,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 4
+			"combat": 8,
+			"vigor": 10,
+			"mobility": 7,
+			"charisma": 3,
+			"intelligence": 4
 		},
 		"position": [
 			870,
@@ -530,11 +530,11 @@
 			"LOOK impressive"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 6,
-			"MOBILITY": 2,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 1
+			"combat": 3,
+			"vigor": 6,
+			"mobility": 2,
+			"charisma": 4,
+			"intelligence": 1
 		},
 		"position": [
 			490,
@@ -561,11 +561,11 @@
 			"DETAIN the (very unstable) patient"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 5,
-			"MOBILITY": 8,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 3
+			"combat": 6,
+			"vigor": 5,
+			"mobility": 8,
+			"charisma": 2,
+			"intelligence": 3
 		},
 		"position": [
 			530,
@@ -592,11 +592,11 @@
 			"ANALYZE the drone's black box"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 4,
-			"MOBILITY": 6,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 7
+			"combat": 1,
+			"vigor": 4,
+			"mobility": 6,
+			"charisma": 2,
+			"intelligence": 7
 		},
 		"position": [
 			190,
@@ -623,11 +623,11 @@
 			"SECURE the VAND-CO weapons cache"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 9,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [
 			210,
@@ -653,11 +653,11 @@
 			"COMFORT the hysterical child"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 2,
-			"MOBILITY": 4,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 1
+			"combat": 1,
+			"vigor": 2,
+			"mobility": 4,
+			"charisma": 5,
+			"intelligence": 1
 		},
 		"position": [
 			430,
@@ -684,11 +684,11 @@
 			"RESCUE the hostages"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 5,
-			"MOBILITY": 6,
-			"CHARISMA": 8,
-			"INTELLIGENCE": 3
+			"combat": 4,
+			"vigor": 5,
+			"mobility": 6,
+			"charisma": 8,
+			"intelligence": 3
 		},
 		"position": [
 			570,
@@ -715,11 +715,11 @@
 			"RECOVER the stolen 'Gem of Torrance'"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 6,
-			"MOBILITY": 8,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 4
+			"combat": 8,
+			"vigor": 6,
+			"mobility": 8,
+			"charisma": 1,
+			"intelligence": 4
 		},
 		"position": [
 			510,
@@ -746,11 +746,11 @@
 			"EVACUATE the surrounding buildings"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 8,
-			"MOBILITY": 7,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 5
+			"combat": 4,
+			"vigor": 8,
+			"mobility": 7,
+			"charisma": 3,
+			"intelligence": 5
 		},
 		"position": [
 			500,
@@ -777,11 +777,11 @@
 			"RECOVER 'Terrence the Turtle'"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 6,
-			"CHARISMA": 4,
-			"INTELLIGENCE": 5
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 6,
+			"charisma": 4,
+			"intelligence": 5
 		},
 		"position": [
 			410,
@@ -808,11 +808,11 @@
 			"SEAL the pipeline breach"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 9,
-			"MOBILITY": 7,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 4
+			"combat": 3,
+			"vigor": 9,
+			"mobility": 7,
+			"charisma": 2,
+			"intelligence": 4
 		},
 		"position": [
 			830,
@@ -839,11 +839,11 @@
 			"WIN the argument"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 3,
-			"MOBILITY": 2,
-			"CHARISMA": 7,
-			"INTELLIGENCE": 8
+			"combat": 1,
+			"vigor": 3,
+			"mobility": 2,
+			"charisma": 7,
+			"intelligence": 8
 		},
 		"position": [
 			630,
@@ -870,11 +870,11 @@
 			"APPREHEND the drivers"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 4,
-			"MOBILITY": 9,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 3
+			"combat": 5,
+			"vigor": 4,
+			"mobility": 9,
+			"charisma": 1,
+			"intelligence": 3
 		},
 		"position": [
 			730,
@@ -901,11 +901,11 @@
 			"MINIMIZE PR (and physical) damage"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 6,
-			"MOBILITY": 4,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 2
+			"combat": 6,
+			"vigor": 6,
+			"mobility": 4,
+			"charisma": 3,
+			"intelligence": 2
 		},
 		"position": [
 			780,
@@ -931,11 +931,11 @@
 			"RESCUE the janitor"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 8,
-			"MOBILITY": 2,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 1
+			"combat": 2,
+			"vigor": 8,
+			"mobility": 2,
+			"charisma": 3,
+			"intelligence": 1
 		},
 		"position": [
 			320,
@@ -962,11 +962,11 @@
 			"SECURE the intelligence"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 5,
-			"MOBILITY": 9,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 4
+			"combat": 7,
+			"vigor": 5,
+			"mobility": 9,
+			"charisma": 1,
+			"intelligence": 4
 		},
 		"position": [
 			680,
@@ -993,11 +993,11 @@
 			"SECURE the illegal lab"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 6
+			"combat": 5,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 1,
+			"intelligence": 6
 		},
 		"position": [
 			800,
@@ -1024,11 +1024,11 @@
 			"PROTECT the patrons"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 5,
-			"MOBILITY": 7,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 3
+			"combat": 4,
+			"vigor": 5,
+			"mobility": 7,
+			"charisma": 2,
+			"intelligence": 3
 		},
 		"position": [
 			510,
@@ -1055,11 +1055,11 @@
 			"EVACUATE them safely"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 7,
-			"MOBILITY": 8,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 2
+			"combat": 3,
+			"vigor": 7,
+			"mobility": 8,
+			"charisma": 5,
+			"intelligence": 2
 		},
 		"position": [
 			220,
@@ -1086,11 +1086,11 @@
 			"ESCORT the fan off the set"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 6,
-			"MOBILITY": 5,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 2
+			"combat": 4,
+			"vigor": 6,
+			"mobility": 5,
+			"charisma": 3,
+			"intelligence": 2
 		},
 		"position": [
 			460,
@@ -1117,11 +1117,11 @@
 			"HACK the swarm's command signal"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 5,
-			"MOBILITY": 7,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 7
+			"combat": 8,
+			"vigor": 5,
+			"mobility": 7,
+			"charisma": 1,
+			"intelligence": 7
 		},
 		"position": [
 			790,
@@ -1147,11 +1147,11 @@
 			"BE charming to the high bidders"
 		],
 		"attributes": {
-			"COMBAT": 1,
-			"VIGOR": 4,
-			"MOBILITY": 2,
-			"CHARISMA": 8,
-			"INTELLIGENCE": 3
+			"combat": 1,
+			"vigor": 4,
+			"mobility": 2,
+			"charisma": 8,
+			"intelligence": 3
 		},
 		"position": [
 			500,
@@ -1178,11 +1178,11 @@
 			"SECURE the 'cargo'"
 		],
 		"attributes": {
-			"COMBAT": 9,
-			"VIGOR": 7,
-			"MOBILITY": 9,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 4
+			"combat": 9,
+			"vigor": 7,
+			"mobility": 9,
+			"charisma": 1,
+			"intelligence": 4
 		},
 		"position": [
 			740,
@@ -1209,11 +1209,11 @@
 			"RESCUE any trapped individuals"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 9,
-			"MOBILITY": 6,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 3
+			"combat": 4,
+			"vigor": 9,
+			"mobility": 6,
+			"charisma": 3,
+			"intelligence": 3
 		},
 		"position": [
 			200,
@@ -1239,11 +1239,11 @@
 			"MOVE the car off the road"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 5,
-			"MOBILITY": 4,
-			"CHARISMA": 6,
-			"INTELLIGENCE": 2
+			"combat": 3,
+			"vigor": 5,
+			"mobility": 4,
+			"charisma": 6,
+			"intelligence": 2
 		},
 		"position": [
 			480,
@@ -1270,11 +1270,11 @@
 			"ENSURE all containment systems are re-engaged"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 7,
-			"MOBILITY": 6,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 8
+			"combat": 2,
+			"vigor": 7,
+			"mobility": 6,
+			"charisma": 2,
+			"intelligence": 8
 		},
 		"position": [
 			750,
@@ -1301,11 +1301,11 @@
 			"DISPERSE the crowd peacefully"
 		],
 		"attributes": {
-			"COMBAT": 3,
-			"VIGOR": 5,
-			"MOBILITY": 4,
-			"CHARISMA": 9,
-			"INTELLIGENCE": 7
+			"combat": 3,
+			"vigor": 5,
+			"mobility": 4,
+			"charisma": 9,
+			"intelligence": 7
 		},
 		"position": [
 			410,
@@ -1331,11 +1331,11 @@
 			"SUBDUE the super-strong thief"
 		],
 		"attributes": {
-			"COMBAT": 7,
-			"VIGOR": 8,
-			"MOBILITY": 5,
-			"CHARISMA": 1,
-			"INTELLIGENCE": 2
+			"combat": 7,
+			"vigor": 8,
+			"mobility": 5,
+			"charisma": 1,
+			"intelligence": 2
 		},
 		"position": [
 			550,
@@ -1362,11 +1362,11 @@
 			"SECURE the area for Zoo transport"
 		],
 		"attributes": {
-			"COMBAT": 4,
-			"VIGOR": 5,
-			"MOBILITY": 8,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 4
+			"combat": 4,
+			"vigor": 5,
+			"mobility": 8,
+			"charisma": 3,
+			"intelligence": 4
 		},
 		"position": [
 			430,
@@ -1393,11 +1393,11 @@
 			"'CONVINCE' them to leave"
 		],
 		"attributes": {
-			"COMBAT": 8,
-			"VIGOR": 7,
-			"MOBILITY": 4,
-			"CHARISMA": 5,
-			"INTELLIGENCE": 3
+			"combat": 8,
+			"vigor": 7,
+			"mobility": 4,
+			"charisma": 5,
+			"intelligence": 3
 		},
 		"position": [
 			560,
@@ -1424,11 +1424,11 @@
 			"EXTRACT the survivors"
 		],
 		"attributes": {
-			"COMBAT": 5,
-			"VIGOR": 8,
-			"MOBILITY": 7,
-			"CHARISMA": 3,
-			"INTELLIGENCE": 4
+			"combat": 5,
+			"vigor": 8,
+			"mobility": 7,
+			"charisma": 3,
+			"intelligence": 4
 		},
 		"position": [
 			400,
@@ -1455,11 +1455,11 @@
 			"RESCUE the operator"
 		],
 		"attributes": {
-			"COMBAT": 6,
-			"VIGOR": 9,
-			"MOBILITY": 6,
-			"CHARISMA": 2,
-			"INTELLIGENCE": 3
+			"combat": 6,
+			"vigor": 9,
+			"mobility": 6,
+			"charisma": 2,
+			"intelligence": 3
 		},
 		"position": [
 			220,
@@ -1486,11 +1486,11 @@
 			"NEGOTIATE a peaceful resolution"
 		],
 		"attributes": {
-			"COMBAT": 2,
-			"VIGOR": 7,
-			"MOBILITY": 3,
-			"CHARISMA": 8,
-			"INTELLIGENCE": 4
+			"combat": 2,
+			"vigor": 7,
+			"mobility": 3,
+			"charisma": 8,
+			"intelligence": 4
 		},
 		"position": [
 			500,

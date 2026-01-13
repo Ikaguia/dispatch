@@ -12,10 +12,9 @@ using nlohmann::json;
 #include <Attribute.hpp>
 
 MissionsHandler::MissionsHandler() {
-	loadMissions("resources/data/missions/test.json");
-	// loadMissions("resources/data/missions/Missions1.json");
-	// loadMissions("resources/data/missions/Missions2.json");
-	// loadMissions("resources/data/missions/Missions3.json");
+	auto missionFiles = Utils::getFilesInFolder("resources/data/missions", ".json");
+	std::cerr << json{missionFiles}.dump() << std::endl;
+	for (auto& path : missionFiles) loadMissions(path);
 }
 
 MissionsHandler& MissionsHandler::inst() {
@@ -31,7 +30,7 @@ void MissionsHandler::loadMissions(const std::string& file) {
 	Utils::println("Read {} missions", missions_array.size());
 	for (auto& data : missions_array) {
 		auto ms = std::make_unique<Mission>(data);
-		// Utils::println("Loaded {}mission '{}'", ms->triggered ? "triggered " : "", ms->name);
+		Utils::println("Loaded {}mission '{}'", ms->triggered ? "triggered " : "", ms->name);
 		if (ms->triggered) trigger.insert(ms->name);
 		else loaded.insert(ms->name);
 		missions[ms->name] = std::move(ms);
