@@ -15,6 +15,9 @@
 namespace Utils {
 	#define BEGEND(i) (i).begin(), (i).end()
 
+	template<typename T>
+	using optRef = std::optional<std::reference_wrapper<T>>;
+
 	enum struct Anchor { topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
 	enum struct AnchorType { automatic, topLeft, top, topRight, left, center, right, bottomLeft, bottom, bottomRight };
 	enum struct FillType { stretch, tile, tileX, tileY, fit, fill };

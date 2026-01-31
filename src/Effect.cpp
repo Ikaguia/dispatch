@@ -1,4 +1,7 @@
 #include <format>
+#include <string_view>
+
+using namespace std::literals;
 
 #include <Utils.hpp>
 #include <Effect.hpp>
@@ -104,23 +107,113 @@ void AttrBonusEffect::onEvent(Event event, const EventData& args) {
 	if (!checkSlotRestriction(args)) return;
 
 	auto& ops = operations[event];
-	for (auto& [attr, oper, value] : ops) {
-		// int oldBonus = bonus[attr];
+	for (auto& [var, oper, value] : ops) {
+		Attribute attr{Attribute::COMBAT};
+		int val = 1;
+
+		if (std::holds_alternative<Attribute>(var)) attr = std::get<Attribute>(var);
+		if (std::holds_alternative<int>(value)) val = std::get<int>(value);
+
+		if (std::holds_alternative<std::string>(var) || std::holds_alternative<std::string>(value)) {
+			auto& mh = MissionsHandler::inst();
+			auto mission = std::visit([&mh](auto& d) -> Utils::optRef<Mission> {
+				if constexpr (requires { d.assignedSlots; d.name; }) { return mh[d.name]; }
+				else return std::nullopt;
+			}, args);
+
+			AttrMap<int> heroAttrs, requiredAttrs;
+			if (hero) heroAttrs = hero->attributes();
+			if (mission) requiredAttrs = mission->get().requiredAttributes;
+
+			auto getAttr = [&](std::string& s) -> AttrMap<int> {
+				AttrMap<int> result;
+				if (s.starts_with("hero"sv) && hero) {
+					result = heroAttrs;
+					s = s.substr(4);
+				} else if (s.starts_with("mission"sv) && mission) {
+					result = requiredAttrs;
+					s = s.substr(7);
+				} else if (s.starts_with("excess"sv) && hero && mission) {
+					for (Attribute a : Attribute::Values) result[a] = std::max(0, heroAttrs[a] - requiredAttrs[a]);
+					s = s.substr(6);
+				} else if (s.starts_with("missing"sv) && hero && mission) {
+					for (Attribute a : Attribute::Values) result[a] = std::max(0, requiredAttrs[a] - heroAttrs[a]);
+					s = s.substr(7);
+				} else throw std::runtime_error("Unknown or invalid operation source string '" + s + "' for event " + std::string(static_cast<std::string>(event)));
+				return result;
+			};
+
+			if (std::holds_alternative<std::string>(var)) {
+				std::string attrStr = std::get<std::string>(var);
+				auto attrsMap = getAttr(attrStr);
+
+				if (attrStr == "Lowest") {
+					int minVal = std::numeric_limits<int>::max();
+					std::set<Attribute> lowest;
+					for (Attribute a : Attribute::Values) {
+						if (attrsMap[a] < minVal) {
+							minVal = attrsMap[a];
+							lowest.clear();
+							lowest.insert(a);
+						} else if (attrsMap[a] == minVal) {
+							lowest.insert(a);
+						}
+					}
+					attr = Utils::random_element(lowest);
+				} else if (attrStr == "Highest") {
+					int maxVal = 0;
+					std::set<Attribute> highest;
+					for (Attribute a : Attribute::Values) {
+						if (attrsMap[a] > maxVal) {
+							maxVal = attrsMap[a];
+							highest.clear();
+							highest.insert(a);
+						} else if (attrsMap[a] == maxVal) {
+							highest.insert(a);
+						}
+					}
+					attr = Utils::random_element(highest);
+				} else if (attrStr == "Random") {
+					attr = Attribute::Values[Utils::randInt(0, Attribute::COUNT - 1)];
+				} else throw std::runtime_error("Unknown or invalid attribute type string '" + attrStr + "' for event " + std::string(static_cast<std::string>(event)));
+			}
+
+			if (std::holds_alternative<std::string>(value)) {
+				std::string valStr = std::get<std::string>(value);
+				auto attrsMap = getAttr(valStr);
+
+				if (valStr == "Lowest") {
+					int minVal = std::numeric_limits<int>::max();
+					for (Attribute a : Attribute::Values) if (attrsMap[a] < minVal) minVal = attrsMap[a];
+					val = minVal;
+				} else if (valStr == "Highest") {
+					int maxVal = 0;
+					for (Attribute a : Attribute::Values) if (attrsMap[a] > maxVal) maxVal = attrsMap[a];
+					val = maxVal;
+				} else if (valStr == "Random") {
+					attr = Attribute::Values[Utils::randInt(0, Attribute::COUNT - 1)];
+				} else if (Attribute::isValid(valStr)) {
+					Attribute vAttr = Attribute::fromString(valStr);
+					val = attrsMap[vAttr];
+				} else throw std::runtime_error("Unknown or invalid attribute type string '" + valStr + "' for event " + std::string(static_cast<std::string>(event)));
+			}
+		}
+
 		switch (oper) {
 			case Operator::PLUS:
-				bonus[attr] += value;
+				bonus[attr] += val;
 				break;
 			case Operator::MINUS:
-				bonus[attr] -= value;
+				bonus[attr] -= val;
 				break;
 			case Operator::MULTIPLY:
-				bonus[attr] *= value;
+				bonus[attr] *= val;
 				break;
 			case Operator::DIVIDE:
-				bonus[attr] /= value;
+				bonus[attr] /= val;
 				break;
 			case Operator::ASSIGN:
-				bonus[attr] = value;
+				bonus[attr] = val;
 				break;
 		}
 		bonus[attr] = std::clamp(bonus[attr], lowerLimit, upperLimit);
@@ -271,20 +364,27 @@ void AttrBonusEffect::from_json(const json& j) {
 
 // Partial Structs
 void to_json(json& j, const AttrBonusEffect::Operation& inst) {
-	j = json {
-		{ "attribute", inst.attribute },
-		{ "operator", inst.oper },
-		{ "value", inst.value },
-	};
+	j = json { { "operator", inst.oper } };
+	std::visit([&j](auto& attr) { j["attribute"] = attr; }, inst.attribute);
+	std::visit([&j](auto& val) { j["value"] = val; }, inst.value);
 }
 void from_json(const json& j, AttrBonusEffect::Operation& inst) {
+	std::string attr;
+	json value;
 	if (j.is_object()) {
-		j.at("attribute").get_to(inst.attribute);
+		j.at("attribute").get_to(attr);
 		j.at("operator").get_to(inst.oper);
-		j.at("value").get_to(inst.value);
+		value = j.at("value");
 	} else if (j.is_array() && (int)j.size() == 3) {
-		j[0].get_to(inst.attribute);
+		j[0].get_to(attr);
 		j[1].get_to(inst.oper);
-		j[2].get_to(inst.value);
+		value = j[2];
 	} else throw std::runtime_error("Invalid format for AttrBonusEffect::Operation");
+
+	if (Attribute::isValid(attr)) inst.attribute = Attribute(attr);
+	else inst.attribute = attr;
+
+	if (value.is_number_integer()) inst.value = value.get<int>();
+	else if (value.is_string()) inst.value = value.get<std::string>();
+	else throw std::runtime_error("Invalid format for AttrBonusEffect::Operation value");
 }

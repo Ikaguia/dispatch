@@ -70,6 +70,15 @@ public:
 		throw std::invalid_argument("Unknown attribute: " + std::string(s));
 	}
 
+	static constexpr bool isValid(std::string_view s) {
+		if (AttributeUtils::equals(s, "com", "combat")) return true;
+		if (AttributeUtils::equals(s, "vig", "vigor")) return true;
+		if (AttributeUtils::equals(s, "mob", "mobility")) return true;
+		if (AttributeUtils::equals(s, "cha", "charisma")) return true;
+		if (AttributeUtils::equals(s, "int", "intelligence")) return true;
+		return false;
+	}
+
 private:
 	Value value;
 };

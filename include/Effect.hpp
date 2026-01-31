@@ -57,9 +57,9 @@ public:
 		ASSIGN
 	};
 	struct Operation {
-		Attribute attribute{Attribute::COMBAT};
+		std::variant<std::string, Attribute> attribute;
 		Operator oper{PLUS};
-		int value=1;
+		std::variant<int, std::string> value = 1;
 	};
 	std::map<Event, std::vector<Operation>> operations;
 	AttrMap<int> bonus;

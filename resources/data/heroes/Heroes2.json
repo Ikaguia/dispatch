@@ -276,7 +276,18 @@
 				]
 			}, {
 				"name": "Pose",
-				"description": "Vogue distracts enemies with a pose, excess charisma is instead added as combat."
+				"description": "Vogue distracts enemies with a pose, excess charisma is instead added as combat.",
+				"unlocked": true,
+				"effects": [
+					{
+						"type": "AttrBonusEffect",
+						"operations": {
+							"MissionStart": [ ["COMBAT", "+", "excessCharisma"] ],
+							"MissionSuccess": [ ["COMBAT", "=", 0] ],
+							"MissionFailure": [ ["COMBAT", "=", 0] ]
+						}
+					}
+				]
 			}, {
 				"name": "Fashionably Late",
 				"description": "Vogue arrives at the scene last (increasing Travel Time), but his 'Resting' time is reduced by 50%."
