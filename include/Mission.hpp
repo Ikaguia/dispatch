@@ -47,8 +47,7 @@ public:
 		TRAVELLING,
 		PROGRESS,
 		AWAITING_REVIEW,
-		REVIEWING_SUCESS,
-		REVIEWING_FAILURE,
+		REVIEWING,
 		DONE,
 		MISSED,
 		DISRUPTION,
@@ -59,10 +58,10 @@ public:
 	std::vector<std::string> requirements;
 	std::vector<Disruption> disruptions;
 	raylib::Vector2 position{0.0f, 0.0f};
-	AttrMap<int> requiredAttributes{};
+	AttrMap<int> requiredAttributes{}, finalAttributes{};
 	int slots, difficulty=1, curDisruption=-1;
 	float failureTime=60.0f, missionDuration=20.0f, failureMissionTime=0.0f, successMissionTime=0.0f, timeElapsed=0.0f;
-	bool dangerous=false, triggered=false, disrupted=false;
+	bool dangerous=false, triggered=false, disrupted=false, success=true;
 	std::unordered_set<std::string> assignedHeroes;
 	std::vector<std::string> assignedSlots;
 
@@ -112,8 +111,7 @@ namespace nlohmann {
 		{ Mission::Status::TRAVELLING, "travelling" },
 		{ Mission::Status::PROGRESS, "progress" },
 		{ Mission::Status::AWAITING_REVIEW, "awaiting_review" },
-		{ Mission::Status::REVIEWING_SUCESS, "reviewing_sucess" },
-		{ Mission::Status::REVIEWING_FAILURE, "reviewing_failure" },
+		{ Mission::Status::REVIEWING, "reviewing" },
 		{ Mission::Status::DONE, "done" },
 		{ Mission::Status::MISSED, "missed" },
 		{ Mission::Status::DISRUPTION, "disruption" },

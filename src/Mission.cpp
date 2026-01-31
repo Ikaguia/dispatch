@@ -155,14 +155,16 @@ void Mission::changeStatus(Status newStatus) {
 	} else if (oldStatus == Mission::DISRUPTION && newStatus == Mission::PROGRESS) {
 		disrupted = true;
 		curDisruption = disruptions.size();
-	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::RETURNING);
-	else if (oldStatus == Mission::AWAITING_REVIEW) {
-		bool success = newStatus == Mission::REVIEWING_SUCESS;
+	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) {
+		if (isSuccessful()) success = true;
+		finalAttributes = getTotalAttributes();
+		for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::RETURNING);
+	} else if (oldStatus == Mission::AWAITING_REVIEW && newStatus == Mission::REVIEWING) {
 		if (success) eh.emit<Event::MissionSuccess>(assignedHeroes, name, &assignedSlots);
 		else eh.emit<Event::MissionFailure>(assignedHeroes, name, &assignedSlots);
-		Utils::println("Mission {} completed, it was a {}", name, newStatus==Mission::REVIEWING_SUCESS ? "success" : "failure");
+		Utils::println("Mission {} completed, it was a {}", name, success ? "success" : "failure");
 	} else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
-		if (oldStatus == Mission::REVIEWING_SUCESS && !disrupted) {
+		if (success && !disrupted) {
 			float successChance = getSuccessChance();
 			float chanceMult = 10.0f / std::sqrt(successChance ? successChance : 1);
 			float difficultyMult = std::sqrt(difficulty);
@@ -171,7 +173,7 @@ void Mission::changeStatus(Status newStatus) {
 			for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].addExp(exp);
 			Utils::println("Each hero gained {} exp", exp);
 			if (!successMission.empty()) MissionsHandler::inst().addMissionToQueue(successMission, successMissionTime);
-		} else if ((oldStatus == Mission::REVIEWING_FAILURE || disrupted) && dangerous) {
+		} else if ((!success || disrupted) && dangerous) {
 			auto& hero_name = Utils::random_element(assignedHeroes);
 			auto& hero = HeroesHandler::inst()[hero_name];
 			hero.wound();
@@ -220,8 +222,7 @@ void Mission::update(float deltaTime) {
 			break;
 		} case Mission::SELECTED:
 		case Mission::AWAITING_REVIEW:
-		case Mission::REVIEWING_SUCESS:
-		case Mission::REVIEWING_FAILURE:
+		case Mission::REVIEWING:
 		case Mission::DISRUPTION_MENU:
 			break;
 		default:
@@ -306,7 +307,7 @@ void Mission::handleInput() {
 					}
 				}
 			}
-		} else if (status == Mission::REVIEWING_SUCESS || status == Mission::REVIEWING_FAILURE) {
+		} else if (status == Mission::REVIEWING) {
 			if (layout.clicked.contains("close-centered")) {
 				changeStatus(Mission::DONE);
 				layout.resetInput();
@@ -335,7 +336,7 @@ void Mission::handleInput() {
 		if (status == Mission::PENDING) {
 			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::SELECTED);
 		} else if (status == Mission::AWAITING_REVIEW) {
-			if (mousePos.CheckCollision(position, 28)) changeStatus(isSuccessful() ? Mission::REVIEWING_SUCESS : Mission::REVIEWING_FAILURE);
+			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::REVIEWING);
 		} else if (status == Mission::DISRUPTION) {
 			if (mousePos.CheckCollision(position, 28)) changeStatus(Mission::DISRUPTION_MENU);
 		}
@@ -343,8 +344,8 @@ void Mission::handleInput() {
 }
 
 void Mission::setupLayout(Dispatch::UI::Layout& layout) {
-	AttrMap<int> overlap, totalAttributes = getTotalAttributes();
-	for (Attribute::Value attr : Attribute::Values) overlap[attr] = std::min(requiredAttributes[attr], totalAttributes[attr]);
+	AttrMap<int> overlap;
+	for (Attribute::Value attr : Attribute::Values) overlap[attr] = std::min(requiredAttributes[attr], finalAttributes[attr]);
 	layout.updateSharedData("type", type);
 	layout.updateSharedData("caller", caller);
 	layout.updateSharedData("description", description);
@@ -353,7 +354,7 @@ void Mission::setupLayout(Dispatch::UI::Layout& layout) {
 	layout.updateSharedData("required-attributes", requiredAttributes);
 	layout.updateSharedData("overlap-attributes", overlap);
 	layout.updateSharedData("success-chance", std::format("{}%", getSuccessChance())); // TODO: Add icon "🎯"
-	layout.updateSharedData("review-message", status == Status::REVIEWING_SUCESS ? successMsg : failureMsg);
+	layout.updateSharedData("review-message", status == success ? successMsg : failureMsg);
 
 	updateLayout(layout, "");
 }
@@ -375,7 +376,8 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 			}
 		}
 		layout.updateSharedData("slot-names", slotNames);
-		layout.updateSharedData("total-attributes", getTotalAttributes());
+		if (status == Status::REVIEWING) layout.updateSharedData("total-attributes", finalAttributes);
+		else layout.updateSharedData("total-attributes", getTotalAttributes());
 
 		auto* dispatch = layout.get<Dispatch::UI::Button>("dispatch");
 		if (!dispatch) throw std::runtime_error("Mission details layout is missing 'dispatch' element or it is of the wrong type.");
@@ -385,16 +387,16 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 	}
 	if (changed == "status" || changed == "") {
 		layout["main-selected"]->visible = status == Status::SELECTED;
-		layout["main-reviewing"]->visible = (status == Status::REVIEWING_SUCESS) || (status == Status::REVIEWING_FAILURE);
+		layout["main-reviewing"]->visible = status == Status::REVIEWING;
 		layout["dispatch"]->visible = status == Status::SELECTED;
 		layout["close"]->visible = status == Status::SELECTED;
 		layout["close-centered"]->visible = status != Status::SELECTED;
 
-		layout["right-requirements"]->visible = status == Status::SELECTED || status == Status::REVIEWING_SUCESS || status == Status::REVIEWING_FAILURE;
+		layout["right-requirements"]->visible = status == Status::SELECTED || status == Status::REVIEWING;
 		layout["right-assigned-stats"]->visible = status == Status::DISRUPTION_MENU;
 
 		auto* attrGraph = layout.get<Dispatch::UI::AttrGraph>("result-attrs");
-		attrGraph->overlap.color = status == Status::REVIEWING_SUCESS ? GREEN : RED;
+		attrGraph->overlap.color = success ? GREEN : RED;
 
 		auto* dispatch = layout.get<Dispatch::UI::Button>("dispatch");
 		dispatch->changeStatus(Dispatch::UI::Element::Status::DISABLED);
@@ -410,7 +412,7 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 			bool result = disruption.selected_option != -1;
 			if (result) {
 				auto selOpt = disruption.options[disruption.selected_option];
-				bool success = isDisruptionSuccessful();
+				bool disruptSuccess = isDisruptionSuccessful();
 				bool isHero = selOpt.type == Disruption::Option::HERO;
 				if (isHero) layout.updateSharedData("disruption-hero-image-key", std::format("hero-{}-portrait", selOpt.hero));
 				else {
@@ -423,7 +425,7 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 					layout.updateSharedData("total-attributes", total);
 					layout.updateSharedData("disruption-attribute", selOpt.attribute);
 				}
-				layout.updateSharedData("disruption-result-msg", success ? selOpt.successMessage : selOpt.failureMessage);
+				layout.updateSharedData("disruption-result-msg", disruptSuccess ? selOpt.successMessage : selOpt.failureMessage);
 
 				for (auto [idx, opt] : Utils::enumerate(disruption.options)) {
 					auto* btn = layout.get<Dispatch::UI::Button>(std::format("choice-made-options.children.{}", opt.name));
@@ -432,7 +434,7 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 
 				layout["disruption-result-hero"]->visible = isHero;
 				layout["disruption-result-regular"]->visible = !isHero;
-				layout.get<Dispatch::UI::AttrGraph>("disruption-result-regular-stats")->overlap.color = success ? GREEN : RED;
+				layout.get<Dispatch::UI::AttrGraph>("disruption-result-regular-stats")->overlap.color = disruptSuccess ? GREEN : RED;
 			} else {
 				layout.updateSharedData("disruption-description", disruption.description);
 				std::vector<std::string> options;
@@ -496,7 +498,7 @@ bool Mission::isDisruptionSuccessful() const {
 }
 
 bool Mission::isMenuOpen() const {
-	return status == Mission::SELECTED || status == Mission::REVIEWING_FAILURE || status == Mission::REVIEWING_SUCESS || status == Mission::DISRUPTION_MENU;
+	return status == Mission::SELECTED || status == Mission::REVIEWING || status == Mission::DISRUPTION_MENU;
 }
 
 std::string Mission::statusToString(Status st) {
@@ -505,8 +507,7 @@ std::string Mission::statusToString(Status st) {
 	if (st == TRAVELLING) return "TRAVELLING";
 	if (st == PROGRESS) return "PROGRESS";
 	if (st == AWAITING_REVIEW) return "AWAITING_REVIEW";
-	if (st == REVIEWING_SUCESS) return "REVIEWING_SUCESS";
-	if (st == REVIEWING_FAILURE) return "REVIEWING_FAILURE";
+	if (st == REVIEWING) return "REVIEWING";
 	if (st == DONE) return "DONE";
 	if (st == MISSED) return "MISSED";
 	if (st == DISRUPTION) return "DISRUPTION";
