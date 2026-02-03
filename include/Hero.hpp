@@ -14,7 +14,7 @@ class Power;
 
 class Hero {
 private:
-	AttrMap<int> real_attributes, memo_attributes;
+	AttrMap<int> real_attributes, memo_attributes, temp_attributes, hidden_attributes;
 public:
 	std::string name, nickname{"?"};
 	std::vector<std::string> tags;
@@ -52,7 +52,10 @@ public:
 	Hero(Hero&&) noexcept = default;
 	Hero& operator=(Hero&&) noexcept = default;
 
-	AttrMap<int> attributes();
+	void calcAttributes(bool force=false);
+	const AttrMap<int>& attributes();
+	const AttrMap<int>& tempAttributes();
+	const AttrMap<int>& hiddenAttributes();
 	float travelSpeed();
 	bool canFly() const;
 	int maxExp() const;

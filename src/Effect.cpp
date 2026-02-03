@@ -38,7 +38,7 @@ std::set<Event> Effect::getEventList() const { return {}; }
 bool Effect::active() const { return power->unlocked && !disabled; }
 bool Effect::checkSlotRestriction(const EventData& args) {
 	const std::vector<std::string>* assignedSlots = std::visit([](auto& d) -> const std::vector<std::string>* {
-		if constexpr (requires { d.assignedSlots; }) { return d.assignedSlots; }
+		if constexpr (requires { d.mission; }) { return &d.mission->assignedSlots; }
 		else return nullptr; 
 	}, args);
 
@@ -115,15 +115,14 @@ void AttrBonusEffect::onEvent(Event event, const EventData& args) {
 		if (std::holds_alternative<int>(value)) val = std::get<int>(value);
 
 		if (std::holds_alternative<std::string>(var) || std::holds_alternative<std::string>(value)) {
-			auto& mh = MissionsHandler::inst();
-			auto mission = std::visit([&mh](auto& d) -> Utils::optRef<Mission> {
-				if constexpr (requires { d.assignedSlots; d.name; }) { return mh[d.name]; }
-				else return std::nullopt;
+			auto mission = std::visit([](auto& d) -> Mission* {
+				if constexpr (requires { d.mission; }) { return d.mission; }
+				else return nullptr;
 			}, args);
 
 			AttrMap<int> heroAttrs, requiredAttrs;
-			if (hero) heroAttrs = hero->attributes();
-			if (mission) requiredAttrs = mission->get().requiredAttributes;
+			if (hero) heroAttrs = hero->hiddenAttributes();
+			if (mission) requiredAttrs = mission->requiredAttributes;
 
 			auto getAttr = [&](std::string& s) -> AttrMap<int> {
 				AttrMap<int> result;
@@ -222,17 +221,19 @@ void AttrBonusEffect::onEvent(Event event, const EventData& args) {
 }
 void AttrBonusEffect::onHeroCalcAttr(Event event, const HeroCalcAttrData& d) {
 	Effect::onHeroCalcAttr(event, d);
-	(*d.attrs) += bonus;
+	if (!hidden) {
+		if (!temporary) (*d.attrs) += bonus;
+		(*d.temp) += bonus;
+	}
+	(*d.hidden) += bonus;
 }
 void AttrBonusEffect::onAnyHeroCalcAttr(Event event, const HeroCalcAttrData& d) {
 	Effect::onAnyHeroCalcAttr(event, d);
 
-	auto& hh = HeroesHandler::inst();
 	auto& mh = MissionsHandler::inst();
 
-	if (d.name.empty()) return;
 	Hero& myHero = *hero;
-	Hero& dHero = hh[d.name];
+	Hero& dHero = *d.hero;
 
 	std::string& myMissionName = myHero.mission;
 	std::string& dMissionName = dHero.mission;
@@ -242,22 +243,22 @@ void AttrBonusEffect::onAnyHeroCalcAttr(Event event, const HeroCalcAttrData& d) 
 	int mySlot=-1, dSlot=-1;
 	for (int i=0; i<mission.slots; i++) {
 		if (mission.assignedSlots[i] == myHero.name) mySlot = i;
-		if (mission.assignedSlots[i] == d.name) dSlot = i;
+		if (mission.assignedSlots[i] == dHero.name) dSlot = i;
 	}
 
 	if (applies(mySlot, dSlot)) (*d.attrs) += bonus;
 }
 void AttrBonusEffect::onMissionStart(Event event, const MissionStartData& d) {
 	Effect::onMissionStart(event, d);
-	onMission(*d.assignedSlots);
+	onMission(d.mission->assignedSlots);
 }
 void AttrBonusEffect::onMissionSuccess(Event event, const MissionSuccessData& d) {
 	Effect::onMissionSuccess(event, d);
-	onMission(*d.assignedSlots);
+	onMission(d.mission->assignedSlots);
 }
 void AttrBonusEffect::onMissionFailure(Event event, const MissionFailureData& d) {
 	Effect::onMissionFailure(event, d);
-	onMission(*d.assignedSlots);
+	onMission(d.mission->assignedSlots);
 }
 void AttrBonusEffect::onMission(const std::vector<std::string>& assignedSlots) {
 	auto& hh = HeroesHandler::inst();
@@ -340,6 +341,8 @@ void AttrBonusEffect::to_json(json& j) const {
 	WRITE(operations);
 	WRITE(lowerLimit);
 	WRITE(upperLimit);
+	WRITE(temporary);
+	WRITE(hidden);
 	WRITE(appliesTo);
 }
 void AttrBonusEffect::from_json(const json& j) {
@@ -347,18 +350,26 @@ void AttrBonusEffect::from_json(const json& j) {
 	READ(j, lowerLimit);
 	READ(j, upperLimit);
 	READ(j, appliesTo);
-	operations.clear();
-	const auto& jops = j.at("operations");
-	for (auto& [eventName, _] : jops.items()) {
-		const nlohmann::json& arr = jops.at(eventName);
-		Event e = static_cast<Event>(eventName);
-		operations[e] = arr.get<std::vector<AttrBonusEffect::Operation>>();
-		if (j.contains("limit")) {
-			if (j["limit"].is_array() && j["limit"].size() == 2) {
-				lowerLimit = j["limit"][0].get<int>();
-				upperLimit = j["limit"][1].get<int>();
-			} else throw std::runtime_error("Invalid format for AttrBonusEffect limit: " + j["limit"].dump());
+	READ(j, temporary);
+	READ(j, hidden);
+	if (j.contains("operations")) {
+		operations.clear();
+		const auto& jops = j.at("operations");
+		for (auto& [eventName, _] : jops.items()) {
+			const nlohmann::json& arr = jops.at(eventName);
+			Event e = static_cast<Event>(eventName);
+			operations[e] = arr.get<std::vector<AttrBonusEffect::Operation>>();
+			if (j.contains("limit")) {
+				if (j["limit"].is_array() && j["limit"].size() == 2) {
+					lowerLimit = j["limit"][0].get<int>();
+					upperLimit = j["limit"][1].get<int>();
+				} else throw std::runtime_error("Invalid format for AttrBonusEffect limit: " + j["limit"].dump());
+			}
 		}
+	}
+	if (j.contains("bonus")) {
+		auto bonusMap = j.at("bonus").get<AttrMap<int>>();
+		for (Attribute a : Attribute::Values) bonus[a] = bonusMap[a];
 	}
 }
 

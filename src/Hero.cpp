@@ -23,21 +23,38 @@ Hero::Hero(const json& data) {
 	Hero::from_json(data, *this);
 }
 
-AttrMap<int> Hero::attributes() {
-	if (needsAttrCalc) {
-		memo_attributes = real_attributes;
+void Hero::calcAttributes(bool force) {
+	if (force || needsAttrCalc) {
+		memo_attributes = temp_attributes = hidden_attributes = real_attributes;
 		auto& eh = EventHandler::inst();
-		eh.emit<Event::HeroCalcAttr>({name}, name, &memo_attributes);
-		for (auto& [attr, val] : memo_attributes) {
-			if (health == Health::WOUNDED) { if (val > 1) val--; }
-			else if (health == Health::DOWNED) val = 1;
+		eh.emit<Event::HeroCalcAttr>({name}, this, &memo_attributes, &temp_attributes, &hidden_attributes);
+		if (health == Health::WOUNDED) {
+			for (auto& [attr, val] : memo_attributes) if (val > 1) val--;
+			for (auto& [attr, val] : temp_attributes) if (val > 1) val--;
+		} else if (health == Health::DOWNED) {
+			for (auto& [attr, val] : memo_attributes) val = 1;
+			for (auto& [attr, val] : temp_attributes) val = 1;
 		}
 		needsAttrCalc = false;
 	}
+}
+
+const AttrMap<int>& Hero::attributes() {
+	calcAttributes();
 	return memo_attributes;
 }
 
-float Hero::travelSpeed() { return travelSpeedMult * (50 + 2.5f*attributes()[Attribute::MOBILITY]); }
+const AttrMap<int>& Hero::tempAttributes() {
+	calcAttributes();
+	return temp_attributes;
+}
+
+const AttrMap<int>& Hero::hiddenAttributes() {
+	calcAttributes();
+	return hidden_attributes;
+}
+
+float Hero::travelSpeed() { return travelSpeedMult * (50 + 2.5f*hiddenAttributes()[Attribute::MOBILITY]); }
 
 bool Hero::canFly() const {
 	if (flies) return true;
@@ -164,7 +181,7 @@ void Hero::renderUI(raylib::Rectangle rect) {
 	Utils::drawTextCentered("★", xpPos+raylib::Vector2{0.0f,2.0f}, Dispatch::UI::symbolsFont, 32, WHITE);
 
 	raylib::Vector2 attrPos{rect.x + 17, rect.y + rect.height - 27};
-	Utils::drawRadarGraph(attrPos, 16, {std::tuple<AttrMap<int>, raylib::Color, bool>{attributes(), ORANGE, false}}, BLACK, ColorAlpha(BROWN, 0.4f), false);
+	Utils::drawRadarGraph(attrPos, 16, {std::tuple<AttrMap<int>, raylib::Color, bool>{tempAttributes(), ORANGE, false}}, BLACK, ColorAlpha(BROWN, 0.4f), false);
 }
 
 

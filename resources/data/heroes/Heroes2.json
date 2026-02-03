@@ -174,7 +174,8 @@
 							"MissionSuccess": [ ["INTELLIGENCE", "+", 1] ],
 							"MissionFailure": [ ["INTELLIGENCE", "=", 0] ]
 						},
-						"upperLimit": 3
+						"upperLimit": 3,
+						"temporary": false
 					}
 				]
 			}, {
@@ -285,7 +286,8 @@
 							"MissionStart": [ ["COMBAT", "+", "excessCharisma"] ],
 							"MissionSuccess": [ ["COMBAT", "=", 0] ],
 							"MissionFailure": [ ["COMBAT", "=", 0] ]
-						}
+						},
+						"hidden": true
 					}
 				]
 			}, {
@@ -329,11 +331,8 @@
 				"effects": [
 					{
 						"type": "AttrBonusEffect",
-						"operations": {
-							"MissionStart": [ ["MOBILITY", "=", 1] ],
-							"MissionSuccess": [ ["MOBILITY", "=", 0] ],
-							"MissionFailure": [ ["MOBILITY", "=", 0] ]
-						}
+						"bonus": { "MOBILITY": 1 },
+						"temporary": false
 					}
 				]
 			}, {

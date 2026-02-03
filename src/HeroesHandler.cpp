@@ -201,7 +201,6 @@ void HeroesHandler::selectHero(const std::string& name) {
 
 	if (paused()) {
 		Hero& hero = getRef(selected);
-		const AttrMap<int>& attrs = hero.attributes();
 		std::vector<std::string> powerNames;
 		for (auto& power : hero.powers) {
 			powerNames.push_back(power.name);

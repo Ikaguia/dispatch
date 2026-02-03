@@ -138,8 +138,7 @@ void Mission::changeStatus(Status newStatus) {
 		assignedHeroes.clear();
 		for (auto& slot : assignedSlots) if (!slot.empty()) slot.clear();
 	} else if (oldStatus == Mission::SELECTED && newStatus == Mission::TRAVELLING) {
-		EventData ed = MissionStartData{name, &assignedSlots};
-		eh.emit<Event::MissionStart>(assignedHeroes, name, &assignedSlots);
+		eh.emit<Event::MissionStart>(assignedHeroes, this);
 		for (auto hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::TRAVELLING);
 	} else if (oldStatus == Mission::TRAVELLING && newStatus == Mission::PROGRESS) {
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::DISRUPTION) {
@@ -157,11 +156,11 @@ void Mission::changeStatus(Status newStatus) {
 		curDisruption = disruptions.size();
 	} else if (oldStatus == Mission::PROGRESS && newStatus == Mission::AWAITING_REVIEW) {
 		if (isSuccessful()) success = true;
-		finalAttributes = getTotalAttributes();
+		finalAttributes = getTotalAttributes(true);
 		for (auto& hero_name : assignedHeroes) HeroesHandler::inst()[hero_name].changeStatus(Hero::RETURNING);
 	} else if (oldStatus == Mission::AWAITING_REVIEW && newStatus == Mission::REVIEWING) {
-		if (success) eh.emit<Event::MissionSuccess>(assignedHeroes, name, &assignedSlots);
-		else eh.emit<Event::MissionFailure>(assignedHeroes, name, &assignedSlots);
+		if (success) eh.emit<Event::MissionSuccess>(assignedHeroes, this);
+		else eh.emit<Event::MissionFailure>(assignedHeroes, this);
 		Utils::println("Mission {} completed, it was a {}", name, success ? "success" : "failure");
 	} else if (newStatus == Mission::DONE || newStatus == Mission::MISSED) {
 		if (success && !disrupted) {
@@ -377,7 +376,7 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 		}
 		layout.updateSharedData("slot-names", slotNames);
 		if (status == Status::REVIEWING) layout.updateSharedData("total-attributes", finalAttributes);
-		else layout.updateSharedData("total-attributes", getTotalAttributes());
+		else layout.updateSharedData("total-attributes", getTotalAttributes(status == Status::REVIEWING));
 
 		auto* dispatch = layout.get<Dispatch::UI::Button>("dispatch");
 		if (!dispatch) throw std::runtime_error("Mission details layout is missing 'dispatch' element or it is of the wrong type.");
@@ -454,21 +453,23 @@ void Mission::updateLayout(Dispatch::UI::Layout& layout, const std::string& chan
 	}
 }
 
-AttrMap<int> Mission::getTotalAttributes() const {
+AttrMap<int> Mission::getTotalAttributes(bool hidden) const {
 	AttrMap<int> totalAttributes;
-	for (const auto& hero_name : assignedHeroes) for (const auto& [attr, value] : HeroesHandler::inst()[hero_name].attributes()) totalAttributes[attr] += value;
+	if (hidden) for (const auto& hero_name : assignedHeroes) for (const auto& [attr, value] : HeroesHandler::inst()[hero_name].hiddenAttributes()) totalAttributes[attr] += value;
+	else for (const auto& hero_name : assignedHeroes) for (const auto& [attr, value] : HeroesHandler::inst()[hero_name].tempAttributes()) totalAttributes[attr] += value;
 	return totalAttributes;
 }
-int Mission::getTotalAttribute(Attribute attr) const {
+int Mission::getTotalAttribute(Attribute attr, bool hidden) const {
 	int total = 0;
-	for (const auto& hero_name : assignedHeroes) total += HeroesHandler::inst()[hero_name].attributes()[attr];
+	if (hidden) for (const auto& hero_name : assignedHeroes) total += HeroesHandler::inst()[hero_name].hiddenAttributes()[attr];
+	else for (const auto& hero_name : assignedHeroes) total += HeroesHandler::inst()[hero_name].tempAttributes()[attr];
 	return total;
 }
 
 int Mission::getSuccessChance() const {
 	if (disrupted) return 0;
 
-	AttrMap<int> totalAttributes = getTotalAttributes();
+	AttrMap<int> totalAttributes = getTotalAttributes(true);
 	int total = 0;
 	int requiredTotal = 0;
 

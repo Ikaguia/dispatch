@@ -64,6 +64,7 @@ public:
 	std::map<Event, std::vector<Operation>> operations;
 	AttrMap<int> bonus;
 	int lowerLimit=0, upperLimit=10;
+	bool temporary=true, hidden=false;
 	enum AppliesTo {
 		SELF,
 		OTHERS,

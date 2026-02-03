@@ -85,8 +85,8 @@ public:
 	void setupLayout(Dispatch::UI::Layout& layout);
 	void updateLayout(Dispatch::UI::Layout& layout, const std::string& changed);
 
-	AttrMap<int> getTotalAttributes() const;
-	int getTotalAttribute(Attribute attr) const;
+	AttrMap<int> getTotalAttributes(bool hidden=false) const;
+	int getTotalAttribute(Attribute attr, bool hidden=false) const;
 	int getSuccessChance() const;
 	bool isSuccessful() const;
 	bool isDisruptionSuccessful() const;

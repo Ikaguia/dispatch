@@ -26,10 +26,12 @@
 #define HERO_EVENTS(V) \
 	V(HeroCalcAttr)
 
-struct MissionStartData { std::string name; const std::vector<std::string>* assignedSlots; };
-struct MissionSuccessData { std::string name; const std::vector<std::string>* assignedSlots; };
-struct MissionFailureData { std::string name; const std::vector<std::string>* assignedSlots; };
-struct HeroCalcAttrData { std::string name; AttrMap<int>* attrs; };
+class Mission; class Hero;
+
+struct MissionStartData { Mission* mission; };
+struct MissionSuccessData { Mission* mission; };
+struct MissionFailureData { Mission* mission; };
+struct HeroCalcAttrData { Hero* hero; AttrMap<int> *attrs, *temp, *hidden; };
 struct GlobalData {};
 
 using EventData = std::variant<

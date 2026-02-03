@@ -152,7 +152,7 @@ namespace nlohmann {
 			if (j.is_object()) {
 				for (Attribute attr : Attribute::Values) {
 					std::string key = Utils::toLower((std::string)attr.toString());
-					attrs[attr] = j.at(key).get<ValueType>();
+					if (j.contains(key)) attrs[attr] = j.at(key).get<ValueType>();
 				}
 			} else if (j.is_array()) {
 				if (j.size() != Attribute::COUNT) throw std::runtime_error("Invalid number of elements for AttrMap");
